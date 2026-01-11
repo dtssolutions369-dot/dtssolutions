@@ -10,7 +10,14 @@ import {
   X, Upload, Film, Image as ImageIcon, Trash2, Plus, User, AlertCircle, Globe
 } from "lucide-react";
 
-export default function VendorRegister({ onClose }: { onClose: () => void }) {
+export default function VendorRegister({
+  onClose,
+  onSuccess,
+}: {
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -124,7 +131,7 @@ export default function VendorRegister({ onClose }: { onClose: () => void }) {
     setError(null);
     try {
       if (isMultiple) {
-const urls: string[] = [];
+        const urls: string[] = [];
         for (const file of Array.from(files)) {
           // Validate file size (e.g., max 5MB per file)
           if (file.size > 5 * 1024 * 1024) {
@@ -313,6 +320,7 @@ const urls: string[] = [];
       setStep(2);
       setError(null);
       setIsDirty(false);
+      onSuccess();
     } catch (err: any) {
       setError(err.message);
       setIsDirty(true);
@@ -455,7 +463,13 @@ const urls: string[] = [];
       if (dbError) throw dbError;
 
       toast.success("Registration successful! Welcome onboard.");
-      router.push("/user");
+
+// 🔥 IMPORTANT
+      onSuccess();   // refresh header, user role, profile
+      onClose();     // close modal
+
+      router.refresh(); // re-render header server components
+
     } catch (err: any) {
       setError("Error: " + err.message);
       setIsDirty(true);
@@ -464,133 +478,109 @@ const urls: string[] = [];
     }
   };
 
-  const inputClass = "w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 focus:bg-white outline-none transition-all text-slate-800 text-sm font-bold";
-  const labelClass = "block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-[0.2em]";
+  const inputClass = "w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-800 text-sm font-medium";
+  const labelClass = "block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide";
 
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
       <Script id="razorpay-checkout-js" src="https://checkout.razorpay.com/v1/checkout.js" />
 
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 md:p-6">
-        <div className="relative max-w-6xl w-full grid md:grid-cols-[300px_1fr] bg-white rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.3)] overflow-hidden border border-yellow-600 h-full max-h-[92vh]">
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute top-6 right-8 z-50 p-2 text-slate-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-full transition-all"
-          >
-            <X size={26} strokeWidth={2.5} />
-          </button>
-
-          <div className="bg-slate-50/50 p-10 flex flex-col hidden md:flex border-r border-slate-100">
-            <div className="flex items-center gap-3 mb-16">
-              <div className="w-11 h-11 bg-yellow-600 rounded-2xl flex items-center justify-center shadow-lg shadow-yellow-600/20">
-                <ShieldCheck className="text-white" size={24} />
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+          {/* Header with Close Button */}
+          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-yellow-300 rounded-xl flex items-center justify-center shadow-lg">
+                <ShieldCheck className="text-white" size={20} />
               </div>
-              <h1 className="text-slate-900 font-black text-xl uppercase tracking-tighter leading-none">
-                Vendor<span className="text-yellow-600">Pro</span>
-              </h1>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Official Partner</p>
+              <div>
+                <h1 className="text-gray-900 font-bold text-lg">VendorPro</h1>
+                <p className="text-xs text-gray-500 font-medium">Official Partner</p>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all"
+            >
+              <X size={24} strokeWidth={2} />
+            </button>
+          </div>
 
-            <nav className="flex-1 space-y-1">
-              {["Security", "Personal", "Business", "Location", "Media", "Plan"].map((label, i) => {
-                const isActive = step === i + 1;
-                const isCompleted = step > i + 1;
-
-                return (
-                  <div
-                    key={i}
-                    className={`flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 ${isActive
-                      ? 'bg-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100'
-                      : 'opacity-40 hover:opacity-100'
-                      }`}
-                  >
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-[11px] font-black transition-all ${isActive
-                      ? 'bg-yellow-600 text-white rotate-6 scale-110'
-                      : isCompleted
-                        ? 'bg-slate-900 text-white'
-                        : 'bg-slate-200 text-slate-500'
-                      }`}>
-                      {isCompleted ? <Check size={14} strokeWidth={4} /> : i + 1}
-                    </div>
-                    <span className={`text-[10px] font-black uppercase tracking-widest ${isActive ? 'text-slate-900' : 'text-slate-500'
-                      }`}>
-                      {label}
-                    </span>
-                  </div>
-                );
-              })}
-            </nav>
-
-            <div className="mt-auto pt-10">
-              <div className="px-2">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Setup Status</span>
-                  <span className="text-[10px] font-black text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-md">
-                    Step {step}/6
-                  </span>
-                </div>
-                <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-yellow-600 transition-all duration-1000 cubic-bezier(0.4, 0, 0.2, 1)"
-                    style={{ width: `${(step / 6) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
+          {/* Progress Bar */}
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Setup Progress</span>
+              <span className="text-xs font-semibold text-yellow-300 bg-blue-50 px-2 py-1 rounded-md">
+                Step {step} of 6
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-yellow-300 h-2 rounded-full transition-all duration-500"
+                style={{ width: `${(step / 6) * 100}%` }}
+              ></div>
             </div>
           </div>
 
-          {/* MAIN CONTENT AREA */}
-          <div className="p-8 md:p-14 flex flex-col bg-white overflow-y-auto relative">
-            <div className="flex-1 max-w-2xl mx-auto w-full">
+          {/* Main Content */}
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="max-w-2xl mx-auto">
 
               {step === 1 && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
-                  <div className="space-y-2">
-                    <span className="text-yellow-600 font-black text-sm tracking-[.4em] uppercase">Step 01</span>
-                    <h2 className="text-4xl font-black text-slate-900 uppercase italic leading-none">Access <span className="text-yellow-600">Control</span></h2>
+                <div className="space-y-6 animate-fade-in">
+                  <div className="text-center">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Control</h2>
+                    <p className="text-sm text-gray-600">Enter your email to get started</p>
                   </div>
-                  <div className="grid gap-5">
-                    <div className="group">
-                      <input type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} className={`${inputClass} focus:ring-yellow-600 focus:border-yellow-600 py-4 px-6 text-lg rounded-2xl shadow-sm border-slate-200 transition-all`} required />
+                  <div className="space-y-4">
+                    <div>
+                      <label className={labelClass}>Email Address</label>
+                      <input
+                        type="email"
+                        name="email"
+                        placeholder="your@email.com"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className={inputClass}
+                        required
+                      />
                     </div>
                     {!otpSent ? (
                       <button
                         onClick={sendOtp}
                         disabled={loading}
-                        className="w-full py-4 bg-slate-900 text-[#FFD700] rounded-2xl font-black text-sm uppercase tracking-wider shadow-xl shadow-slate-200 transition-all hover:bg-black hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                        className="w-full py-3 bg-gray-900 text-white rounded-xl font-semibold text-sm uppercase tracking-wide shadow-lg hover:bg-gray-800 transition-all disabled:opacity-50"
                       >
                         {loading ? "Sending OTP..." : "Send OTP"}
                       </button>
                     ) : (
                       <>
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-end">
-                            <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">One-Time Password</label>
-                            {otpTimer && <span className="text-xs font-bold text-yellow-600 mb-1">{otpTimer} remaining</span>}
-                          </div>
+                        <div>
+                          <label className={labelClass}>One-Time Password</label>
                           <input
                             type="text"
                             value={otp}
                             onChange={(e) => setOtp(e.target.value)}
                             placeholder="Enter OTP"
-                            className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 outline-none transition-all font-bold tracking-[0.2em] text-center text-lg"
+                            className={`${inputClass} text-center text-lg tracking-widest`}
                           />
+                          {otpTimer && (
+                            <p className="text-xs text-gray-500 mt-1 text-center">{otpTimer} remaining</p>
+                          )}
                         </div>
                         <button
                           onClick={verifyOtp}
                           disabled={loading}
-                          className="w-full py-4 bg-[#FFD700] hover:bg-yellow-400 text-slate-900 rounded-2xl font-black text-sm uppercase tracking-wider shadow-lg shadow-yellow-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                          className="w-full py-3 bg-yellow-300 hover:bg-yellow-300 text-white rounded-xl font-semibold text-sm uppercase tracking-wide shadow-lg transition-all disabled:opacity-50"
                         >
                           {loading ? "Verifying..." : "Verify OTP"}
                         </button>
                       </>
                     )}
-                    <div className="space-y-3">
-                      <label className="text-sm font-semibold text-slate-700">
-                        Select Business Sector (Multiple allowed)
-                      </label>
+                    <div>
+                      <label className={labelClass}>Business Sector (Multiple allowed)</label>
                       <div className="grid grid-cols-2 gap-3">
                         {[
                           { label: "Manufacturer", value: "manufacturer" },
@@ -601,12 +591,11 @@ const urls: string[] = [];
                         ].map((option) => (
                           <label
                             key={option.value}
-                            className={`flex items-center gap-3 p-4 rounded-2xl border cursor-pointer transition-all
-          ${formData.user_type.includes(option.value)
-                                ? "border-yellow-600 bg-yellow-50"
-                                : "border-slate-200 hover:border-slate-300"
-                              }
-        `}
+                            className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                              formData.user_type.includes(option.value)
+                                ? "border-blue-600 bg-blue-50"
+                                : "border-gray-300 hover:border-gray-400"
+                            }`}
                           >
                             <input
                               type="checkbox"
@@ -621,9 +610,9 @@ const urls: string[] = [];
                                     : [...prev.user_type, value],
                                 }));
                               }}
-                              className="accent-yellow-600"
+                              className="accent-blue-600"
                             />
-                            <span className="font-medium text-slate-300">{option.label}</span>
+                            <span className="text-sm font-medium text-gray-700">{option.label}</span>
                           </label>
                         ))}
                       </div>
@@ -633,33 +622,82 @@ const urls: string[] = [];
               )}
 
               {step === 2 && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
-                  <div className="space-y-2">
-                    <span className="text-yellow-600 font-black text-sm tracking-[.4em] uppercase">Step 02</span>
-                    <h2 className="text-4xl font-black text-slate-900 uppercase italic leading-none">Personal <span className="text-yellow-600">Identity</span></h2>
+                <div className="space-y-6 animate-fade-in">
+                  <div className="text-center">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Personal Identity</h2>
+                    <p className="text-sm text-gray-600">Tell us about yourself</p>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <input type="text" name="first_name" placeholder="First Name" value={formData.first_name} onChange={handleChange} className={`${inputClass} rounded-2xl`} />
-                    <input type="text" name="last_name" placeholder="Last Name" value={formData.last_name} onChange={handleChange} className={`${inputClass} rounded-2xl`} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className={labelClass}>First Name</label>
+                      <input
+                        type="text"
+                        name="first_name"
+                        placeholder="First Name"
+                        value={formData.first_name}
+                        onChange={handleChange}
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Last Name</label>
+                      <input
+                        type="text"
+                        name="last_name"
+                        placeholder="Last Name"
+                        value={formData.last_name}
+                        onChange={handleChange}
+                        className={inputClass}
+                      />
+                    </div>
                   </div>
-                  <input type="text" name="owner_name" placeholder="Legal Owner Name" value={formData.owner_name} onChange={handleChange} className={`${inputClass} rounded-2xl`} />
-                  <div className="grid grid-cols-2 gap-4">
-                    <input type="tel" name="mobile_number" placeholder="Primary Mobile" value={formData.mobile_number} onChange={handleChange} className={`${inputClass} rounded-2xl`} maxLength={10} />
-                    <input type="tel" name="alternate_number" placeholder="Backup (Optional)" value={formData.alternate_number} onChange={handleChange} className={`${inputClass} rounded-2xl`} />
+                  <div>
+                    <label className={labelClass}>Legal Owner Name</label>
+                    <input
+                      type="text"
+                      name="owner_name"
+                      placeholder="Full Legal Name"
+                      value={formData.owner_name}
+                      onChange={handleChange}
+                      className={inputClass}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className={labelClass}>Primary Mobile</label>
+                      <input
+                        type="tel"
+                        name="mobile_number"
+                        placeholder="10-digit number"
+                        value={formData.mobile_number}
+                        onChange={handleChange}
+                        className={inputClass}
+                        maxLength={10}
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Backup Mobile (Optional)</label>
+                      <input
+                        type="tel"
+                        name="alternate_number"
+                        placeholder="Alternate number"
+                        value={formData.alternate_number}
+                        onChange={handleChange}
+                        className={inputClass}
+                      />
+                    </div>
                   </div>
                 </div>
               )}
 
               {step === 3 && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
-                  <div className="space-y-2">
-                    <span className="text-yellow-600 font-black text-sm tracking-[.4em] uppercase">Step 03</span>
-                    <h2 className="text-4xl font-black text-slate-900 uppercase italic leading-none">Business <span className="text-yellow-600">Profile</span></h2>
+                <div className="space-y-6 animate-fade-in">
+                  <div className="text-center">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Business Profile</h2>
+                    <p className="text-sm text-gray-600">Details about your company</p>
                   </div>
-
-                  <div className="flex items-center gap-6 p-6 bg-yellow-600/5 rounded-3xl border border-yellow-600/10">
-                    <div className="relative group w-20 h-20 bg-white rounded-2xl shadow-sm flex items-center justify-center overflow-hidden border border-slate-100 transition-all hover:scale-105">
+                  <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                    <div className="relative w-16 h-16 bg-white rounded-xl shadow-sm flex items-center justify-center overflow-hidden border border-gray-200 transition-all hover:scale-105">
                       {formData.company_logo ? (
                         <>
                           <img src={formData.company_logo} className="w-full h-full object-contain p-2" />
@@ -668,14 +706,14 @@ const urls: string[] = [];
                               e.preventDefault();
                               setFormData({ ...formData, company_logo: "" });
                             }}
-                            className="absolute inset-0 bg-red-600/90 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white"
+                            className="absolute inset-0 bg-red-500/90 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white"
                           >
-                            <X size={18} />
+                            <X size={16} />
                           </button>
                         </>
                       ) : (
                         <>
-                          <Upload size={24} className="text-yellow-600" />
+                          <Upload size={20} className="text-yellow-300" />
                           <input
                             type="file"
                             accept="image/*"
@@ -686,155 +724,274 @@ const urls: string[] = [];
                       )}
                     </div>
                     <div>
-                      <label className="text-sm font-black uppercase text-slate-900 tracking-tight">Company Branding</label>
-                      <p className="text-[11px] text-slate-500 font-medium">SVG, PNG or JPG preferred.</p>
+                      <label className="text-sm font-semibold text-gray-900">Company Logo</label>
+                      <p className="text-xs text-gray-500">SVG, PNG or JPG preferred.</p>
                     </div>
                   </div>
-
-                  <input type="text" name="company_name" placeholder="Registered Company Name" value={formData.company_name} onChange={handleChange} className={`${inputClass} rounded-2xl`} />
-                  <input type="text" name="business_keywords" placeholder="Keywords (e.g. Chemicals, Steel, Logistics)" value={formData.business_keywords} onChange={handleChange} className={`${inputClass} rounded-2xl`} />
-
-                  <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClass}>Registered Company Name</label>
                     <input
                       type="text"
-                      name="gst_number"
-                      placeholder="GSTIN Number"
-                      value={formData.gst_number}
+                      name="company_name"
+                      placeholder="Company Name"
+                      value={formData.company_name}
                       onChange={handleChange}
-                      className={`${inputClass} rounded-2xl uppercase`}
-                      maxLength={15}
+                      className={inputClass}
                     />
-                    <select
-                      name="sector"
-                      value={formData.sector}
-                      onChange={handleChange}
-                      className={`${inputClass} rounded-2xl`}
-                    >
-                      <option value="" disabled>Legal Structure</option>
-                      <option value="proprietorship">Individual / Proprietorship</option>
-                      <option value="partnership">Partnership Firm</option>
-                      <option value="llp">LLP</option>
-                      <option value="private_ltd">Private Limited</option>
-                      <option value="public_ltd">Public Limited</option>
-                      <option value="trust_society">Trust / Society</option>
-                    </select>
                   </div>
-                  <textarea name="profile_info" placeholder="Detailed business description..." rows={4} value={formData.profile_info} onChange={handleChange} className={`${inputClass} resize-none rounded-2xl`} />
+                  <div>
+                    <label className={labelClass}>Business Keywords</label>
+                    <input
+                      type="text"
+                      name="business_keywords"
+                      placeholder="e.g. Chemicals, Steel, Logistics"
+                      value={formData.business_keywords}
+                      onChange={handleChange}
+                      className={inputClass}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className={labelClass}>GSTIN Number</label>
+                      <input
+                        type="text"
+                        name="gst_number"
+                        placeholder="15-character GSTIN"
+                        value={formData.gst_number}
+                        onChange={handleChange}
+                        className={inputClass}
+                        maxLength={15}
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Legal Structure</label>
+                      <select
+                        name="sector"
+                        value={formData.sector}
+                        onChange={handleChange}
+                        className={inputClass}
+                      >
+                        <option value="" disabled>Select Structure</option>
+                        <option value="proprietorship">Individual / Proprietorship</option>
+                        <option value="partnership">Partnership Firm</option>
+                        <option value="llp">LLP</option>
+                        <option value="private_ltd">Private Limited</option>
+                        <option value="public_ltd">Public Limited</option>
+                        <option value="trust_society">Trust / Society</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Business Description</label>
+                    <textarea
+                      name="profile_info"
+                      placeholder="Detailed description..."
+                      rows={4}
+                      value={formData.profile_info}
+                      onChange={handleChange}
+                      className={`${inputClass} resize-none`}
+                    />
+                  </div>
                 </div>
               )}
 
               {step === 4 && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
-                  <div className="space-y-2">
-                    <span className="text-yellow-600 font-black text-sm tracking-[.4em] uppercase">Step 04</span>
-                    <h2 className="text-4xl font-black text-slate-900 uppercase italic leading-none">Global <span className="text-yellow-600">Presence</span></h2>
+                <div className="space-y-6 animate-fade-in">
+                  <div className="text-center">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Global Presence</h2>
+                    <p className="text-sm text-gray-600">Your business location and online presence</p>
                   </div>
-
-                  <div className="space-y-4">
-                    <label className="text-xs font-black uppercase text-slate-400 tracking-widest">Digital Assets</label>
-                    <div className="flex gap-3">
+                  <div>
+                    <label className={labelClass}>Digital Assets</label>
+                    <div className="flex gap-2 mb-3">
                       <input
                         type="url"
                         value={websiteInput}
                         onChange={(e) => setWebsiteInput(e.target.value)}
-                        placeholder="Website URL (https://...)"
-                        className={`${inputClass} rounded-2xl`}
+                        placeholder="https://yourwebsite.com"
+                        className={`${inputClass} flex-1`}
                       />
                       <button
                         onClick={addWebsite}
                         type="button"
-                        className="bg-slate-900 text-white px-6 rounded-2xl hover:bg-yellow-600 transition-all shadow-lg active:scale-90"
+                        className="bg-yellow-300 text-white px-4 py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md"
                       >
-                        <Plus size={24} strokeWidth={3} />
+                        <Plus size={20} />
                       </button>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {formData.websites.map((url, i) => (
-                        <div key={i} className="bg-yellow-600/5 text-yellow-700 text-[11px] font-bold px-4 py-2 rounded-xl flex items-center gap-3 border border-yellow-600/10">
+                        <div key={i} className="bg-blue-50 text-blue-700 text-xs font-medium px-3 py-2 rounded-lg flex items-center gap-2 border border-blue-200">
                           <Globe size={12} />
-                          <span className="truncate max-w-[150px]">{url}</span>
-                          <button onClick={() => removeWebsite(i)} className="text-red-500 hover:scale-125 transition-transform">
-                            <X size={14} />
+                          <span className="truncate max-w-32">{url}</span>
+                          <button onClick={() => removeWebsite(i)} className="text-red-500 hover:scale-110 transition-transform">
+                            <X size={12} />
                           </button>
                         </div>
                       ))}
                     </div>
                   </div>
-
-                  <div className="p-1 bg-slate-100 rounded-2xl mb-2"></div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <input type="text" name="flat_no" placeholder="Office / Shop No." value={formData.flat_no} onChange={handleChange} className={`${inputClass} rounded-2xl`} />
-                    <input type="text" name="floor" placeholder="Floor" value={formData.floor} onChange={handleChange} className={`${inputClass} rounded-2xl`} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className={labelClass}>Office / Shop No.</label>
+                      <input
+                        type="text"
+                        name="flat_no"
+                        placeholder="Office No."
+                        value={formData.flat_no}
+                        onChange={handleChange}
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Floor</label>
+                      <input
+                        type="text"
+                        name="floor"
+                        placeholder="Floor"
+                        value={formData.floor}
+                        onChange={handleChange}
+                        className={inputClass}
+                      />
+                    </div>
                   </div>
-                  <input type="text" name="building" placeholder="Building / Business Park" value={formData.building} onChange={handleChange} className={`${inputClass} rounded-2xl`} />
-                  <input type="text" name="street" placeholder="Street Address" value={formData.street} onChange={handleChange} className={`${inputClass} rounded-2xl`} />
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <input type="text" name="area" placeholder="Locality" value={formData.area} onChange={handleChange} className={`${inputClass} rounded-2xl`} />
-                    <input type="text" name="landmark" placeholder="Landmark" value={formData.landmark} onChange={handleChange} className={`${inputClass} rounded-2xl`} />
+                  <div>
+                    <label className={labelClass}>Building / Business Park</label>
+                    <input
+                      type="text"
+                      name="building"
+                      placeholder="Building Name"
+                      value={formData.building}
+                      onChange={handleChange}
+                      className={inputClass}
+                    />
                   </div>
-
-                  <div className="grid grid-cols-3 gap-4">
-                    <input type="text" name="city" placeholder="City" value={formData.city} onChange={handleChange} className={`${inputClass} rounded-2xl`} />
-                    <input type="text" name="state" placeholder="State" value={formData.state} onChange={handleChange} className={`${inputClass} rounded-2xl`} />
-                    <input type="text" name="pincode" placeholder="Pincode" value={formData.pincode} onChange={handleChange} className={`${inputClass} rounded-2xl`} />
+                  <div>
+                    <label className={labelClass}>Street Address</label>
+                    <input
+                      type="text"
+                      name="street"
+                      placeholder="Street / Road"
+                      value={formData.street}
+                      onChange={handleChange}
+                      className={inputClass}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className={labelClass}>Locality</label>
+                      <input
+                        type="text"
+                        name="area"
+                        placeholder="Area"
+                        value={formData.area}
+                        onChange={handleChange}
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Landmark</label>
+                      <input
+                        type="text"
+                        name="landmark"
+                        placeholder="Nearby Landmark"
+                        value={formData.landmark}
+                        onChange={handleChange}
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className={labelClass}>City</label>
+                      <input
+                        type="text"
+                        name="city"
+                        placeholder="City"
+                        value={formData.city}
+                        onChange={handleChange}
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>State</label>
+                      <input
+                        type="text"
+                        name="state"
+                        placeholder="State"
+                        value={formData.state}
+                        onChange={handleChange}
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Pincode</label>
+                      <input
+                        type="text"
+                        name="pincode"
+                        placeholder="Pincode"
+                        value={formData.pincode}
+                        onChange={handleChange}
+                        className={inputClass}
+                      />
+                    </div>
                   </div>
                 </div>
               )}
 
               {step === 5 && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
-                  <div className="space-y-2">
-                    <span className="text-yellow-600 font-black text-sm tracking-[.4em] uppercase">Step 05</span>
-                    <h2 className="text-4xl font-black text-slate-900 uppercase italic leading-none">Media <span className="text-yellow-600">Showcase</span></h2>
+                <div className="space-y-6 animate-fade-in">
+                  <div className="text-center">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Media Showcase</h2>
+                    <p className="text-sm text-gray-600">Upload images and videos to showcase your business</p>
                   </div>
-
-                  <div className="space-y-4">
-                    <label className="text-xs font-black uppercase text-slate-400 tracking-widest">Photo Gallery</label>
-                    <div className="grid grid-cols-4 gap-4">
+                  <div>
+                    <label className={labelClass}>Photo Gallery</label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {mediaPreviews.map((src, i) => (
-                        <div key={i} className="relative aspect-square rounded-2xl overflow-hidden group shadow-md border-2 border-white">
-                          <img src={src} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                          <button onClick={() => removeMedia(i)} className="absolute inset-0 bg-red-600/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div key={i} className="relative aspect-square rounded-xl overflow-hidden group shadow-md border border-gray-200">
+                          <img src={src} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                          <button
+                            onClick={() => removeMedia(i)}
+                            className="absolute inset-0 bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
                             <Trash2 size={20} />
                           </button>
                         </div>
                       ))}
-                      <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center text-slate-400 cursor-pointer hover:border-yellow-600 hover:bg-yellow-600/5 transition-all group">
-                        <div className="p-2 bg-white rounded-xl shadow-sm group-hover:bg-yellow-600 group-hover:text-white transition-colors">
-                          <Plus size={24} strokeWidth={3} />
+                      <label className="aspect-square rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all group">
+                        <div className="p-2 bg-white rounded-lg shadow-sm group-hover:bg-yellow-300 group-hover:text-white transition-colors">
+                          <Plus size={20} strokeWidth={2} />
                         </div>
-                        <span className="text-[9px] font-black uppercase mt-3 tracking-tighter">Add Photo</span>
+                        <span className="text-xs font-medium mt-2 uppercase tracking-wide">Add Photo</span>
                         <input type="file" multiple accept="image/*" onChange={(e) => handleFileUpload(e, '', true)} className="hidden" />
                       </label>
                     </div>
                   </div>
-
-                  <div className="space-y-5 pt-4">
-                    <label className="text-xs font-black uppercase text-slate-400 tracking-widest">Video Experience</label>
-
-                    <label className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-200 rounded-[2rem] cursor-pointer hover:bg-slate-50 transition-all hover:border-yellow-600 group">
-                      <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center mb-3 group-hover:bg-yellow-600 group-hover:text-white transition-colors">
-                        <Upload size={24} />
+                  <div>
+                    <label className={labelClass}>Video Experience</label>
+                    <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-all group">
+                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-2 group-hover:bg-yellow-300  group-hover:text-white transition-colors">
+                        <Upload size={20} />
                       </div>
-                      <span className="text-xs font-black uppercase text-slate-600">Drop video file here</span>
+                      <span className="text-sm font-medium text-gray-600">Drop video file here</span>
                       <input type="file" accept="video/*" onChange={handleVideoFileUpload} className="hidden" />
                     </label>
-
-                    <div className="grid gap-2">
+                    <div className="space-y-2 mt-4">
                       {videoFilesList.map((v, i) => (
-                        <div key={i} className="flex items-center justify-between p-4 bg-slate-900 rounded-2xl text-white group animate-in slide-in-from-top-2">
-                          <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
-                            <Film size={18} className="text-yellow-600" />
+                        <div key={i} className="flex items-center justify-between p-3 bg-gray-900 rounded-xl text-white group animate-fade-in">
+                          <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+                            <Film size={16} className="text-blue-400" />
                           </div>
-                          <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-yellow-600">Video File</p>
-                            <p className="text-sm font-bold truncate max-w-[250px]">{v.url.split('/').pop()}</p>
+                          <div className="flex-1 ml-3">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-blue-400">Video File</p>
+                            <p className="text-sm font-medium truncate max-w-48">{v.url.split('/').pop()}</p>
                           </div>
-
-                          <button onClick={() => removeVideo(i)} className="p-2 hover:bg-red-600 rounded-lg transition-colors">
-                            <Trash2 size={18} />
+                          <button
+                            onClick={() => removeVideo(i)}
+                            className="p-2 hover:bg-red-500 rounded-lg transition-colors"
+                          >
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       ))}
@@ -844,54 +1001,66 @@ const urls: string[] = [];
               )}
 
               {step === 6 && (
-                <div className="space-y-8 animate-in zoom-in-95 duration-500">
+                <div className="space-y-6 animate-fade-in">
                   {!showPlans && !formData.subscription_plan_id ? (
-                    <div className="py-20 text-center">
+                    <div className="text-center py-12">
                       <button
                         onClick={() => setShowPlans(true)}
-                        className="group relative inline-flex items-center justify-center px-16 py-10 font-black uppercase tracking-tighter text-white bg-slate-900 rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] hover:bg-yellow-600 transition-all duration-500 active:scale-95"
+                        className="group relative inline-flex items-center justify-center px-12 py-6 font-bold uppercase tracking-wide text-white bg-gray-900 rounded-2xl shadow-xl hover:bg-yellow-300 transition-all duration-300 active:scale-95"
                       >
-                        <div className="flex flex-col items-center gap-3">
-                          <span className="text-3xl italic tracking-tight">VIP Membership <span className="text-yellow-600 group-hover:text-white">Access</span></span>
-                          <span className="text-[10px] tracking-[0.5em] opacity-50">Scale your business today</span>
+                        <div className="flex flex-col items-center gap-2">
+                          <span className="text-lg italic tracking-tight">VIP Membership <span className="text-blue-400 group-hover:text-white">Access</span></span>
+                          <span className="text-xs tracking-widest opacity-70">Scale your business today</span>
                         </div>
-                        <div className="absolute -top-4 -right-4 w-12 h-12 bg-yellow-600 rounded-full flex items-center justify-center border-[6px] border-white shadow-xl animate-bounce">
-                          <ChevronRight size={24} strokeWidth={4} />
+                        <div className="absolute -top-3 -right-3 w-10 h-10 bg-yellow-300 rounded-full flex items-center justify-center border-4 border-white shadow-lg animate-bounce">
+                          <ChevronRight size={20} strokeWidth={3} />
                         </div>
                       </button>
                     </div>
                   ) : (
-                    <div className="space-y-8">
-                      <div className="flex items-center justify-between px-2">
-                        <div className="space-y-1">
-                          <h2 className="text-4xl font-black text-slate-900 uppercase italic leading-none">Growth <span className="text-yellow-600">Plans</span></h2>
-                          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Select your professional tier</p>
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h2 className="text-2xl font-bold text-gray-900 mb-1">Growth Plans</h2>
+                          <p className="text-sm text-gray-600">Select your professional tier</p>
                         </div>
-                        <button onClick={() => { setShowPlans(false); setFormData({ ...formData, subscription_plan_id: "" }) }} className="px-4 py-2 bg-slate-100 rounded-xl text-[10px] font-black uppercase text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all">Clear Choice</button>
+                        <button
+                          onClick={() => { setShowPlans(false); setFormData({ ...formData, subscription_plan_id: "" }) }}
+                          className="px-3 py-2 bg-gray-100 rounded-lg text-xs font-semibold uppercase text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all"
+                        >
+                          Clear Choice
+                        </button>
                       </div>
-
                       <div className="grid gap-4">
                         {plans.map((p) => {
                           const isSelected = formData.subscription_plan_id === p.id.toString();
                           const totalPrice = Number(p.base_price) + (Number(p.base_price) * (Number(p.tax_percent) / 100));
                           return (
-                            <div key={p.id} onClick={() => setFormData({ ...formData, subscription_plan_id: p.id.toString() })} className={`group relative overflow-hidden rounded-[2.5rem] transition-all duration-500 cursor-pointer border-4 ${isSelected ? "bg-white border-yellow-600 shadow-2xl -translate-y-1" : "bg-slate-50 border-transparent hover:bg-white hover:border-slate-200"}`}>
-                              <div className="p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                                <div className="flex items-center gap-6">
-                                  <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all ${isSelected ? "bg-slate-900 text-yellow-600 rotate-12" : "bg-white text-slate-200 shadow-sm"}`}>
-                                    <Check size={32} strokeWidth={isSelected ? 4 : 2} />
+                            <div
+                              key={p.id}
+                              onClick={() => setFormData({ ...formData, subscription_plan_id: p.id.toString() })}
+                              className={`group relative overflow-hidden rounded-2xl transition-all duration-300 cursor-pointer border-2 ${
+                                isSelected ? "bg-blue-50 border-blue-600 shadow-lg -translate-y-1" : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-md"
+                              }`}
+                            >
+                              <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                                    isSelected ? "bg-gray-900 text-yellow-300 rotate-6" : "bg-gray-200 text-gray-500"
+                                  }`}>
+                                    <Check size={24} strokeWidth={isSelected ? 3 : 2} />
                                   </div>
                                   <div>
-                                    <h3 className="text-xl font-black uppercase tracking-tight text-slate-900">{p.name}</h3>
+                                    <h3 className="text-lg font-bold uppercase tracking-tight text-gray-900">{p.name}</h3>
                                     <div className="flex gap-2 mt-1">
-                                      <span className="text-[10px] font-black px-3 py-1 bg-yellow-600 text-white rounded-full uppercase tracking-tighter">{p.duration_months} Months Access</span>
-                                      {isSelected && <span className="text-[10px] font-black px-3 py-1 bg-slate-900 text-white rounded-full uppercase tracking-tighter animate-pulse">Selected</span>}
+                                      <span className="text-xs font-semibold px-2 py-1 bg-yellow-300 text-white rounded-md uppercase tracking-wide">{p.duration_months} Months</span>
+                                      {isSelected && <span className="text-xs font-semibold px-2 py-1 bg-gray-900 text-white rounded-md uppercase tracking-wide animate-pulse">Selected</span>}
                                     </div>
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <p className={`text-4xl font-black italic tracking-tighter ${isSelected ? "text-yellow-600" : "text-slate-900"}`}>₹{totalPrice.toLocaleString()}</p>
-                                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Inclusive of GST</p>
+                                  <p className={`text-2xl font-bold italic tracking-tight ${isSelected ? "text-yellow-300" : "text-gray-900"}`}>₹{totalPrice.toLocaleString()}</p>
+                                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-1">Inclusive of GST</p>
                                 </div>
                               </div>
                             </div>
@@ -903,44 +1072,47 @@ const urls: string[] = [];
                 </div>
               )}
             </div>
+          </div>
 
-            <div className="mt-12 flex flex-col gap-4">
-              {/* MODIFIED: Show error only if error exists AND user has tried to proceed (isDirty) */}
-              {error && isDirty && (
-                <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-100 rounded-2xl animate-in slide-in-from-top-2">
-                  <AlertCircle className="text-red-500" size={18} />
-                  <span className="text-[11px] font-bold text-red-600 uppercase tracking-wider">{error}</span>
-                </div>
-              )}
-
-              <div className="pt-4 flex items-center justify-between border-t border-slate-50">
-                {step > 1 ? (
-                  <button onClick={handleBack} className="flex items-center gap-2 font-black text-[10px] uppercase text-slate-400 hover:text-slate-900 transition-colors"><ChevronLeft size={16} /> Back</button>
-                ) : <div />}
-
-                {step < 6 ? (
-                  <button
-                    onClick={handleNext}
-                    className="bg-slate-900 text-white px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-yellow-500 transition-all active:scale-95 shadow-lg shadow-slate-200"
-                  >
-                    Continue
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => {
-                      if (formData.subscription_plan_id) {
-                        handlePayment();
-                      } else {
-                        finalizeRegistration(null);
-                      }
-                    }}
-                    disabled={loading || !formData.email}
-                    className="bg-yellow-500 text-white px-12 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl disabled:opacity-20 active:scale-95 transition-all"
-                  >
-                    {loading ? "Processing..." : formData.subscription_plan_id ? "Pay & Register" : "Free Registration"}
-                  </button>
-                )}
+          {/* Footer */}
+          <div className="p-6 border-t border-gray-200 bg-gray-50">
+            {error && isDirty && (
+              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg mb-4 animate-fade-in">
+                <AlertCircle className="text-red-500" size={16} />
+                <span className="text-sm font-medium text-red-700 uppercase tracking-wide">{error}</span>
               </div>
+            )}
+            <div className="flex items-center justify-between">
+              {step > 1 ? (
+                <button
+                  onClick={handleBack}
+                  className="flex items-center gap-2 font-semibold text-sm uppercase text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                  <ChevronLeft size={16} /> Back
+                </button>
+              ) : <div />}
+              {step < 6 ? (
+                <button
+                  onClick={handleNext}
+                  className="bg-gray-900 text-white px-8 py-3 rounded-xl font-semibold text-sm uppercase tracking-wide hover:bg-gray-800 transition-all active:scale-95 shadow-lg"
+                >
+                  Continue
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    if (formData.subscription_plan_id) {
+                      handlePayment();
+                    } else {
+                      finalizeRegistration(null);
+                    }
+                  }}
+                  disabled={loading || !formData.email}
+                  className="bg-yellow-300 text-white px-8 py-3 rounded-xl font-semibold text-sm uppercase tracking-wide shadow-lg disabled:opacity-50 active:scale-95 transition-all"
+                >
+                  {loading ? "Processing..." : formData.subscription_plan_id ? "Pay & Register" : "Free Registration"}
+                </button>
+              )}
             </div>
           </div>
         </div>

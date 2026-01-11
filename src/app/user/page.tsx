@@ -395,6 +395,16 @@ export default function Home() {
         });
     };
 
+    const podcastScrollRef = useRef<HTMLDivElement | null>(null);
+    const scrollPodcasts = (direction: "left" | "right") => {
+        if (!podcastScrollRef.current) return;
+        const container = podcastScrollRef.current;
+        const scrollAmount = 400 + 32; // Card width + gap
+        container.scrollBy({
+            left: direction === "left" ? -scrollAmount : scrollAmount,
+            behavior: "smooth",
+        });
+    };
     return (
         <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-900 text-white">
             {/* HERO SECTION - Redesigned with yellow/red/black theme */}
@@ -512,7 +522,7 @@ export default function Home() {
                                         </div>
                                     )}
                                 </div>
-                                                               <div className="hidden md:block h-8 w-px bg-yellow-500/30"></div>
+                                <div className="hidden md:block h-8 w-px bg-yellow-500/30"></div>
 
                                 {/* Business Type - Keep as select */}
                                 <div className="flex-1 flex items-center px-6 py-4 hover:bg-black/20 rounded-2xl transition-all group w-full">
@@ -547,26 +557,40 @@ export default function Home() {
             </div>
 
             {/* HOW IT WORKS – Clean White Background Design */}
-            <section className="py-24 bg-white relative z-0 overflow-hidden">                {/* Soft background accents */}
+            <section className="pb-16 sm:pb-24 pt-8 sm:pt-10 bg-white relative z-0 overflow-hidden">
+
+                {/* Soft background accents */}
                 <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-24 left-1/4 w-72 h-72 bg-yellow-200/40 rounded-full blur-3xl" />
-                    <div className="absolute bottom-24 right-1/4 w-72 h-72 bg-red-200/40 rounded-full blur-3xl" />
+                    <div className="absolute top-24 left-1/4 w-56 sm:w-72 h-56 sm:h-72 bg-yellow-200/40 rounded-full blur-3xl" />
+                    <div className="absolute bottom-24 right-1/4 w-56 sm:w-72 h-56 sm:h-72 bg-red-200/40 rounded-full blur-3xl" />
                 </div>
 
-                <div className="max-w-7xl mx-auto px-6 relative z-10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+
                     {/* Section Header */}
-                    <div className="text-center mb-20">
-                        <h2 className="text-4xl md:text-5xl font-black text-gray-900">
+                    <div className="text-center mb-14 sm:mb-20">
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900">
                             How <span className="text-yellow-500">QickTick</span> Works
                         </h2>
-                        <p className="mt-4 text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
+
+                        <p className="mt-3 sm:mt-4 text-gray-600 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed">
                             Find trusted local services in just a few simple steps — fast, reliable, and hassle-free.
                         </p>
-                        <div className="mx-auto mt-6 h-1.5 w-28 rounded-full bg-gradient-to-r from-yellow-500 to-red-500" />
+
+                        <div className="mx-auto mt-5 sm:mt-6 h-1.5 w-20 sm:w-28 rounded-full bg-gradient-to-r from-yellow-500 to-red-500" />
                     </div>
 
                     {/* Steps */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
+                    <div
+                        className="
+                        flex gap-4 overflow-x-auto pb-4
+                        sm:grid sm:grid-cols-2
+                        lg:grid-cols-5
+                        sm:gap-10
+                        snap-x snap-mandatory
+                        scrollbar-hide
+                    "
+                    >
                         {[
                             {
                                 icon: Search,
@@ -611,133 +635,134 @@ export default function Home() {
                         ].map((item, i) => (
                             <div
                                 key={i}
-                                className="group relative bg-white border border-gray-200 rounded-3xl p-8 text-center shadow-sm hover:shadow-xl transition-all duration-500"
-                            >
-                                {/* Step number */}
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-black text-white text-sm font-black px-4 py-1 rounded-full shadow-md">
-                                    {item.step}
-                                </div>
+                                className="
+                                    group relative bg-white border border-gray-200
+                                    rounded-2xl sm:rounded-3xl
+                                    p-6 sm:p-8
+                                    text-center shadow-sm hover:shadow-xl
+                                    transition-all duration-500
+                                    min-w-[260px] sm:min-w-0
+                                    snap-start
+                                    ">
 
                                 {/* Icon */}
-                                <div className={`w-20 h-20 mx-auto mb-6 rounded-2xl ${item.bg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                                    <item.icon className={`w-9 h-9 ${item.accent}`} strokeWidth={2} />
+                                <div
+                                    className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-5 sm:mb-6 rounded-2xl ${item.bg}
+            flex items-center justify-center group-hover:scale-110 transition-transform`}
+                                >
+                                    <item.icon className={`w-7 h-7 sm:w-9 sm:h-9 ${item.accent}`} strokeWidth={2} />
                                 </div>
 
                                 {/* Content */}
-                                <h3 className="text-xl font-bold text-gray-900 mb-3">
+                                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">
                                     {item.title}
                                 </h3>
+
                                 <p className="text-gray-600 text-sm leading-relaxed">
                                     {item.desc}
                                 </p>
                             </div>
                         ))}
                     </div>
+
                 </div>
             </section>
-            {/* POPULAR CATEGORIES - Redesigned with Light Yellow Theme */}
-            <section className="py-24 bg-[#FFFBEB] overflow-hidden relative">
-                {/* Decorative Background Elements */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-200/50 rounded-full blur-3xl -mr-32 -mt-32" />
-                <div className="absolute bottom-0 left-0 w-96 h-96 bg-red-100/50 rounded-full blur-3xl -ml-48 -mb-48" />
+
+
+            {/* CATEGORIES SECTION */}
+            <section className="py-20 pt-10 bg-[#FFFBEB] relative overflow-hidden">
+                {/* Global Style to hide scrollbars while allowing scroll functionality */}
+                <style jsx global>{`
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    `}</style>
+
+                <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-200/30 rounded-full blur-3xl -mr-32 -mt-32" />
+                <div className="absolute bottom-0 left-0 w-80 h-80 bg-red-100/30 rounded-full blur-3xl -ml-40 -mb-40" />
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
-                    {/* Header */}
-                    <div className="flex flex-col items-center text-center mb-16">
-                        <span className="text-red-600 font-bold tracking-[0.2em] uppercase text-xs mb-3">
+                    <div className="text-center mb-12">
+                        <span className="text-red-600 font-bold tracking-[0.25em] uppercase text-[10px] md:text-xs">
                             Premium Services
                         </span>
-                        <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight">
+                        <h2 className="mt-3 text-4xl font-extrabold text-gray-900 tracking-tight">
                             Popular <span className="text-red-600">Categories</span>
                         </h2>
-                        <div className="h-1.5 w-20 bg-gradient-to-r from-yellow-500 to-red-600 rounded-full mt-5" />
+                        <div className="mx-auto mt-5 h-1.5 w-16 bg-gradient-to-r from-yellow-500 to-red-600 rounded-full" />
                     </div>
 
-                    {/* Slider Container */}
+                    {/* SLIDER WRAPPER */}
                     <div className="relative group">
-                        {/* Navigation Arrows - Only visible on hover/desktop */}
+
+                        {/* LEFT ARROW */}
                         <button
                             onClick={() => scroll("left")}
-                            className="absolute -left-4 top-1/2 -translate-y-1/2 z-30 hidden md:flex bg-white shadow-xl border border-gray-100 p-4 rounded-full text-gray-800 hover:bg-red-600 hover:text-white transition-all duration-300"
+                            className="absolute -left-6 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center bg-white text-gray-900 w-12 h-12 rounded-full shadow-xl border border-gray-100 hover:bg-red-600 hover:text-white transition-all duration-300 opacity-0 group-hover:opacity-100"
                         >
-                            <ChevronLeft size={24} />
+                            <ChevronLeft size={24} strokeWidth={3} />
                         </button>
 
-                        <button
-                            onClick={() => scroll("right")}
-                            className="absolute -right-4 top-1/2 -translate-y-1/2 z-30 hidden md:flex bg-white shadow-xl border border-gray-100 p-4 rounded-full text-gray-800 hover:bg-red-600 hover:text-white transition-all duration-300"
-                        >
-                            <ChevronRight size={24} />
-                        </button>
-
-                        {/* Cards Scroll Area */}
+                        {/* SCROLLABLE CONTAINER */}
                         <div
                             ref={scrollRef}
-                            className="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-8 px-2"
+                            className="flex gap-8 overflow-x-auto hide-scrollbar snap-x snap-mandatory scroll-smooth pb-4"
                         >
                             {loading ? (
-                                [...Array(3)].map((_, i) => (
-                                    <div key={i} className="min-w-[85%] md:min-w-[30%] h-80 bg-gray-200 rounded-3xl animate-pulse" />
+                                [...Array(4)].map((_, i) => (
+                                    <div key={i} className="min-w-[85%] md:min-w-[30%] h-72 bg-gray-200 rounded-2xl animate-pulse" />
                                 ))
                             ) : (
-                                categories.map((cat) => (
-                                    cat.image_url && (
-                                        <div
-                                            key={cat.id}
-                                            onClick={() => router.push(`/user/services/${cat.id}`)}
-                                            className="category-card snap-center min-w-[85%] sm:min-w-[45%] lg:min-w-[31%] cursor-pointer group/item"
-                                        >
-                                            <div className="relative h-96 rounded-[2rem] overflow-hidden shadow-lg border-4 border-white group-hover/item:shadow-2xl transition-all duration-500 transform group-hover/item:-translate-y-2">
+                                categories?.map((cat) => (
+                                    <div
+                                        key={cat.id}
+                                        /* IMPORTANT: This class name must match the one in your scroll function */
+                                        className="category-card snap-center min-w-[85%] md:min-w-[30%] cursor-pointer group/card"
+                                        onClick={() => router.push(`/user/services/${cat.id}`)}
+                                    >
+                                        <div className="relative h-72 rounded-2xl overflow-hidden border-4 border-white shadow-lg transition-all duration-500 group-hover/card:shadow-2xl">
+                                            {cat.image_url && (
                                                 <Image
                                                     src={cat.image_url}
                                                     alt={cat.name}
                                                     fill
-                                                    className="object-cover transition-transform duration-1000 group-hover/item:scale-110"
-                                                    sizes="(max-width: 768px) 100vw, 33vw"
+                                                    className="object-cover transition-transform duration-700 group-hover/card:scale-110"
                                                 />
-
-                                                {/* Elegant Overlay */}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover/item:opacity-90 transition-opacity duration-500" />
-
-                                                {/* Text Content */}
-                                                <div className="absolute bottom-0 left-0 right-0 p-8">
-                                                    <div className="flex items-center justify-between">
-                                                        <div>
-                                                            <h3 className="text-2xl font-bold text-white mb-1">{cat.name}</h3>
-                                                            {cat.description && (
-                                                                <p className="text-white text-sm mb-2 leading-relaxed">{cat.description}</p>
-                                                            )}
-                                                            <p className="text-yellow-400 text-sm font-medium tracking-wide">Explore Services →</p>
-                                                        </div>
-                                                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 group-hover/item:bg-yellow-500 transition-colors duration-300">
-                                                            <ChevronRight className="text-white group-hover/item:text-black" size={20} />
-                                                        </div>
-                                                    </div>
+                                            )}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                                            <div className="absolute bottom-0 left-0 right-0 p-6">
+                                                <h3 className="text-xl font-bold text-white group-hover/card:text-yellow-400 transition-colors">
+                                                    {cat.name}
+                                                </h3>
+                                                <div className="mt-4 flex items-center gap-1 text-white text-xs font-bold uppercase tracking-widest">
+                                                    Explore Now
+                                                    <ChevronRight size={14} className="group-hover/card:translate-x-1 transition-transform" />
                                                 </div>
                                             </div>
                                         </div>
-                                    )
+                                    </div>
                                 ))
                             )}
                         </div>
+
+                        {/* RIGHT ARROW */}
+                        <button
+                            onClick={() => scroll("right")}
+                            className="absolute -right-6 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center bg-white text-gray-900 w-12 h-12 rounded-full shadow-xl border border-gray-100 hover:bg-red-600 hover:text-white transition-all duration-300 opacity-0 group-hover:opacity-100"
+                        >
+                            <ChevronRight size={24} strokeWidth={3} />
+                        </button>
                     </div>
 
-                    {/* View More Button */}
                     <div className="flex justify-center mt-12">
-                        <Link
-                            href="/user/view-more?type=categories"
-                            className="group relative px-12 py-4 bg-gray-900 rounded-2xl overflow-hidden shadow-xl"
-                        >
-                            <div className="absolute inset-0 w-0 bg-red-600 transition-all duration-300 ease-out group-hover:w-full" />
-                            <span className="relative z-10 text-white font-bold uppercase tracking-wider text-sm transition-colors duration-300">
-                                View All Categories
-                            </span>
+                        <Link href="/user/view-more?type=categories" className="px-10 py-3.5 bg-gray-900 text-white rounded-xl font-bold uppercase text-xs tracking-[0.2em] hover:bg-red-600 transition-all">
+                            View All Categories
                         </Link>
                     </div>
                 </div>
             </section>
+
             {/* TRUST CTA - Redesigned & Compact with 3 Buttons */}
-            <section className="py-16 bg-[#FEF3C7] relative overflow-hidden border-y border-yellow-200">
+            <section className="py-16  bg-[#FEF3C7] relative overflow-hidden border-y border-yellow-200">
                 {/* Subtle Pattern Overlay */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
 
@@ -788,7 +813,7 @@ export default function Home() {
             </section>
 
             {/* DIGITAL BRANDING - Premium scroll with yellow/red/black accents */}
-            <section className="py-24 bg-[#FCF9F1] overflow-hidden relative">
+            <section className="py-24 pt-10 bg-[#FCF9F1] overflow-hidden relative">
                 {/* Decorative Background Text */}
                 <div className="absolute top-10 left-10 text-9xl font-black text-black/[0.02] select-none pointer-events-none">
                     STUDIO
@@ -797,12 +822,6 @@ export default function Home() {
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                     {/* Header */}
                     <div className="text-center mb-14">
-
-                        {/* Tag */}
-                        <span className="inline-block px-4 py-1.5 bg-red-100 text-red-600 text-xs font-bold uppercase tracking-widest rounded-full mb-6">
-                            Visual Storytelling
-                        </span>
-
                         {/* Title */}
                         <h2 className="text-5xl md:text-6xl font-black text-gray-900 tracking-tight">
                             Digital <span className="text-yellow-600">Branding</span>
@@ -867,7 +886,7 @@ export default function Home() {
                                         className="min-w-[300px] md:min-w-[380px] group/card snap-start"
                                     >
                                         {/* The "Video Frame" */}
-                                        <div className="relative h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl bg-gray-200 border-[8px] border-white transition-transform duration-500 group-hover/card:scale-[0.98]">
+                                        <div className="relative h-400px] rounded-[2.5rem] overflow-hidden shadow-2xl bg-gray-200 border-[8px] border-white transition-transform duration-500 group-hover/card:scale-[0.98]">
                                             <video
                                                 src={video.video_url}
                                                 autoPlay
@@ -911,7 +930,7 @@ export default function Home() {
             </section>
 
             {/* DIGITAL BANNERS - Fixed Image Layout */}
-            <section className="py-24 bg-white relative">
+            <section className="py-24 pt-10 bg-white relative">
                 <div className="max-w-7xl mx-auto px-6 text-center">
                     {/* ---------- CENTERED HEADER ---------- */}
                     <div className="flex flex-col items-center mb-16">
@@ -937,12 +956,31 @@ export default function Home() {
                     </div>
 
                     {/* ---------- GRID SECTION ---------- */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div
+                        className="
+                        flex gap-6 overflow-x-auto pb-4
+                        md:grid md:grid-cols-2
+                        lg:grid-cols-3
+                        md:gap-8
+                        snap-x snap-mandatory
+                        scrollbar-hide
+                    "
+                    >
                         {imageBanners.slice(0, 3).map((banner: any) => (
-                            <div
-                                key={banner.id}
-                                className="group relative aspect-video rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
+
+                            <div key={banner.id}
+
+                                className="
+                                    group relative aspect-video
+                                    min-w-[280px] sm:min-w-[320px] md:min-w-0
+                                    rounded-3xl overflow-hidden
+                                    border border-gray-100 shadow-sm
+                                    hover:shadow-2xl hover:-translate-y-2
+                                    transition-all duration-500
+                                    snap-start
+                                "
                             >
+
                                 <img
                                     src={banner.image_url}
                                     alt={banner.title || "Banner"}
@@ -973,7 +1011,7 @@ export default function Home() {
             </section>
 
             {/* TRANSPORT BANNER - Amber Premium Design */}
-            <section className="py-20 bg-[#FEF3C7] relative overflow-hidden border-y border-yellow-200">
+            <section className="py-20 pt-10 bg-[#FEF3C7] relative overflow-hidden border-y border-yellow-200">
                 {/* Decorative Elements */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-yellow-400/20 rounded-full blur-3xl" />
@@ -1035,7 +1073,7 @@ export default function Home() {
             </section>
 
             {/* HELP & EARN - Premium Light Community Grid with View More */}
-            <section className="py-24 bg-[#FFFDF5] relative overflow-hidden">
+            <section className="py-24 pt-10 bg-[#FFFDF5] relative overflow-hidden">
                 {/* Decorative Background Elements */}
                 <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-yellow-300 to-transparent opacity-50" />
                 <div className="absolute -top-24 -right-24 w-96 h-96 bg-yellow-200/20 rounded-full blur-[100px]" />
@@ -1057,7 +1095,17 @@ export default function Home() {
                     </div>
 
                     {/* Grid Container */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+                    <div
+                        className="
+                        flex gap-6 overflow-x-auto pb-6
+                        sm:grid sm:grid-cols-3
+                        md:grid-cols-4
+                        lg:grid-cols-5
+                        sm:gap-8
+                        snap-x snap-mandatory
+                        scrollbar-hide
+                    "
+                    >
                         {helpAndEarn.length === 0 ? (
                             <div className="col-span-full py-20 text-center border-2 border-dashed border-yellow-200 rounded-[3rem] bg-yellow-50/50 text-gray-400 italic">
                                 No community initiatives available at the moment.
@@ -1067,8 +1115,13 @@ export default function Home() {
                                 <div
                                     key={item.id}
                                     onClick={() => router.push(`/user/help`)}
-                                    className="group relative flex flex-col items-center cursor-pointer"
+                                    className="
+                                        group relative flex flex-col items-center cursor-pointer
+                                        min-w-[220px] sm:min-w-0
+                                        snap-start
+                                    "
                                 >
+
                                     <div className="relative w-full aspect-square rounded-[2.5rem] overflow-hidden bg-white shadow-lg border-[6px] border-white group-hover:shadow-2xl group-hover:border-yellow-400/20 transition-all duration-500 ease-in-out">
                                         {item.image_url ? (
                                             <Image
@@ -1128,7 +1181,7 @@ export default function Home() {
             </section>
 
             {/* CERTIFICATES SECTION - Amber Gallery */}
-            <section className="py-24 bg-[#FEF3C7] border-y border-yellow-200">
+            <section className="py-24 pt-10 bg-[#FEF3C7] border-y border-yellow-200">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="mb-16 text-center">
                         <span className="text-red-600 font-bold tracking-widest uppercase text-xs">Verified Excellence</span>
@@ -1140,9 +1193,27 @@ export default function Home() {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div
+                        className="
+                            flex gap-6 overflow-x-auto pb-6
+                            sm:grid sm:grid-cols-2
+                            lg:grid-cols-4
+                            sm:gap-8
+                            snap-x snap-mandatory
+                            scrollbar-hide
+                        "
+                    >
                         {certificates.slice(0, 4).map((item) => (
-                            <div key={item.id} className="group bg-white p-4 rounded-[2.5rem] shadow-xl hover:-translate-y-2 transition-all duration-500">
+                            <div
+                                key={item.id}
+                                className="
+                                    group bg-white p-4
+                                    rounded-[2.5rem] shadow-xl
+                                    hover:-translate-y-2 transition-all duration-500
+                                    min-w-[240px] sm:min-w-0
+                                    snap-start
+                                "
+                            >
                                 <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden bg-gray-100">
                                     <Image src={item.image_url} alt={item.name} fill className="object-cover" />
                                 </div>
@@ -1163,8 +1234,14 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* PODCASTS SECTION - Light Cream Background */}
-            <section className="py-24 bg-[#FFFDF5]">
+            {/* PODCASTS SECTION */}
+            <section className="py-24 pt-10 bg-[#FFFDF5] relative overflow-hidden">
+                {/* Re-using the same hide-scrollbar style logic */}
+                <style jsx global>{`
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    `}</style>
+
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-16">
                         <h2 className="text-5xl md:text-6xl font-black text-gray-900">
@@ -1173,35 +1250,64 @@ export default function Home() {
                         <div className="w-12 h-1.5 bg-yellow-500 mx-auto mt-4 rounded-full"></div>
                     </div>
 
-                    <div className="flex gap-8 overflow-x-auto scrollbar-hide pb-8 px-2">
-                        {podcasts.slice(0, 6).map((podcast) => (
-                            <div key={podcast.id} className="min-w-[320px] md:min-w-[400px] group">
-                                <div className="h-[240px] rounded-[2.5rem] overflow-hidden shadow-lg border-4 border-white relative">
-                                    <video src={podcast.video_url} className="w-full h-full object-cover" />
-                                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/40 transition-all">
-                                        <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40">
-                                            <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[15px] border-l-white border-b-[8px] border-b-transparent ml-1" />
+                    {/* Arrow & Slider Wrapper */}
+                    <div className="relative group/slider">
+
+                        {/* LEFT ARROW */}
+                        <button
+                            onClick={() => scrollPodcasts("left")}
+                            className="absolute -left-6 top-[120px] -translate-y-1/2 z-30 hidden md:flex items-center justify-center bg-white text-gray-900 w-12 h-12 rounded-full shadow-xl border border-gray-100 hover:bg-red-600 hover:text-white transition-all duration-300 opacity-0 group-hover/slider:opacity-100"
+                        >
+                            <ChevronLeft size={24} strokeWidth={3} />
+                        </button>
+
+                        {/* SCROLLABLE CONTAINER */}
+                        <div
+                            ref={podcastScrollRef}
+                            className="flex gap-8 overflow-x-auto hide-scrollbar snap-x snap-mandatory pb-8 px-2 scroll-smooth"
+                        >
+                            {podcasts.slice(0, 6).map((podcast) => (
+                                <div key={podcast.id} className="min-w-[320px] md:min-w-[400px] snap-center group">
+                                    <div className="h-[240px] rounded-[2.5rem] overflow-hidden shadow-lg border-4 border-white relative">
+                                        <video src={podcast.video_url} className="w-full h-full object-cover" />
+                                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/40 transition-all">
+                                            <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40">
+                                                <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[15px] border-l-white border-b-[8px] border-b-transparent ml-1" />
+                                            </div>
                                         </div>
                                     </div>
+                                    <h3 className="mt-6 text-xl font-black text-gray-900 text-center">
+                                        {podcast.title || podcast.name}
+                                    </h3>
                                 </div>
-                                <h3 className="mt-6 text-xl font-black text-gray-900 text-center">{podcast.title || podcast.name}</h3>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+
+                        {/* RIGHT ARROW */}
+                        <button
+                            onClick={() => scrollPodcasts("right")}
+                            className="absolute -right-6 top-[120px] -translate-y-1/2 z-30 hidden md:flex items-center justify-center bg-white text-gray-900 w-12 h-12 rounded-full shadow-xl border border-gray-100 hover:bg-red-600 hover:text-white transition-all duration-300 opacity-0 group-hover/slider:opacity-100"
+                        >
+                            <ChevronRight size={24} strokeWidth={3} />
+                        </button>
                     </div>
 
                     {/* VIEW MORE BUTTON */}
                     <div className="mt-12 flex justify-center">
-                        <button onClick={() => router.push('/user/view-more?type=podcasts')} className="group flex items-center gap-4 bg-white border-2 border-gray-900 text-gray-900 px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-all shadow-lg">
+                        <button
+                            onClick={() => router.push('/user/view-more?type=podcasts')}
+                            className="group flex items-center gap-4 bg-white border-2 border-gray-900 text-gray-900 px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-all shadow-lg"
+                        >
                             <span>Explore Podcasts</span>
-                            <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </button>
                     </div>
                 </div>
             </section>
 
             {/* INFLUENCERS SECTION - Split Media Design (Image & Video) */}
-            <section className="py-24 bg-[#FEF3C7] border-t border-yellow-200 relative overflow-hidden">
-               
+            <section className="py-24 pt-10 bg-[#FEF3C7] border-t border-yellow-200 relative overflow-hidden">
+
                 <div className="absolute top-0 right-0 w-1/3 h-full bg-[#FDE68A]/30 -skew-x-12 translate-x-20 pointer-events-none" />
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -1219,7 +1325,7 @@ export default function Home() {
                     {/* DUAL MEDIA GRID */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
-                        {/* LEFT SIDE — IMAGES ONLY */}
+                        {/* LEFT SIDE — IMAGES (2 ONLY, SMALL) */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="h-px flex-1 bg-yellow-400/50"></div>
@@ -1231,11 +1337,11 @@ export default function Home() {
                             <div className="grid grid-cols-2 gap-4">
                                 {influencers
                                     .filter(inf => inf.media_type === "image")
-                                    .slice(0, 4)
+                                    .slice(0, 2)
                                     .map((inf) => (
                                         <div
                                             key={inf.id}
-                                            className="group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden border-4 border-white shadow-xl bg-white transition-all duration-500 hover:-rotate-2"
+                                            className="group relative aspect-square rounded-[2rem] overflow-hidden border-4 border-white shadow-lg bg-white transition-all duration-500 hover:-rotate-1"
                                         >
                                             <Image
                                                 src={inf.media_url}
@@ -1244,15 +1350,17 @@ export default function Home() {
                                                 className="object-cover transition-transform duration-700 group-hover:scale-110"
                                             />
 
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-6 flex flex-col justify-end">
-                                                <p className="text-white font-bold text-lg">{inf.name}</p>
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-5 flex flex-col justify-end">
+                                                <p className="text-white font-bold text-base">
+                                                    {inf.name}
+                                                </p>
                                             </div>
                                         </div>
                                     ))}
                             </div>
                         </div>
 
-                        {/* RIGHT SIDE — VIDEOS ONLY */}
+                        {/* RIGHT SIDE — VIDEOS (2 ONLY, SMALL) */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-4 mb-4">
                                 <span className="text-yellow-800 font-black text-sm uppercase tracking-widest">
@@ -1261,14 +1369,14 @@ export default function Home() {
                                 <div className="h-px flex-1 bg-yellow-400/50"></div>
                             </div>
 
-                            <div className="flex gap-4 overflow-x-auto lg:overflow-visible lg:grid lg:grid-cols-2 scrollbar-hide">
+                            <div className="grid grid-cols-2 gap-4">
                                 {influencers
                                     .filter(inf => inf.media_type === "video")
                                     .slice(0, 2)
                                     .map((inf) => (
                                         <div
                                             key={inf.id}
-                                            className="min-w-[240px] group relative h-[450px] rounded-[3rem] overflow-hidden shadow-2xl border-[6px] border-white bg-black transition-all duration-700 hover:shadow-red-500/20"
+                                            className="group relative aspect-square rounded-[2.5rem] overflow-hidden shadow-xl border-[5px] border-white bg-black transition-all duration-700 hover:shadow-red-500/20"
                                         >
                                             <video
                                                 src={inf.media_url}
@@ -1280,16 +1388,16 @@ export default function Home() {
                                             />
 
                                             {/* CONTENT OVERLAY */}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-8 flex flex-col justify-end">
-                                                <p className="text-white font-black text-2xl mb-1">
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-5 flex flex-col justify-end">
+                                                <p className="text-white font-black text-lg mb-1">
                                                     {inf.name}
                                                 </p>
-                                                <div className="w-8 h-1 bg-red-600 rounded-full group-hover:w-full transition-all duration-500" />
+                                                <div className="w-6 h-1 bg-red-600 rounded-full group-hover:w-full transition-all duration-500" />
                                             </div>
 
                                             {/* PLAY BADGE */}
-                                            <div className="absolute top-6 right-6 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30">
-                                                <div className="w-0 h-0 border-t-[5px] border-t-transparent border-l-[10px] border-l-white border-b-[5px] border-b-transparent ml-1" />
+                                            <div className="absolute top-4 right-4 w-9 h-9 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30">
+                                                <div className="w-0 h-0 border-t-[5px] border-t-transparent border-l-[9px] border-l-white border-b-[5px] border-b-transparent ml-0.5" />
                                             </div>
                                         </div>
                                     ))}
@@ -1297,6 +1405,7 @@ export default function Home() {
                         </div>
 
                     </div>
+
 
                     {/* VIEW MORE BUTTON */}
                     <div className="mt-20 flex justify-center">

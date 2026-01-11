@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import {
   Loader2, Mail, Fingerprint,
   CalendarClock, ShieldCheck,
-  ArrowLeft, Store, UserCircle2
+  Store, UserCircle2
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -17,7 +17,6 @@ const supabase = createClient(
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
-  const router = useRouter();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -38,44 +37,42 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-white font-sans selection:bg-yellow-100 text-slate-900">
 
-      {/* --- HERO HEADER (Registry Style) --- */}
-      <div className="bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-16 pb-32 px-6 relative overflow-hidden border-b border-yellow-200">
-        {/* Dot Grid Pattern Overlay */}
+      {/* --- HERO HEADER (Compact Registry Style) --- */}
+      <div className="bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-12 pb-24 px-6 relative overflow-hidden border-b border-yellow-200">
         <div className="absolute inset-0 opacity-40 bg-[radial-gradient(#F59E0B_0.5px,transparent_0.5px)] [background-size:24px_24px]" />
 
-        <div className="max-w-6xl mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
+        <div className="max-w-6xl mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
 
           <div className="text-center md:text-left flex-1">
-
-
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-5xl md:text-7xl font-black tracking-tighter text-gray-900 leading-[0.85] uppercase mb-4"
+              // Reduced from 7xl to 5xl
+              className="text-3xl md:text-5xl font-black tracking-tighter text-gray-900 leading-[0.9] uppercase mb-3"
             >
               User <br />
               <span className="text-red-600 italic">Registry</span>
             </motion.h1>
-            <p className="text-gray-500 font-bold text-sm uppercase tracking-widest">{user.email}</p>
+            <p className="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-[0.2em]">{user.email}</p>
           </div>
 
-          {/* Icon Tilted Card */}
+          {/* Icon Tilted Card - Slightly Scaled Down */}
           <motion.div
             initial={{ opacity: 0, rotate: 0, scale: 0.9 }}
-            animate={{ opacity: 1, rotate: -3, scale: 1 }}
+            animate={{ opacity: 1, rotate: -3, scale: 0.95 }}
             className="relative"
           >
-            <div className="bg-white p-10 rounded-[3rem] shadow-2xl border-2 border-yellow-100 flex items-center justify-center relative">
+            <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border-2 border-yellow-100 flex items-center justify-center relative">
               <div className="text-yellow-500">
-                <UserCircle2 size={120} strokeWidth={1} />
+                <UserCircle2 size={80} strokeWidth={1} />
               </div>
 
-              <div className="absolute -top-3 -right-3 bg-red-600 text-white p-3 rounded-2xl shadow-xl border-4 border-[#FEF3C7]">
-                <ShieldCheck size={24} fill="currentColor" />
+              <div className="absolute -top-2 -right-2 bg-red-600 text-white p-2.5 rounded-xl shadow-lg border-4 border-[#FEF3C7]">
+                <ShieldCheck size={20} fill="currentColor" />
               </div>
             </div>
 
-            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-black text-white px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] whitespace-nowrap">
+            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-black text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest whitespace-nowrap">
               Identity Verified
             </div>
           </motion.div>
@@ -83,40 +80,40 @@ export default function ProfilePage() {
       </div>
 
       {/* --- DETAILS SECTION --- */}
-      <div className="max-w-4xl mx-auto px-6 -mt-16 pb-20 relative z-20">
-        <div className="bg-white rounded-[3rem] p-8 md:p-12 shadow-xl border border-yellow-100/50">
-          <div className="flex items-center gap-3 mb-10 border-b border-yellow-100 pb-6">
-            <div className="p-3 bg-yellow-400 rounded-2xl text-black">
-              <Fingerprint size={24} />
+      <div className="max-w-4xl mx-auto px-6 -mt-12 pb-20 relative z-20">
+        <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-xl border border-yellow-100/50">
+          <div className="flex items-center gap-3 mb-8 border-b border-yellow-100 pb-5">
+            <div className="p-2.5 bg-yellow-400 rounded-xl text-black">
+              <Fingerprint size={20} />
             </div>
             <div>
-              <h2 className="text-xl font-black uppercase italic leading-none">Account Credentials</h2>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Verified Identity File</p>
+              <h2 className="text-lg font-black uppercase italic leading-none">Account Credentials</h2>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Verified Identity File</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <DetailRow
               title="Email Address"
               value={user.email}
-              icon={<Mail />}
+              icon={<Mail size={18} />}
             />
             <DetailRow
               title="Registry Date"
               value={new Date(user.created_at).toLocaleDateString()}
-              icon={<CalendarClock />}
+              icon={<CalendarClock size={18} />}
             />
           </div>
 
           {/* Bottom Banner */}
-          <div className="mt-12 p-8 bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-200 flex items-center gap-6">
-            <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm shrink-0">
-              <Store className="text-red-600" size={24} />
+          <div className="mt-10 p-6 bg-slate-50 rounded-[2rem] border border-dashed border-slate-200 flex items-center gap-5">
+            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm shrink-0 border border-slate-100">
+              <Store className="text-red-600" size={20} />
             </div>
             <div>
-              <p className="text-xs font-black text-black uppercase tracking-tight">Active Studio Member</p>
-              <p className="text-[10px] font-bold text-slate-400 uppercase leading-relaxed mt-1">
-                This user profile is officially registered within the Vendor Network Registry. All displayed credentials are securely verified through authenticated database protocols.
+              <p className="text-[10px] font-black text-black uppercase tracking-tight">Active Studio Member</p>
+              <p className="text-[9px] font-bold text-slate-400 uppercase leading-relaxed mt-1">
+                This user profile is officially registered within the Vendor Network Registry. All credentials verified through authenticated protocols.
               </p>
             </div>
           </div>
@@ -128,13 +125,13 @@ export default function ProfilePage() {
 
 function DetailRow({ title, value, icon }: { title: string; value: string | null; icon: React.ReactNode }) {
   return (
-    <div className="group flex items-center gap-5 p-4 rounded-3xl border border-transparent hover:border-yellow-200 hover:bg-[#FEF3C7]/20 transition-all">
-      <div className="bg-white text-yellow-700 p-3 rounded-2xl shadow-sm border border-yellow-100 group-hover:scale-110 transition-transform">
+    <div className="group flex items-center gap-4 p-3.5 rounded-2xl border border-transparent hover:border-yellow-200 hover:bg-[#FEF3C7]/20 transition-all">
+      <div className="bg-white text-yellow-700 p-2.5 rounded-xl shadow-sm border border-yellow-50 group-hover:scale-105 transition-transform">
         {icon}
       </div>
       <div className="flex flex-col overflow-hidden">
-        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] mb-1">{title}</span>
-        <span className="text-sm font-black text-gray-900 truncate">{value || "—"}</span>
+        <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">{title}</span>
+        <span className="text-xs font-black text-gray-900 truncate">{value || "—"}</span>
       </div>
     </div>
   );

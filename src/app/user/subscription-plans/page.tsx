@@ -37,16 +37,13 @@ export default function SubscriptionPlanPage() {
 
   const checkUserAndSubscription = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    
     if (!user) {
       setIsLoggedIn(false);
       setLoading(false);
       return;
     }
-
     setIsLoggedIn(true);
 
-    // Check if user is a vendor
     const { data: vendor } = await supabase
       .from("vendor_register")
       .select("subscription_expiry, subscription_plan_id")
@@ -58,7 +55,6 @@ export default function SubscriptionPlanPage() {
       setLoading(false);
       return;
     }
-
     setIsVendor(true);
 
     if (vendor?.subscription_expiry) {
@@ -79,7 +75,6 @@ export default function SubscriptionPlanPage() {
       .from("subscription_plans")
       .select("*")
       .order("base_price", { ascending: true });
-
     setPlans(data || []);
   };
 
@@ -91,19 +86,17 @@ export default function SubscriptionPlanPage() {
       setShowAuthModal(true);
       return;
     }
-
     if (!isVendor) {
       toast.error("Please register as a vendor first.");
       router.push('/provider/register');
       return;
     }
-
     handlePayment(plan);
   };
 
   const handlePayment = async (plan: SubscriptionPlan) => {
     if (!(window as any).Razorpay) {
-      toast.error("Payment system loading... Please try again.");
+      toast.error("Payment system loading...");
       return;
     }
 
@@ -138,10 +131,7 @@ export default function SubscriptionPlanPage() {
           window.location.reload();
         }
       },
-      prefill: {
-        name: user?.user_metadata?.full_name || "",
-        email: user?.email,
-      },
+      prefill: { name: user?.user_metadata?.full_name || "", email: user?.email },
       theme: { color: "#F59E0B" },
     };
 
@@ -152,37 +142,34 @@ export default function SubscriptionPlanPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#FFFDF5]">
-        <Loader className="animate-spin text-yellow-600" size={48} />
-        <p className="text-gray-900 font-black uppercase tracking-[0.3em] text-xs mt-6">Loading Marketplace</p>
+        <Loader className="animate-spin text-yellow-600" size={40} />
+        <p className="text-gray-900 font-black uppercase tracking-[0.3em] text-[10px] mt-4">Initializing Marketplace</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#FFFDF5] text-gray-900 font-sans selection:bg-yellow-200 pb-20 overflow-x-hidden">
+    <div className="min-h-screen bg-[#FFFDF5] text-gray-900 font-sans selection:bg-yellow-200 pb-16 overflow-x-hidden">
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
       <Toaster position="top-right" />
 
-      {/* --- AUTH MODAL --- */}
+      {/* --- AUTH MODAL (Compact) --- */}
       <AnimatePresence>
         {showAuthModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowAuthModal(false)} className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-[3rem] shadow-2xl max-w-sm w-full relative z-10 p-10 text-center border-t-8 border-yellow-500">
-              <button onClick={() => setShowAuthModal(false)} className="absolute top-6 right-6 text-gray-400 hover:text-black">
-                <X size={24} />
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-[2.5rem] shadow-2xl max-w-xs w-full relative z-10 p-8 text-center border-t-4 border-yellow-500">
+              <button onClick={() => setShowAuthModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-black">
+                <X size={20} />
               </button>
-              <div className="w-16 h-16 bg-yellow-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Lock size={28} className="text-yellow-600" />
+              <div className="w-12 h-12 bg-yellow-50 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <Lock size={22} className="text-yellow-600" />
               </div>
-              <h2 className="text-2xl font-black text-gray-900 mb-2">MEMBER ACCESS</h2>
-              <p className="text-gray-500 text-sm mb-8">Please login or create an account to purchase subscription plans.</p>
-              <button 
-                onClick={() => router.push('/login')}
-                className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition-all"
-              >
+              <h2 className="text-xl font-black text-gray-900 mb-2 uppercase tracking-tighter">Identity Check</h2>
+              <p className="text-gray-500 text-xs mb-6">Please login to access ecosystem pricing.</p>
+              <button onClick={() => router.push('/login')} className="w-full bg-gray-900 text-white py-3 rounded-xl font-bold text-sm">
                 Go to Login
               </button>
             </motion.div>
@@ -190,29 +177,29 @@ export default function SubscriptionPlanPage() {
         )}
       </AnimatePresence>
 
-      {/* --- HERO SECTION --- */}
-      <div className="bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-20 pb-40 px-6 relative border-b border-yellow-200">
+      {/* --- HERO SECTION (Reduced Padding) --- */}
+      <div className="bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-12 pb-32 px-6 relative border-b border-yellow-100">
         <div className="max-w-7xl mx-auto relative z-10 text-center">
           {userStatus.active && (
-            <div className="inline-flex items-center gap-2 bg-green-100 px-4 py-1 rounded-full mb-6 border border-green-200">
-              <span className="h-2 w-2 rounded-full bg-green-600 animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-green-700">
-                Current Plan Active until {userStatus.expiry}
+            <div className="inline-flex items-center gap-2 bg-green-100 px-3 py-1 rounded-full mb-4 border border-green-200">
+              <span className="h-1.5 w-1.5 rounded-full bg-green-600 animate-pulse" />
+              <span className="text-[9px] font-black uppercase tracking-widest text-green-700">
+                Active until {userStatus.expiry}
               </span>
             </div>
           )}
-          <h1 className="text-5xl md:text-8xl font-black tracking-tighter text-gray-900 leading-none uppercase">
+          <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-900 leading-none uppercase">
             SCALE YOUR <br /> <span className="text-red-600 italic">BUSINESS</span>
           </h1>
-          <p className="mt-6 text-gray-600 font-bold text-lg max-w-2xl mx-auto">
-            Choose a plan to unlock verified leads, direct customer contact, and priority support.
+          <p className="mt-4 text-gray-500 font-bold text-sm max-w-xl mx-auto leading-relaxed">
+            Choose a protocol to unlock verified leads and priority ecosystem support.
           </p>
         </div>
       </div>
 
-      {/* --- PLANS GRID --- */}
-      <div className="max-w-7xl mx-auto px-6 -mt-32 relative z-20">
-        <div className="flex flex-wrap justify-center items-stretch gap-8">
+      {/* --- PLANS GRID (Compact Widths) --- */}
+      <div className="max-w-6xl mx-auto px-6 -mt-20 relative z-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
           {plans.map((plan, idx) => {
             const totalPrice = calculateTotal(plan.base_price, plan.tax_percent);
             const isCurrentPlan = userStatus.active && plan.id === userStatus.currentPlanId;
@@ -220,30 +207,36 @@ export default function SubscriptionPlanPage() {
             return (
               <motion.div
                 key={plan.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.5rem)] max-w-[380px] flex"
+                transition={{ delay: idx * 0.05 }}
+                className="flex"
               >
-                <div className={`w-full bg-white rounded-[3rem] shadow-xl p-10 flex flex-col border-2 transition-all ${isCurrentPlan ? 'border-green-500 ring-4 ring-green-50' : 'border-white hover:border-yellow-300'}`}>
+                <div className={`w-full bg-white rounded-[2.5rem] shadow-lg p-8 flex flex-col border-2 transition-all ${isCurrentPlan ? 'border-green-500 ring-4 ring-green-50' : 'border-white hover:border-yellow-300'}`}>
                   
-                  {isCurrentPlan && (
-                    <div className="bg-green-500 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full w-fit mb-4">
-                      Active Plan
+                  {isCurrentPlan ? (
+                    <div className="bg-green-500 text-white text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full w-fit mb-3">
+                      Current Active Protocol
+                    </div>
+                  ) : (
+                    <div className="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-3 italic">
+                      Tier {idx + 1} System
                     </div>
                   )}
 
-                  <h3 className="text-2xl font-black text-gray-900 mb-1">{plan.name}</h3>
+                  <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight uppercase tracking-tight">{plan.name}</h3>
                   <div className="flex items-baseline gap-1 mb-6">
-                    <span className="text-4xl font-black text-gray-900">₹{totalPrice}</span>
-                    <span className="text-gray-400 font-bold text-xs">/ {plan.duration_months} mo</span>
+                    <span className="text-3xl font-black text-gray-900 tracking-tighter">₹{totalPrice}</span>
+                    <span className="text-gray-400 font-bold text-[10px]">/ {plan.duration_months}MO</span>
                   </div>
 
-                  <div className="space-y-4 mb-10 flex-grow">
+                  <div className="space-y-3 mb-8 flex-grow border-t border-gray-50 pt-6">
                     {plan.benefits.map((benefit, i) => (
-                      <div key={i} className="flex items-start gap-3">
-                        <Check size={16} className="text-green-600 mt-0.5 shrink-0" />
-                        <span className="text-gray-600 text-sm font-semibold">{benefit}</span>
+                      <div key={i} className="flex items-start gap-2.5">
+                        <div className="bg-green-50 p-0.5 rounded-sm mt-0.5 shrink-0">
+                          <Check size={10} className="text-green-600" />
+                        </div>
+                        <span className="text-gray-600 text-[11px] font-bold uppercase tracking-tight">{benefit}</span>
                       </div>
                     ))}
                   </div>
@@ -251,12 +244,12 @@ export default function SubscriptionPlanPage() {
                   <button
                     onClick={() => handleAction(plan)}
                     disabled={isCurrentPlan}
-                    className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 
+                    className={`w-full py-3.5 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 
                       ${isCurrentPlan 
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                        : 'bg-gray-900 text-white hover:bg-black hover:-translate-y-1 shadow-lg active:scale-95'}`}
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200' 
+                        : 'bg-gray-900 text-white hover:bg-red-600 hover:-translate-y-1 shadow-md active:scale-95'}`}
                   >
-                    {!isLoggedIn ? "Sign in to Buy" : !isVendor ? "Register as Vendor" : isCurrentPlan ? "Current Plan" : "Get Started"} 
+                    {!isLoggedIn ? "Login to Purchase" : !isVendor ? "Vendor Registry Req." : isCurrentPlan ? "Active Protocol" : "Deploy Plan"} 
                     <ArrowRight size={14} />
                   </button>
                 </div>

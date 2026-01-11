@@ -82,90 +82,64 @@ export default function UserFeed() {
     return !!vendorData; // Return true if exists in vendor_register
   };
 
-useEffect(() => {
- const loadUserAndRole = async () => {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    setUser(user);
+  useEffect(() => {
+    loadUserAndRole();
 
-    if (!user?.id) {
-      setUserRole(null);
-      setProfileColor("#FFD700");
-      setProfileMedal("");
-      return;
-    }
+    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+      loadUserAndRole();
+    });
 
-    // Fetch vendor data without join
-    const { data: vendor, error: vendorError } = await supabase
-      .from("vendor_register")
-      .select("id, subscription_plan_id")
-      .eq("user_id", user.id)
-      .maybeSingle();
+    return () => authListener.subscription.unsubscribe();
+  }, []);
 
-    if (vendorError) {
-      console.error("Full vendor error:", vendorError); // Log full error for debugging
-      setUserRole("user");
-      setProfileColor("#FFD700");
-      setProfileMedal("");
-      return;
-    }
+  const loadUserAndRole = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
 
-    if (vendor) {
-      setUserRole("vendor");
-      // Fetch plan data separately if subscription_plan_id exists
-      if (vendor.subscription_plan_id) {
-        const { data: plan, error: planError } = await supabase
+      if (!user?.id) {
+        setUserRole(null);
+        setProfileColor("#FFD700");
+        setProfileMedal("");
+        return;
+      }
+
+      const { data: vendor } = await supabase
+        .from("vendor_register")
+        .select("subscription_plan_id")
+        .eq("user_id", user.id) // confirm column name
+        .maybeSingle();
+
+      if (vendor?.subscription_plan_id) {
+        setUserRole("vendor");
+
+        const { data: plan } = await supabase
           .from("subscription_plans")
           .select("color, medals")
           .eq("id", vendor.subscription_plan_id)
           .maybeSingle();
 
-        if (planError) {
-          console.error("Plan fetch error:", planError);
-          setProfileColor("#FFD700");
-          setProfileMedal("");
-        } else {
-          setProfileColor(plan?.color ?? "#FFD700");
-          setProfileMedal(plan?.medals ?? "");
-        }
+        setProfileColor(plan?.color || "#FFD700");
+        setProfileMedal(plan?.medals || "");
       } else {
+        setUserRole("user");
         setProfileColor("#FFD700");
         setProfileMedal("");
       }
-      return;
+    } catch (err) {
+      console.error("loadUserAndRole error:", err);
     }
-
-    // Rest of the function (users table check) remains the same...
-  } catch (err) {
-    console.error("Unexpected error in loadUserAndRole:", err);
-    setUserRole("user");
-    setProfileColor("#FFD700");
-    setProfileMedal("");
-  }
-};
-
-  loadUserAndRole();
-
-  const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-    if (session?.user?.id) {
-      loadUserAndRole();
-    } else {
-      setUser(null);
-      setUserRole(null);
-      setProfileColor("#FFD700");
-    }
-  });
-
-  return () => {
-    authListener.subscription.unsubscribe();
   };
-}, []);
+
+  const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
 
   // Close dropdown on pathname change or outside click
   useEffect(() => {
-    setOpenMenu(null);
-    setIsMobileMenuOpen(false);
-  }, [pathname]);
+    if (!isMobileMenuOpen) {
+      setMobileProfileOpen(false);
+    }
+  }, [isMobileMenuOpen]);
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -365,7 +339,6 @@ useEffect(() => {
             />
           </Link>
 
-          {/* 2. Nav Section: Modern typography and tighter spacing */}
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center space-x-2 font-semibold text-sm">
             {navLinks.map((link) => {
@@ -463,212 +436,228 @@ useEffect(() => {
                 </>
               ) : (
                 /* Profile Dropdown */
+                /* Profile Dropdown */
                 <div className="relative" ref={dropdownRef}>
-                <button
-  onClick={() => setOpenMenu(openMenu === "profile" ? null : "profile")}
-  className="flex items-center space-x-3 p-1 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 transition-all duration-300 shadow-inner"
->
-  <div className="relative flex-shrink-0">
-    {/* Main Avatar Circle */}
-    <div
-      className="w-12 h-12 rounded-full flex items-center justify-center border-2 transition-transform group-hover:scale-105 overflow-hidden"
-      style={{
-        backgroundColor: profileColor,
-        borderColor: 'rgba(255,255,255,0.9)',
-        boxShadow: `0 0 20px ${profileColor}60`
-      }}
-    >
-      <UserCircle size={28} className="text-white drop-shadow-md" />
-    </div>
+                  <button
+                    onClick={() => setOpenMenu(openMenu === "profile" ? null : "profile")}
+                    className="flex items-center space-x-3 p-2 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 transition-all duration-300 shadow-inner"
+                  >
+                    <div className="relative flex-shrink-0">
+                      {/* Vendor Medal as Avatar */}
+                      {userRole === "vendor" && profileMedal ? (
+                        <div
+                          className="relative flex items-center justify-center 
+                     rounded-full shadow-lg border-2 border-white
+                     animate-in zoom-in duration-500
+                     hover:scale-110 transition-transform
+                     px-3 py-2 min-w-[2.5rem] max-w-[5rem]"
+                          style={{
+                            backgroundColor: '#000000', // black background for medal
+                            boxShadow: `0 0 15px ${profileColor}60`,
+                          }}
+                          title="Vendor Rank"
+                        >
+                          <span
+                            className={`text-sm font-bold text-white select-none drop-shadow-md ${profileMedal.length > 2 ? 'text-[10px]' : 'text-sm'
+                              }`}
+                          >
+                            {profileMedal}
+                          </span>
+                          {/* Glow Ring */}
+                          <div className="absolute inset-0 rounded-full border border-yellow-400 opacity-40 animate-pulse" />
+                        </div>
+                      ) : (
+                        /* Regular User Avatar */
+                        <div
+                          className="w-12 h-12 rounded-full flex items-center justify-center border-2 transition-transform group-hover:scale-105 overflow-hidden"
+                          style={{
+                            backgroundColor: profileColor,
+                            borderColor: 'rgba(255,255,255,0.9)',
+                            boxShadow: `0 0 20px ${profileColor}60`,
+                          }}
+                        >
+                          <UserCircle size={28} className="text-white drop-shadow-md" />
+                        </div>
+                      )}
+                    </div>
 
-    {/* ENHANCED MEDAL BADGE */}
-    {userRole === "vendor" && profileMedal && (
-      <div className="absolute -bottom-1 -right-1 bg-black rounded-full w-6 h-6 flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.3)] border-2 border-white animate-in zoom-in duration-500 hover:scale-110 transition-transform">
-        <span className="text-xs leading-none drop-shadow-sm select-none" title="Vendor Rank">
-          {profileMedal}
-        </span>
-        {/* Subtle Glow Ring */}
-        <div className="absolute inset-0 rounded-full border border-yellow-400 opacity-50 animate-pulse" />
-      </div>
-    )}
-  </div>
+                    {/* Profile Info */}
+                    <div className="flex flex-col items-start pr-4">
+                      <span className="text-[10px] font-black text-white/70 uppercase tracking-widest leading-none mb-1">
+                        {userRole === "vendor" ? "Premium Vendor" : "Member"}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm font-bold text-white tracking-tight">Account</span>
+                        <ChevronDown
+                          size={14}
+                          className={`text-yellow-400 transition-transform duration-300 ${openMenu === "profile" ? 'rotate-180' : ''
+                            }`}
+                        />
+                      </div>
+                    </div>
+                  </button>
 
-  <div className="flex flex-col items-start pr-4">
-    <span className="text-[10px] font-black text-white/70 uppercase tracking-widest leading-none mb-1">
-      {userRole === "vendor" ? "Premium Vendor" : "Member"}
-    </span>
-    <div className="flex items-center gap-1">
-       <span className="text-sm font-bold text-white tracking-tight">Account</span>
-       <ChevronDown size={14} className={`text-yellow-500 transition-transform duration-300 ${openMenu === "profile" ? 'rotate-180' : ''}`} />
-    </div>
-  </div>
-</button>
-
+                  {/* DROPDOWN MENU */}
                   {openMenu === "profile" && (
-                    <div className="absolute right-0 mt-3 bg-gradient-to-b from-yellow-50 to-yellow-100 border border-yellow-200 shadow-2xl rounded-2xl py-2 w-56 text-sm z-50 animate-in fade-in slide-in-from-top-2">
+                    <div className="absolute right-0 mt-3 bg-gradient-to-b from-yellow-50 to-yellow-100 border border-yellow-200 shadow-2xl rounded-2xl py-2 w-60 text-sm z-50 animate-in fade-in slide-in-from-top-2">
+                      {/* Header */}
                       <div className="px-4 py-2 mb-1 border-b border-yellow-200">
                         <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Account</p>
                       </div>
 
+                      {/* Links */}
                       <Link
                         href={userRole === "vendor" ? "/user/vendor-profile" : "/user/profile"}
-                        className="flex items-center px-4 py-2.5 hover:bg-yellow-200 font-medium text-gray-800"
+                        className="flex items-center px-4 py-2.5 hover:bg-yellow-200 hover:text-gray-900 font-medium text-gray-800 transition-colors duration-200"
                       >
                         My Profile
                       </Link>
 
                       {userRole === "vendor" && (
                         <>
-                          <Link href="/vendor/products" className="flex items-center px-4 py-2.5 hover:bg-yellow-200 font-medium text-gray-800">Products</Link>
-                          <Link href="/vendor/enquiry" className="flex items-center px-4 py-2.5 hover:bg-yellow-200 font-medium text-gray-800">Enquiries</Link>
+                          <Link
+                            href="/vendor/products"
+                            className="flex items-center px-4 py-2.5 hover:bg-yellow-200 hover:text-gray-900 font-medium text-gray-800 transition-colors duration-200"
+                          >
+                            Products
+                          </Link>
+                          <Link
+                            href="/vendor/enquiry"
+                            className="flex items-center px-4 py-2.5 hover:bg-yellow-200 hover:text-gray-900 font-medium text-gray-800 transition-colors duration-200"
+                          >
+                            Enquiries
+                          </Link>
                         </>
                       )}
 
+                      {/* Logout */}
                       <button
                         onClick={logout}
-                        className="flex w-full px-4 py-2.5 hover:bg-red-100 text-left text-red-600 font-bold mt-1"
+                        className="flex w-full px-4 py-2.5 hover:bg-red-100 text-left text-red-600 font-bold mt-1 rounded-b-2xl transition-colors duration-200"
                       >
                         Logout
                       </button>
-
                     </div>
                   )}
                 </div>
+
               )}
             </div>
           </div>
         </div>
 
         {/* Mobile Menu Overlay - Full Screen */}
+        {/* MOBILE MENU OVERLAY */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 z-[10000] bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-            <div ref={mobileMenuRef} className="absolute right-0 top-0 h-full w-80 bg-white shadow-2xl animate-in slide-in-from-right duration-300 overflow-y-auto">
-              <div className="flex flex-col h-full">
-                {/* Close Button */}
-                <div className="flex justify-end p-4">
+          <div
+            ref={mobileMenuRef}
+            className="fixed inset-0 top-16 z-[9998] bg-white lg:hidden overflow-y-auto"
+          >
+            {/* Mobile Nav Links */}
+            <div className="px-6 py-6 space-y-4 border-b">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block text-lg font-bold text-gray-800"
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+
+            {/* Mobile Auth Section */}
+            <div className="px-6 py-6">
+              {!user ? (
+                <div className="space-y-4">
                   <button
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-2 rounded-full hover:bg-gray-100 text-gray-700"
+                    onClick={() => { setShowLoginPopup(true); setIsMobileMenuOpen(false); }}
+                    className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold text-sm uppercase tracking-wide"
                   >
-                    <X size={24} />
+                    Login
                   </button>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => { setShowRegisterPopup(true); setIsMobileMenuOpen(false); }}
+                      className="w-full py-3 bg-yellow-500 text-black rounded-xl font-bold text-sm uppercase tracking-wide"
+                    >
+                      User Register
+                    </button>
+                    <button
+                      onClick={() => { setOpenVendor(true); setIsMobileMenuOpen(false); }}
+                      className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-sm uppercase tracking-wide"
+                    >
+                      Vendor Register
+                    </button>
+                  </div>
                 </div>
-
-
-
-                {/* Auth Section */}
-                <div className="px-6 pb-6 border-t border-gray-200 pt-4">
-                  {!user ? (
-                    <div className="space-y-3">
-                      <button
-                        onClick={() => {
-                          setShowLoginPopup(true);
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className="w-full px-4 py-3 text-sm font-bold text-gray-700 hover:text-black transition border border-gray-300 rounded-lg"
+              ) : (
+                /* MOBILE PROFILE DROPDOWN */
+                <div>
+                  <button
+                    onClick={() => setMobileProfileOpen(!mobileProfileOpen)}
+                    className="w-full flex items-center justify-between bg-gray-100 rounded-xl p-4"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-12 h-12 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: profileColor }}
                       >
-                        Login
-                      </button>
+                        <UserCircle size={26} className="text-white" />
+                      </div>
 
-                      <div className="relative">
-                        <button
-                          onClick={() => setOpenRegisterMenu((prev) => !prev)}
-                          className="w-full px-4 py-3 bg-[#FFD700] text-black text-sm rounded-lg font-bold shadow-sm hover:bg-[#f2cc00] transition-all flex items-center justify-center"
-                        >
-                          Register
-                          <ChevronDown size={14} className={`ml-1 transition-transform ${openRegisterMenu ? 'rotate-180' : ''}`} />
-                        </button>
-
-                        {openRegisterMenu && (
-                          <div className="absolute bottom-full left-0 right-0 mb-2 bg-yellow-100 text-black border border-gray-100 shadow-2xl rounded-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-bottom-2">
-                            <button
-                              onClick={() => {
-                                setShowRegisterPopup(true);
-                                setOpenRegisterMenu(false);
-                                setIsMobileMenuOpen(false);
-                              }}
-                              className="w-full text-left px-5 py-3 hover:bg-yellow-100 text-sm font-semibold flex items-center space-x-2"
-                            >
-                              <UserIcon size={16} /> <span>User Registration</span>
-                            </button>
-
-                            <button
-                              onClick={() => {
-                                setOpenVendor(true);
-                                setOpenRegisterMenu(false);
-                                setIsMobileMenuOpen(false);
-                              }}
-                              className="w-full text-left px-5 py-3 hover:bg-yellow-100 text-sm font-semibold border-t border-gray-50 flex items-center space-x-2"
-                            >
-                              <Briefcase size={16} />
-                              <span>Vendor Registration</span>
-                            </button>
-                          </div>
-                        )}
+                      <div className="text-left">
+                        <p className="text-sm font-black text-gray-800">
+                          {userRole === "vendor" ? "Vendor Account" : "User Account"}
+                        </p>
+                        <p className="text-xs text-gray-500">Tap to manage</p>
                       </div>
                     </div>
-                  ) : (
-                    <div className="flex items-center space-x-3 px-4 py-3 bg-gray-50 rounded-lg">
-                      <div className="relative">
-                        <div
-                          className="w-10 h-10 rounded-full flex items-center justify-center border-4 border-white shadow-lg ring-2 ring-yellow-300"
-                          style={{ backgroundColor: profileColor }}
-                        >
-                          <UserCircle size={24} className="text-white drop-shadow-md" />
-                        </div>
 
-                        {/* Mobile Medal */}
-                        {userRole === "vendor" && profileMedal && (
-                          <div className="absolute -bottom-1 -right-1 bg-white rounded-full w-5 h-5 flex items-center justify-center shadow-md border border-gray-200 text-[10px]">
-                            {profileMedal}
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-gray-800">Profile</p>
-                        <p className="text-xs text-gray-500">{userRole === "vendor" ? "Vendor" : "User"}</p>
-                      </div>
+                    <ChevronDown
+                      size={18}
+                      className={`transition-transform ${mobileProfileOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+
+                  {mobileProfileOpen && (
+                    <div className="mt-3 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+                      <Link
+                        href={userRole === "vendor" ? "/user/vendor-profile" : "/user/profile"}
+                        className="block px-5 py-4 text-sm font-semibold"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        My Profile
+                      </Link>
+
+                      {userRole === "vendor" && (
+                        <>
+                          <Link href="/vendor/products" className="block px-5 py-4 text-sm font-semibold" onClick={() => setIsMobileMenuOpen(false)}>
+                            Products
+                          </Link>
+                          <Link href="/vendor/enquiry" className="block px-5 py-4 text-sm font-semibold" onClick={() => setIsMobileMenuOpen(false)}>
+                            Enquiries
+                          </Link>
+                        </>
+                      )}
+
+                      <button
+                        onClick={() => { logout(); setIsMobileMenuOpen(false); }}
+                        className="w-full text-left px-5 py-4 text-sm font-bold text-red-600"
+                      >
+                        Logout
+                      </button>
                     </div>
                   )}
                 </div>
-                {/* Add Business Button */}
-                <div className="px-6 pb-4">
-                  <Link
-                    href="/user/add-business"
-                    className="flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white text-sm font-black uppercase tracking-widest rounded-lg hover:bg-red-700 transition-all shadow-lg w-full"
-                  >
-                    <PlusCircle size={16} /> Add Business
-                  </Link>
-                </div>
-                {/* Navigation Links */}
-                <nav className="flex-1 px-6 py-4">
-                  <ul className="space-y-4">
-                    {navLinks.map((link) => {
-                      const isLinkActive = pathname === link.href;
-                      return (
-                        <li key={link.name}>
-                          <Link
-                            href={link.href}
-                            className={`block px-4 py-3 rounded-lg font-semibold text-sm transition ${isLinkActive
-                              ? "text-red-400 bg-red-50"
-                              : "text-gray-700 hover:bg-gray-100"
-                              }`}
-                          >
-                            {link.name}
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </nav>
-
-              </div>
+              )}
             </div>
           </div>
         )}
       </header>
 
-      {/* -------------------- LOGIN POPUP ------------------------ */}
+      {/* -------------------- LOGIN POPUP (Mobile-Friendly) ------------------------ */}
       {showLoginPopup && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
           {/* Animated Backdrop */}
@@ -677,50 +666,50 @@ useEffect(() => {
             onClick={() => setShowLoginPopup(false)}
           />
 
-          <div className="relative bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="relative bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             {/* Design Element: Top Glow */}
             <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-300" />
 
-            <div className="p-10">
+            <div className="p-6 md:p-10">
               <button
                 onClick={() => setShowLoginPopup(false)}
-                className="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
+                className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
               >
-                <span className="text-xl">✕</span>
+                <X size={20} />
               </button>
 
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-black text-slate-900 mb-2">Welcome Back</h2>
-                <p className="text-slate-500 font-medium">Enter your email to access your account</p>
+              <div className="text-center mb-6">
+                <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-2">Welcome Back</h2>
+                <p className="text-slate-500 font-medium text-sm md:text-base">Enter your email to access your account</p>
               </div>
 
               {loginError && (
-                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm font-bold rounded-r-xl">
+                <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm font-bold rounded-r-xl">
                   {loginError}
                 </div>
               )}
               {loginSuccess && (
-                <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 text-sm font-bold rounded-r-xl">
+                <div className="mb-4 p-3 bg-green-50 border-l-4 border-green-500 text-green-700 text-sm font-bold rounded-r-xl">
                   {loginSuccess}
                 </div>
               )}
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
                   <input
                     name="email"
                     type="email"
                     value={loginData.email}
                     onChange={handleLoginChange}
                     placeholder="name@company.com"
-                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 outline-none transition-all font-bold text-slate-900"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-all font-medium text-slate-900 text-sm"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex justify-between items-end">
-                    <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">One-Time Password</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">One-Time Password</label>
                     {otpTimer && <span className="text-xs font-bold text-yellow-600 mb-1">{otpTimer} remaining</span>}
                   </div>
                   <input
@@ -729,27 +718,22 @@ useEffect(() => {
                     onChange={handleLoginChange}
                     placeholder="Enter OTP"
                     type="text"
-                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl
-             text-slate-900 placeholder-slate-400
-             focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500
-             outline-none transition-all font-bold tracking-[0.2em]
-             text-center text-lg"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-all font-medium text-center text-lg tracking-widest"
                   />
-
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="grid grid-cols-2 gap-3 pt-2">
                   <button
                     onClick={sendLoginOtp}
                     disabled={loginLoading}
-                    className="py-4 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-2xl font-black text-sm uppercase tracking-wider transition-all disabled:opacity-50"
+                    className="py-3 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-xl font-bold text-sm uppercase tracking-wide transition-all disabled:opacity-50"
                   >
                     {loginLoading ? "Sending..." : "Send OTP"}
                   </button>
                   <button
                     onClick={verifyLoginOtp}
                     disabled={loginLoading}
-                    className="py-4 bg-[#FFD700] hover:bg-yellow-400 text-slate-900 rounded-2xl font-black text-sm uppercase tracking-wider shadow-lg shadow-yellow-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                    className="py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-900 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
                   >
                     {loginLoading ? "Verifying..." : "Login"}
                   </button>
@@ -760,7 +744,7 @@ useEffect(() => {
         </div>
       )}
 
-      {/* -------------------- REGISTER POPUP ------------------------ */}
+      {/* -------------------- REGISTER POPUP (Mobile-Friendly) ------------------------ */}
       {showRegisterPopup && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
           <div
@@ -768,64 +752,64 @@ useEffect(() => {
             onClick={() => setShowRegisterPopup(false)}
           />
 
-          <div className="relative bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="relative bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             {/* Design Element: Top Glow */}
-            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-400 via-[#FFD700] to-yellow-300" />
+            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-400 via-yellow-500 to-yellow-300" />
 
-            <div className="p-10">
+            <div className="p-6 md:p-10">
               <button
                 onClick={() => setShowRegisterPopup(false)}
-                className="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
+                className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
               >
-                <span className="text-xl">✕</span>
+                <X size={20} />
               </button>
 
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-black text-slate-900 mb-2">Create Account</h2>
-                <p className="text-slate-500 font-medium">Join QickTick today and get started</p>
+              <div className="text-center mb-6">
+                <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-2">Create Account</h2>
+                <p className="text-slate-500 font-medium text-sm md:text-base">Join QickTick today and get started</p>
               </div>
 
               {registerError && (
-                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm font-bold rounded-r-xl">
+                <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm font-bold rounded-r-xl">
                   {registerError}
                 </div>
               )}
               {registerSuccess && (
-                <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 text-sm font-bold rounded-r-xl">
+                <div className="mb-4 p-3 bg-green-50 border-l-4 border-green-500 text-green-700 text-sm font-bold rounded-r-xl">
                   {registerSuccess}
                 </div>
               )}
 
-              <div className="space-y-5">
+              <div className="space-y-4">
                 {registerStep === 'form' ? (
                   <>
                     <div className="space-y-2">
-                      <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Name</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Full Name</label>
                       <input
                         name="name"
                         value={registerData.name}
                         onChange={handleRegisterChange}
                         placeholder="John Doe"
-                        className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 outline-none transition-all font-bold text-slate-900"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-all font-medium text-slate-900 text-sm"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
                       <input
                         name="email"
                         type="email"
                         value={registerData.email}
                         onChange={handleRegisterChange}
                         placeholder="john@example.com"
-                        className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 outline-none transition-all font-bold text-slate-900"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-all font-medium text-slate-900 text-sm"
                       />
                     </div>
 
                     <button
                       onClick={sendRegisterOtp}
-                                            disabled={registerLoading}
-                      className="w-full py-4 bg-slate-900 text-[#FFD700] rounded-2xl font-black text-sm uppercase tracking-wider shadow-xl shadow-slate-200 transition-all hover:bg-black hover:scale-[1.02] active:scale-[0.98] mt-4 disabled:opacity-50"
+                      disabled={registerLoading}
+                      className="w-full py-3 bg-slate-900 text-yellow-500 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg transition-all hover:bg-black hover:scale-105 active:scale-95 mt-4 disabled:opacity-50"
                     >
                       {registerLoading ? "Sending OTP..." : "Get Verification Code"}
                     </button>
@@ -833,14 +817,14 @@ useEffect(() => {
                 ) : (
                   <div className="animate-in slide-in-from-right-4 duration-300">
                     <div className="space-y-4">
-                      <div className="bg-yellow-50 p-4 rounded-2xl border border-yellow-100 mb-6">
+                      <div className="bg-yellow-50 p-3 rounded-xl border border-yellow-100 mb-4">
                         <p className="text-xs text-yellow-800 font-bold text-center">
                           We've sent a code to <span className="underline">{registerData.email}</span>
                         </p>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1 text-center block">Verification Code</label>
+                        <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1 text-center block">Verification Code</label>
                         <input
                           name="otp"
                           value={registerData.otp}
@@ -849,21 +833,14 @@ useEffect(() => {
                           type="text"
                           inputMode="numeric"
                           maxLength={8}
-                          className="
-    w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl
-    text-slate-900 placeholder-slate-400
-    focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500
-    outline-none transition-all font-bold text-center
-    text-2xl tracking-[0.5em]
-  "
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-all font-medium text-center text-xl tracking-widest"
                         />
-
                       </div>
 
                       <button
                         onClick={verifyRegisterOtp}
                         disabled={registerLoading}
-                        className="w-full py-4 bg-[#FFD700] text-slate-900 rounded-2xl font-black text-sm uppercase tracking-wider shadow-lg shadow-yellow-500/20 transition-all hover:bg-yellow-400 hover:scale-[1.02] active:scale-[0.98] mt-4 disabled:opacity-50"
+                        className="w-full py-3 bg-yellow-500 text-slate-900 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg transition-all hover:bg-yellow-400 hover:scale-105 active:scale-95 mt-4 disabled:opacity-50"
                       >
                         {registerLoading ? "Verifying..." : "Complete Registration"}
                       </button>
@@ -882,8 +859,13 @@ useEffect(() => {
           </div>
         </div>
       )}
+
+      {/* Vendor Register Popup */}
       {openVendor && (
-        <VendorRegister onClose={() => setOpenVendor(false)} />
+        <VendorRegister
+          onClose={() => setOpenVendor(false)}
+          onSuccess={() => loadUserAndRole()} // Force reload after registration
+        />
       )}
     </div>
   );

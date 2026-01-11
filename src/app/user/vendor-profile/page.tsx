@@ -32,18 +32,13 @@ export default function VendorProfileDetail() {
       const { data, error: dbError } = await supabase
         .from("vendor_register")
         .select(`
-    *,
-    subscription_plans (
-      id,
-      name,
-      base_price,
-      tax_percent,
-      duration_months
-    )
-  `)
+          id, email, first_name, last_name, mobile_number, profile_info, company_name, user_type, media_files, created_at, updated_at, status, subscription_expiry, user_id, owner_name, gst_number, business_keywords, sector, address, city, state, pincode, company_logo, video_files, payment_id, websites, flat_no, floor, building, street, area, landmark, subscription_plan_id, alternate_number, role,
+          subscription_plans (
+            id, name, base_price, tax_percent, duration_months
+          )
+        `)
         .eq("email", user.email)
         .single();
-
 
       if (dbError) throw dbError;
       setVendor(data);
@@ -108,14 +103,6 @@ export default function VendorProfileDetail() {
   const removePhoto = (index: number) => {
     const updated = editForm.media_files.filter((_: any, i: number) => i !== index);
     setEditForm({ ...editForm, media_files: updated });
-  };
-
-  const addVideoLink = () => {
-    const url = prompt("Enter YouTube or Vimeo URL:");
-    if (url) {
-      const updatedVideos = [...(editForm.video_files || []), { url, title: "New Video" }];
-      setEditForm({ ...editForm, video_files: updatedVideos });
-    }
   };
 
   const removeVideo = (index: number) => {
@@ -249,35 +236,25 @@ export default function VendorProfileDetail() {
                     </div>
                   </div>
 
-                  {/* Video Links */}
-                  {/* Video Links & Uploads */}
+                  {/* Video Upload Only */}
                   <div className="pt-4 border-t border-slate-200">
                     <label className="text-[10px] font-black uppercase text-slate-400 flex justify-between items-center mb-3">
                       Video Portfolio
-                      <div className="flex gap-2">
-                        {/* Existing Link Button */}
-                        <button onClick={addVideoLink} className="bg-slate-200 text-slate-700 p-1.5 rounded-lg hover:bg-black hover:text-yellow-400 transition-colors">
-                          <LinkIcon size={14} />
-                        </button>
-
-                        {/* NEW Upload Video Button */}
-                        <label className="bg-black text-yellow-400 p-1.5 rounded-lg cursor-pointer hover:scale-105 transition-transform flex items-center justify-center">
-                          {uploading ? <Loader2 size={14} className="animate-spin" /> : <Video size={14} />}
-                          <input
-                            type="file"
-                            hidden
-                            onChange={(e) => handleFileUpload(e, 'video')}
-                            accept="video/mp4,video/x-m4v,video/*"
-                          />
-                        </label>
-                      </div>
+                      <label className="bg-black text-yellow-400 p-1.5 rounded-lg cursor-pointer hover:scale-105 transition-transform flex items-center justify-center">
+                        {uploading ? <Loader2 size={14} className="animate-spin" /> : <Video size={14} />}
+                        <input
+                          type="file"
+                          hidden
+                          onChange={(e) => handleFileUpload(e, 'video')}
+                          accept="video/mp4,video/x-m4v,video/*"
+                        />
+                      </label>
                     </label>
 
                     <div className="space-y-2">
                       {editForm.video_files?.map((vid: any, i: number) => (
                         <div key={i} className="flex items-center gap-2 bg-white border border-slate-200 p-2 rounded-xl">
-                          {/* Distinguish between Link and Uploaded File */}
-                          {vid.type === 'upload' ? <Film size={12} className="text-red-500" /> : <Play size={12} className="text-yellow-500" />}
+                          <Film size={12} className="text-red-500" />
                           <span className="text-[10px] font-bold truncate flex-1">
                             {vid.title || (vid.url || vid)}
                           </span>
@@ -316,15 +293,15 @@ export default function VendorProfileDetail() {
               animate={{ opacity: 1, rotate: -2, scale: 1 }}
               className="relative group flex-shrink-0"
             >
-              <div className="w-48 h-48 bg-white rounded-[2.5rem] p-6 shadow-2xl border-2 border-yellow-100 flex items-center justify-center overflow-hidden transition-transform group-hover:rotate-0 duration-500">
+              <div className="w-32 h-32 md:w-48 md:h-48 bg-white rounded-[2.5rem] p-4 md:p-6 shadow-2xl border-2 border-yellow-100 flex items-center justify-center overflow-hidden transition-transform group-hover:rotate-0 duration-500">
                 {vendor.company_logo ? (
                   <img src={vendor.company_logo} alt="Logo" className="w-full h-full object-contain" />
                 ) : (
-                  <Building2 size={70} className="text-yellow-100" />
+                  <Building2 size={50} className="text-yellow-100 md:size-70" />
                 )}
               </div>
               <div className="absolute -bottom-2 -right-2 bg-red-600 text-white p-2 rounded-xl shadow-lg border-4 border-[#FEF3C7]">
-                <ShieldCheck size={24} fill="currentColor" />
+                <ShieldCheck size={20} fill="currentColor" />
               </div>
             </motion.div>
 
@@ -345,10 +322,10 @@ export default function VendorProfileDetail() {
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-5xl md:text-7xl font-black text-gray-900 tracking-tighter leading-[0.85] uppercase mb-6"
+                className="text-3xl md:text-5xl lg:text-7xl font-black text-gray-900 tracking-tighter leading-[0.85] uppercase mb-6"
               >
                 {vendor.company_name.split(' ')[0]} <br />
-                <span className="text-red-600 italic">
+                             <span className="text-red-600 italic">
                   {vendor.company_name.split(' ').slice(1).join(' ') || "Enterprise"}
                 </span>
               </motion.h1>
@@ -393,6 +370,7 @@ export default function VendorProfileDetail() {
 
         </div>
       </div>
+
       {/* ================= MAIN CONTENT ================= */}
       <div className="max-w-7xl mx-auto px-6 -mt-16 pb-20 relative z-20 grid grid-cols-1 lg:grid-cols-12 gap-8">
 
@@ -416,19 +394,17 @@ export default function VendorProfileDetail() {
               }
               icon={<User size={16} />}
             />
-
-
             <StatCard label="Established" value={new Date(vendor.created_at).getFullYear()} icon={<Calendar size={16} />} />
             <StatCard label="Status" value={vendor.status} icon={<Activity size={16} />} />
           </div>
 
           {/* Overview */}
-          <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
+          <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-slate-100">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-3 bg-yellow-400 rounded-2xl"><Info size={20} /></div>
               <h2 className="text-xl font-black uppercase italic">Executive Summary</h2>
             </div>
-            <p className="text-slate-600 text-lg leading-relaxed font-medium mb-8 whitespace-pre-line">{vendor.profile_info || "Premium business profile under review."}</p>
+            <p className="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-8 whitespace-pre-line">{vendor.profile_info || "Premium business profile under review."}</p>
             {vendor.business_keywords && (
               <div className="flex flex-wrap gap-2 border-t pt-8">
                 {vendor.business_keywords.split(',').map((tag: string, i: number) => (
@@ -440,7 +416,7 @@ export default function VendorProfileDetail() {
 
           {/* VIDEO SHOWCASE */}
           {vendor.video_files && vendor.video_files.length > 0 && (
-            <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
+            <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-slate-100">
               <div className="flex items-center gap-3 mb-8">
                 <div className="p-3 bg-black rounded-2xl text-yellow-400"><Video size={20} /></div>
                 <h2 className="text-xl font-black uppercase italic">Video Portfolio</h2>
@@ -475,7 +451,7 @@ export default function VendorProfileDetail() {
           )}
 
           {/* IMAGE SHOWCASE */}
-          <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
+          <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-slate-100">
             <div className="flex items-center gap-3 mb-8">
               <div className="p-3 bg-slate-100 rounded-2xl"><ImageIcon size={20} /></div>
               <h2 className="text-xl font-black uppercase italic">Work Gallery</h2>
@@ -492,7 +468,7 @@ export default function VendorProfileDetail() {
 
         {/* RIGHT SIDE */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-slate-900 rounded-[3rem] p-8 text-white shadow-2xl space-y-8 border-t-[8px] border-yellow-400">
+          <div className="bg-slate-900 rounded-[3rem] p-6 md:p-8 text-white shadow-2xl space-y-8 border-t-[8px] border-yellow-400">
             <SidebarItem icon={<User size={20} />} label="Decision Maker" value={vendor.owner_name} />
             <SidebarItem icon={<Smartphone size={20} />} label="Contact Line" value={vendor.mobile_number} />
 
@@ -526,7 +502,7 @@ export default function VendorProfileDetail() {
             </a>
           </div>
 
-          <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-lg space-y-4">
+          <div className="bg-white rounded-[2.5rem] p-6 md:p-8 border border-slate-100 shadow-lg space-y-4">
             <h3 className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2"><ShieldCheck size={16} className="text-yellow-500" /> Trust Verification</h3>
             <AccountRow label="Verification" value={vendor.status} color={vendor.status === 'active' ? 'text-emerald-500' : 'text-orange-500'} />
             <AccountRow
@@ -555,7 +531,7 @@ function SectionTitle({ icon, title }: any) {
 
 function StatCard({ label, value, icon }: any) {
   return (
-    <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm text-center md:text-left">
+    <div className="bg-white p-4 md:p-5 rounded-3xl border border-slate-100 shadow-sm text-center md:text-left">
       <div className="text-yellow-500 mb-2 flex justify-center md:justify-start">
         {icon}
       </div>
@@ -571,7 +547,6 @@ function StatCard({ label, value, icon }: any) {
     </div>
   );
 }
-
 
 function SidebarItem({ icon, label, value }: any) {
   return (
