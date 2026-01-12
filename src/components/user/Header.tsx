@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
+import ProfileAvatar from "@/components/ProfileAvatar";
 import {
   LogOut, PlusCircle,
   UserCircle,
@@ -328,342 +329,159 @@ export default function UserFeed() {
   return (
     <div className="pt-[60px] bg-black">
       {/* ---------------- HEADER ---------------- */}
-      <header
-        className={`fixed top-0 left-0 right-0 z-[9999] h-16 bg-black/80 backdrop-blur-sm border-b border-red-50 shadow-sm transition-all duration-300
-    ${showLoginPopup || showRegisterPopup || openVendor ? "hidden" : "block"}
-  `}
-      >
-        <div className="max-w-7xl mx-auto h-full flex items-center justify-between px-6">
+      <header className="fixed top-0 left-0 right-0 z-[9999] bg-black/90 backdrop-blur-sm border-b border-gray-800 shadow-sm">
+        <div className="max-w-7xl mx-auto flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
 
-          {/* 1. Logo Section: Optimized sizing */}
-          <Link href="/user" className="flex-shrink-0 transition-transform hover:scale-105">
+          {/* Logo */}
+          <Link href="/user" className="flex-shrink-0">
             <Image
               src="/navbar_logo.png"
               alt="QickTick"
-              width={150}
-              height={90}
+              width={140}
+              height={40}
               className="object-contain"
               priority
             />
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center space-x-2 font-semibold text-sm">
+          {/* Desktop Links */}
+          <nav className="hidden lg:flex space-x-4 font-semibold text-sm">
             {navLinks.map((link) => {
               const isLinkActive = pathname === link.href;
-
               return (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`
-                    relative px-4 py-2 rounded-full transition-all duration-300 group
-                    ${isLinkActive
-                      ? "text-white bg-red-400/10 shadow-[inset_0_0_0_1px_rgba(255,215,0,0.4)]"
-                      : "text-white hover:text-black hover:bg-yellow-50"}
-                  `}
+                  className={`px-3 py-2 rounded-full transition-all duration-300
+              ${isLinkActive
+                      ? "bg-yellow-500 text-black font-bold shadow-md"
+                      : "text-white hover:bg-yellow-50 hover:text-black"}
+            `}
                 >
                   {link.name}
-
-                  {/* Animated underline indicator for active link */}
-                  {isLinkActive && (
-                    <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-yellow-500 rounded-full" />
-                  )}
-
-                  {/* Subtle hover line for non-active links */}
-                  {!isLinkActive && (
-                    <span className="absolute bottom-2 left-1/2 w-0 h-[1.5px] bg-gray-300 transition-all duration-300 group-hover:w-1/2 group-hover:-translate-x-1/2" />
-                  )}
                 </Link>
               );
             })}
           </nav>
 
-          {/* Mobile Menu Button - Three Lines (Hamburger) */}
+          {/* Desktop Auth & Profile */}
+          <div className="hidden lg:flex items-center space-x-3">
+            <Link
+              href="/user/add-business"
+              className="px-4 py-2 rounded-full bg-red-600 text-white font-bold hover:bg-red-500 transition shadow-md"
+            >
+              + Add Business
+            </Link>
+
+            {!user ? (
+              <>
+                <button
+                  onClick={() => setShowLoginPopup(true)}
+                  className="text-white font-bold px-4 py-2 rounded-full hover:bg-gray-800 transition"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => setShowRegisterPopup(true)}
+                  className="bg-yellow-500 text-black px-4 py-2 rounded-full font-bold hover:bg-yellow-400 transition"
+                >
+                  Register
+                </button>
+              </>
+            ) : (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setOpenMenu(openMenu === "profile" ? null : "profile")}
+                  className="flex items-center space-x-2 p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition"
+                >
+<ProfileAvatar
+  userRole={userRole}
+  profileMedal={profileMedal}
+  profileColor={profileColor}
+/>
+                  <ChevronDown size={14} className={`${openMenu === "profile" ? "rotate-180" : ""} text-white`} />
+                </button>
+
+                {openMenu === "profile" && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg z-50 overflow-hidden">
+                    <Link href="/user/profile" className="block px-4 py-2 hover:bg-yellow-50">My Profile</Link>
+                    {userRole === "vendor" && (
+                      <>
+                        <Link href="/vendor/products" className="block px-4 py-2 hover:bg-yellow-50">Products</Link>
+                        <Link href="/vendor/enquiry" className="block px-4 py-2 hover:bg-yellow-50">Enquiries</Link>
+                      </>
+                    )}
+                    <button onClick={logout} className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50">Logout</button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Hamburger */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 transition"
+            className="lg:hidden p-2 rounded-md text-white hover:bg-gray-700 transition"
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-
-          {/* 3. Actions Section - Desktop */}
-          <div className="hidden lg:flex items-center space-x-4">
-            {/* Primary Action Button */}
-            <Link
-              href="/user/add-business"
-              className="flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white text-xs font-black uppercase tracking-widest rounded-full hover:bg-red-700 transition-all shadow-lg"
-            >
-              <PlusCircle size={16} /> Add Business
-            </Link>
-
-            <div className="h-6 w-[1px] bg-gray-200" />
-
-            {/* AUTH SECTION */}
-            <div className="flex items-center space-x-3">
-              {!user ? (
-                <>
-                  <button
-                    onClick={() => setShowLoginPopup(true)}
-                    className="px-4 py-2 text-sm font-bold text-white hover:text-white transition"
-                  >
-                    Login
-                  </button>
-
-                  <div className="relative">
-                    <button
-                      onClick={() => setOpenRegisterMenu((prev) => !prev)}
-                      className="px-5 py-2.5 bg-[#FFD700] text-black text-sm rounded-full font-bold shadow-sm hover:bg-[#f2cc00] transition-all flex items-center"
-                    >
-                      Register
-                      <ChevronDown size={14} className={`ml-1 transition-transform ${openRegisterMenu ? 'rotate-180' : ''}`} />
-                    </button>
-
-                    {openRegisterMenu && (
-                      <div className="absolute right-0 mt-3 w-56 bg-yellow-100 text-black border border-gray-100 shadow-2xl rounded-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
-                        <button
-                          onClick={() => { setShowRegisterPopup(true); setOpenRegisterMenu(false); }}
-                          className="w-full text-left px-5 py-3 hover:bg-yellow-100 text-sm font-semibold flex items-center space-x-2"
-                        >
-                          <UserIcon size={16} /> <span>User Registration</span>
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setOpenVendor(true); // Open the popup
-                            setOpenRegisterMenu(false); // Close the dropdown menu
-                          }}
-                          className="w-full text-left px-5 py-3 hover:bg-yellow-100 text-sm font-semibold border-t border-gray-50 flex items-center space-x-2"
-                        >
-                          <Briefcase size={16} />
-                          <span>Vendor Registration</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </>
-              ) : (
-                /* Profile Dropdown */
-                /* Profile Dropdown */
-                <div className="relative" ref={dropdownRef}>
-                  <button
-                    onClick={() => setOpenMenu(openMenu === "profile" ? null : "profile")}
-                    className="flex items-center space-x-3 p-2 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 transition-all duration-300 shadow-inner"
-                  >
-                    <div className="relative flex-shrink-0">
-                      {/* Vendor Medal as Avatar */}
-                      {userRole === "vendor" && profileMedal ? (
-                        <div
-                          className="relative flex items-center justify-center 
-                     rounded-full shadow-lg border-2 border-white
-                     animate-in zoom-in duration-500
-                     hover:scale-110 transition-transform
-                     px-3 py-2 min-w-[2.5rem] max-w-[5rem]"
-                          style={{
-                            backgroundColor: '#000000', // black background for medal
-                            boxShadow: `0 0 15px ${profileColor}60`,
-                          }}
-                          title="Vendor Rank"
-                        >
-                          <span
-                            className={`text-sm font-bold text-white select-none drop-shadow-md ${profileMedal.length > 2 ? 'text-[10px]' : 'text-sm'
-                              }`}
-                          >
-                            {profileMedal}
-                          </span>
-                          {/* Glow Ring */}
-                          <div className="absolute inset-0 rounded-full border border-yellow-400 opacity-40 animate-pulse" />
-                        </div>
-                      ) : (
-                        /* Regular User Avatar */
-                        <div
-                          className="w-12 h-12 rounded-full flex items-center justify-center border-2 transition-transform group-hover:scale-105 overflow-hidden"
-                          style={{
-                            backgroundColor: profileColor,
-                            borderColor: 'rgba(255,255,255,0.9)',
-                            boxShadow: `0 0 20px ${profileColor}60`,
-                          }}
-                        >
-                          <UserCircle size={28} className="text-white drop-shadow-md" />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Profile Info */}
-                    <div className="flex flex-col items-start pr-4">
-                      <span className="text-[10px] font-black text-white/70 uppercase tracking-widest leading-none mb-1">
-                        {userRole === "vendor" ? "Premium Vendor" : "Member"}
-                      </span>
-                      <div className="flex items-center gap-1">
-                        <span className="text-sm font-bold text-white tracking-tight">Account</span>
-                        <ChevronDown
-                          size={14}
-                          className={`text-yellow-400 transition-transform duration-300 ${openMenu === "profile" ? 'rotate-180' : ''
-                            }`}
-                        />
-                      </div>
-                    </div>
-                  </button>
-
-                  {/* DROPDOWN MENU */}
-                  {openMenu === "profile" && (
-                    <div className="absolute right-0 mt-3 bg-gradient-to-b from-yellow-50 to-yellow-100 border border-yellow-200 shadow-2xl rounded-2xl py-2 w-60 text-sm z-50 animate-in fade-in slide-in-from-top-2">
-                      {/* Header */}
-                      <div className="px-4 py-2 mb-1 border-b border-yellow-200">
-                        <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Account</p>
-                      </div>
-
-                      {/* Links */}
-                      <Link
-                        href={userRole === "vendor" ? "/user/vendor-profile" : "/user/profile"}
-                        className="flex items-center px-4 py-2.5 hover:bg-yellow-200 hover:text-gray-900 font-medium text-gray-800 transition-colors duration-200"
-                      >
-                        My Profile
-                      </Link>
-
-                      {userRole === "vendor" && (
-                        <>
-                          <Link
-                            href="/vendor/products"
-                            className="flex items-center px-4 py-2.5 hover:bg-yellow-200 hover:text-gray-900 font-medium text-gray-800 transition-colors duration-200"
-                          >
-                            Products
-                          </Link>
-                          <Link
-                            href="/vendor/enquiry"
-                            className="flex items-center px-4 py-2.5 hover:bg-yellow-200 hover:text-gray-900 font-medium text-gray-800 transition-colors duration-200"
-                          >
-                            Enquiries
-                          </Link>
-                        </>
-                      )}
-
-                      {/* Logout */}
-                      <button
-                        onClick={logout}
-                        className="flex w-full px-4 py-2.5 hover:bg-red-100 text-left text-red-600 font-bold mt-1 rounded-b-2xl transition-colors duration-200"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-              )}
-            </div>
-          </div>
         </div>
 
-        {/* Mobile Menu Overlay - Full Screen */}
-        {/* MOBILE MENU OVERLAY */}
+        {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
-          <div
-            ref={mobileMenuRef}
-            className="fixed inset-0 top-16 z-[9998] bg-white lg:hidden overflow-y-auto"
-          >
-            {/* Mobile Nav Links */}
-            <div className="px-6 py-6 space-y-4 border-b">
+          <div className="lg:hidden bg-black/95 text-white">
+            <div className="px-4 pt-4 pb-6 space-y-4">
+              <Link
+                href="/user/add-business"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block w-full text-center py-4 rounded-2xl bg-red-600 text-white font-black uppercase tracking-wide shadow-lg"
+              >
+                Add Business
+              </Link>
+
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block text-lg font-bold text-gray-800"
+                  className="block text-lg font-bold hover:text-yellow-500 transition"
                 >
                   {link.name}
                 </Link>
               ))}
-            </div>
 
-            {/* Mobile Auth Section */}
-            <div className="px-6 py-6">
               {!user ? (
-                <div className="space-y-4">
+                <div className="space-y-2 mt-4">
                   <button
                     onClick={() => { setShowLoginPopup(true); setIsMobileMenuOpen(false); }}
-                    className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold text-sm uppercase tracking-wide"
+                    className="w-full py-3 bg-gray-800 rounded-xl text-white font-bold"
                   >
                     Login
                   </button>
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => { setShowRegisterPopup(true); setIsMobileMenuOpen(false); }}
-                      className="w-full py-3 bg-yellow-500 text-black rounded-xl font-bold text-sm uppercase tracking-wide"
-                    >
-                      User Register
-                    </button>
-                    <button
-                      onClick={() => { setOpenVendor(true); setIsMobileMenuOpen(false); }}
-                      className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-sm uppercase tracking-wide"
-                    >
-                      Vendor Register
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => { setShowRegisterPopup(true); setIsMobileMenuOpen(false); }}
+                    className="w-full py-3 bg-yellow-500 rounded-xl text-black font-bold"
+                  >
+                    Register
+                  </button>
                 </div>
               ) : (
-                /* MOBILE PROFILE DROPDOWN */
-                <div>
-                  <button
-                    onClick={() => setMobileProfileOpen(!mobileProfileOpen)}
-                    className="w-full flex items-center justify-between bg-gray-100 rounded-xl p-4"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-12 h-12 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: profileColor }}
-                      >
-                        <UserCircle size={26} className="text-white" />
-                      </div>
-
-                      <div className="text-left">
-                        <p className="text-sm font-black text-gray-800">
-                          {userRole === "vendor" ? "Vendor Account" : "User Account"}
-                        </p>
-                        <p className="text-xs text-gray-500">Tap to manage</p>
-                      </div>
-                    </div>
-
-                    <ChevronDown
-                      size={18}
-                      className={`transition-transform ${mobileProfileOpen ? "rotate-180" : ""}`}
-                    />
-                  </button>
-
-                  {mobileProfileOpen && (
-                    <div className="mt-3 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
-                      <Link
-                        href={userRole === "vendor" ? "/user/vendor-profile" : "/user/profile"}
-                        className="block px-5 py-4 text-sm font-semibold"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        My Profile
-                      </Link>
-
-                      {userRole === "vendor" && (
-                        <>
-                          <Link href="/vendor/products" className="block px-5 py-4 text-sm font-semibold" onClick={() => setIsMobileMenuOpen(false)}>
-                            Products
-                          </Link>
-                          <Link href="/vendor/enquiry" className="block px-5 py-4 text-sm font-semibold" onClick={() => setIsMobileMenuOpen(false)}>
-                            Enquiries
-                          </Link>
-                        </>
-                      )}
-
-                      <button
-                        onClick={() => { logout(); setIsMobileMenuOpen(false); }}
-                        className="w-full text-left px-5 py-4 text-sm font-bold text-red-600"
-                      >
-                        Logout
-                      </button>
-                    </div>
+                <div className="mt-4 space-y-2">
+                  <Link href="/user/profile" className="block px-4 py-3 rounded-xl bg-gray-800 hover:bg-gray-700" onClick={() => setIsMobileMenuOpen(false)}>My Profile</Link>
+                  {userRole === "vendor" && (
+                    <>
+                      <Link href="/vendor/products" className="block px-4 py-3 rounded-xl bg-gray-800 hover:bg-gray-700" onClick={() => setIsMobileMenuOpen(false)}>Products</Link>
+                      <Link href="/vendor/enquiry" className="block px-4 py-3 rounded-xl bg-gray-800 hover:bg-gray-700" onClick={() => setIsMobileMenuOpen(false)}>Enquiries</Link>
+                    </>
                   )}
+                  <button onClick={() => { logout(); setIsMobileMenuOpen(false); }} className="w-full px-4 py-3 rounded-xl bg-red-600 hover:bg-red-500 font-bold text-white">Logout</button>
                 </div>
               )}
             </div>
           </div>
         )}
       </header>
+
 
       {/* -------------------- LOGIN POPUP (Mobile-Friendly) ------------------------ */}
       {showLoginPopup && (
