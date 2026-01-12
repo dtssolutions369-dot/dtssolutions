@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { 
-  Video, UploadCloud, Trash2, Plus, X, Film, Calendar, 
-  RefreshCw, AlertCircle, CheckCircle2, TriangleAlert, ShieldCheck 
+import {
+  Video, UploadCloud, Trash2, Plus, X, Film, Calendar,
+  RefreshCw, AlertCircle, CheckCircle2, TriangleAlert, ShieldCheck
 } from "lucide-react";
 
 export default function DigitalBranding() {
@@ -12,7 +12,7 @@ export default function DigitalBranding() {
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [uploadProgress, setUploadProgress] = useState(0);
-  
+
   const [showModal, setShowModal] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [editingVideo, setEditingVideo] = useState<any | null>(null);
@@ -33,7 +33,7 @@ export default function DigitalBranding() {
       .from("digital_branding_videos")
       .select("*")
       .order("created_at", { ascending: false });
-    
+
     if (error) showToast("Failed to sync video assets", "error");
     setVideos(data || []);
     setFetchLoading(false);
@@ -48,7 +48,7 @@ export default function DigitalBranding() {
     try {
       // Find the video to get its URL for storage deletion
       const videoToDelete = videos.find(v => v.id === deleteConfirm);
-      
+
       if (videoToDelete?.video_url) {
         // Extract filename from URL to delete from Storage
         const fileName = videoToDelete.video_url.split('/').pop();
@@ -78,21 +78,9 @@ export default function DigitalBranding() {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    const video = document.createElement('video');
-    video.preload = 'metadata';
-    video.onloadedmetadata = () => {
-      window.URL.revokeObjectURL(video.src);
-      if (video.videoWidth < video.videoHeight) {
-        showToast("Error: Only 16:9 Landscape videos allowed", "error");
-        setFile(null);
-        setPreviewUrl(null);
-        e.target.value = "";
-      } else {
-        setFile(selectedFile);
-        setPreviewUrl(URL.createObjectURL(selectedFile));
-      }
-    };
-    video.src = URL.createObjectURL(selectedFile);
+    // Any aspect ratio is now accepted
+    setFile(selectedFile);
+    setPreviewUrl(URL.createObjectURL(selectedFile));
   };
 
   const handleSave = async () => {
@@ -178,8 +166,8 @@ export default function DigitalBranding() {
               Motion <br /> <span className="text-red-600">Branding</span>
             </h1>
           </div>
-          
-          <button 
+
+          <button
             onClick={() => { setEditingVideo(null); setTitle(""); setFile(null); setPreviewUrl(null); setShowModal(true); }}
             className="group bg-black text-white px-10 py-6 rounded-[2rem] font-black uppercase text-xs tracking-[0.2em] flex items-center gap-4 hover:bg-red-600 transition-all shadow-xl active:scale-95"
           >
@@ -193,21 +181,21 @@ export default function DigitalBranding() {
       <div className="max-w-7xl mx-auto px-10 -mt-16 relative z-20">
         {fetchLoading ? (
           <div className="h-64 bg-white rounded-[3rem] flex items-center justify-center border border-slate-100 shadow-xl">
-             <RefreshCw className="animate-spin text-red-600" size={32} />
+            <RefreshCw className="animate-spin text-red-600" size={32} />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {videos.map((v) => (
               <div key={v.id} className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden group hover:shadow-2xl transition-all duration-500">
-                <div className="relative aspect-video bg-slate-900 overflow-hidden">
-                  <video 
-                    src={v.video_url} 
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" 
-                    muted 
-                    onMouseOver={e => handleVideoHover(e, true)} 
+                <div className="relative aspect-square bg-slate-900 overflow-hidden flex items-center justify-center">
+                  <video
+                    src={v.video_url}
+                    className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-all duration-700"
+                    muted
+                    onMouseOver={e => handleVideoHover(e, true)}
                     onMouseOut={e => handleVideoHover(e, false)}
                   />
-                  <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                     <button onClick={() => { setEditingVideo(v); setTitle(v.title); setPreviewUrl(v.video_url); setShowModal(true); }} className="p-3 bg-white/90 backdrop-blur-md rounded-xl text-black hover:bg-black hover:text-white transition-colors"><Film size={18} /></button>
                     <button onClick={() => setDeleteConfirm(v.id)} className="p-3 bg-white/90 backdrop-blur-md rounded-xl text-red-600 hover:bg-red-600 hover:text-white transition-colors"><Trash2 size={18} /></button>
                   </div>
@@ -229,32 +217,32 @@ export default function DigitalBranding() {
       {/* Ensure the Delete button in the confirmation modal calls processDelete */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
-           <div className="bg-white rounded-[3rem] p-10 max-w-sm w-full text-center">
-              <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <TriangleAlert size={32} />
-              </div>
-              <h4 className="text-2xl font-black uppercase italic tracking-tighter mb-2">Decommission Asset?</h4>
-              <p className="text-slate-400 text-xs font-bold uppercase mb-8">This will permanently remove the video from the branding engine.</p>
-              <div className="flex gap-4">
-                <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-4 font-black uppercase text-[10px] text-slate-400">Cancel</button>
-                <button 
-                  onClick={processDelete} 
-                  disabled={loading}
-                  className="flex-1 py-4 bg-black text-white rounded-2xl font-black uppercase text-[10px] hover:bg-red-600 transition-all flex items-center justify-center gap-2"
-                >
-                  {loading && <RefreshCw className="animate-spin" size={12} />}
-                  Delete
-                </button>
-              </div>
-           </div>
+          <div className="bg-white rounded-[3rem] p-10 max-w-sm w-full text-center">
+            <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <TriangleAlert size={32} />
+            </div>
+            <h4 className="text-2xl font-black uppercase italic tracking-tighter mb-2">Decommission Asset?</h4>
+            <p className="text-slate-400 text-xs font-bold uppercase mb-8">This will permanently remove the video from the branding engine.</p>
+            <div className="flex gap-4">
+              <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-4 font-black uppercase text-[10px] text-slate-400">Cancel</button>
+              <button
+                onClick={processDelete}
+                disabled={loading}
+                className="flex-1 py-4 bg-black text-white rounded-2xl font-black uppercase text-[10px] hover:bg-red-600 transition-all flex items-center justify-center gap-2"
+              >
+                {loading && <RefreshCw className="animate-spin" size={12} />}
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
-      
-    {/* Multi-Column Upload Modal */}
+
+      {/* Multi-Column Upload Modal */}
       {showModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-xl animate-in fade-in duration-300">
           <div className="bg-white w-full max-w-4xl rounded-[3.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row divide-x divide-slate-100">
-            
+
             {/* Left Column: Input */}
             <div className="flex-1 p-12">
               <div className="flex items-center justify-between mb-10">
@@ -284,25 +272,25 @@ export default function DigitalBranding() {
               </div>
 
               <div className="mt-12 flex gap-4">
-                 <button onClick={() => setShowModal(false)} className="flex-1 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600">Discard</button>
-                 <button onClick={handleSave} disabled={loading} className="flex-[2] py-5 bg-red-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-lg hover:bg-black transition-all flex items-center justify-center gap-3">
-                   {loading ? <RefreshCw className="animate-spin" size={16} /> : <ShieldCheck size={16} />}
-                   {editingVideo ? "Update System" : "Deploy Asset"}
-                 </button>
+                <button onClick={() => setShowModal(false)} className="flex-1 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600">Discard</button>
+                <button onClick={handleSave} disabled={loading} className="flex-[2] py-5 bg-red-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-lg hover:bg-black transition-all flex items-center justify-center gap-3">
+                  {loading ? <RefreshCw className="animate-spin" size={16} /> : <ShieldCheck size={16} />}
+                  {editingVideo ? "Update System" : "Deploy Asset"}
+                </button>
               </div>
             </div>
 
             {/* Right Column: Preview/Upload Area */}
             <div className="flex-1 bg-slate-50/50 p-12 flex flex-col items-center justify-center relative">
               <input id="vUpload" type="file" accept="video/*" className="hidden" onChange={handleFileChange} />
-              
-              <div 
+
+              <div
                 onClick={() => document.getElementById('vUpload')?.click()}
-                className={`w-full aspect-video rounded-[2.5rem] border-4 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center overflow-hidden relative group ${previewUrl ? 'border-red-600' : 'border-slate-200 hover:border-yellow-400 bg-white hover:shadow-xl'}`}
+                className={`w-full min-h-[350px] rounded-[2.5rem] border-4 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center overflow-hidden relative group ${previewUrl ? 'border-red-600 bg-black' : 'border-slate-200 hover:border-yellow-400 bg-white hover:shadow-xl'}`}
               >
                 {previewUrl ? (
                   <>
-                    <video src={previewUrl} className="w-full h-full object-cover" autoPlay muted loop />
+                    <video src={previewUrl} className="max-h-[500px] w-full object-contain" autoPlay muted loop />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                       <p className="text-white text-[10px] font-black uppercase tracking-widest bg-black/50 px-4 py-2 rounded-full">Change Video</p>
                     </div>
@@ -339,17 +327,17 @@ export default function DigitalBranding() {
       {/* Delete Confirmation (Same as before but with your red/black theme) */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
-           <div className="bg-white rounded-[3rem] p-10 max-w-sm w-full text-center">
-              <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <TriangleAlert size={32} />
-              </div>
-              <h4 className="text-2xl font-black uppercase italic tracking-tighter mb-2">Decommission Asset?</h4>
-              <p className="text-slate-400 text-xs font-bold uppercase mb-8">This will permanently remove the video from the branding engine.</p>
-              <div className="flex gap-4">
-                <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-4 font-black uppercase text-[10px] text-slate-400">Cancel</button>
-                <button onClick={processDelete} className="flex-1 py-4 bg-black text-white rounded-2xl font-black uppercase text-[10px] hover:bg-red-600 transition-all">Delete</button>
-              </div>
-           </div>
+          <div className="bg-white rounded-[3rem] p-10 max-w-sm w-full text-center">
+            <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <TriangleAlert size={32} />
+            </div>
+            <h4 className="text-2xl font-black uppercase italic tracking-tighter mb-2">Decommission Asset?</h4>
+            <p className="text-slate-400 text-xs font-bold uppercase mb-8">This will permanently remove the video from the branding engine.</p>
+            <div className="flex gap-4">
+              <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-4 font-black uppercase text-[10px] text-slate-400">Cancel</button>
+              <button onClick={processDelete} className="flex-1 py-4 bg-black text-white rounded-2xl font-black uppercase text-[10px] hover:bg-red-600 transition-all">Delete</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

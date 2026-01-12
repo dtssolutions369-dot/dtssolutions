@@ -4,12 +4,10 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import {
-  Phone, MapPin, ShieldCheck, Globe, Building2,
-  User, ArrowLeft, MessageSquare, Award, Navigation,
-  Info, Layers, Zap, Smartphone, Mail,
+  Phone, MapPin, ShieldCheck, Building2,
+  User, ArrowLeft, MessageSquare, Info, Smartphone, Mail,
   ChevronDown, Image as ImageIcon, ShoppingBag,
-  Clock, Box, Video, Play, ExternalLink, Link as LinkIcon,
-  Sparkles
+  Box, Play, X, Maximize2, Tag, Briefcase
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -20,6 +18,9 @@ export default function VendorDetailPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [openSection, setOpenSection] = useState<string | null>("media");
+
+  // --- POPUP STATE ---
+  const [activeMedia, setActiveMedia] = useState<{ url: string; type: "image" | "video" } | null>(null);
 
   useEffect(() => {
     const fetchVendorData = async () => {
@@ -35,359 +36,188 @@ export default function VendorDetailPage() {
     if (id) fetchVendorData();
   }, [id]);
 
-  const toggleSection = (section: string) => {
-    setOpenSection(openSection === section ? null : section);
-  };
-
   if (loading || !vendor) return <LoadingSpinner />;
+
+  const getVideos = () => {
+    if (!vendor.video_files) return [];
+    return Array.isArray(vendor.video_files) ? vendor.video_files : [];
+  };
 
   return (
     <div className="w-full bg-white font-sans selection:bg-yellow-100">
 
-      {/* --- UPDATED HEADER (SMART TRANSPORT STYLE) --- */}
-      <div className="bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-12 pb-32 px-6 relative overflow-hidden border-b border-yellow-200">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(#F59E0B_0.5px,transparent_0.5px)] [background-size:24px_24px]" />
-
-        <div className="max-w-7xl mx-auto relative z-10">
-          <button
-            onClick={() => router.back()}
-            className="mb-12 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-yellow-800 hover:text-black transition group"
+      {/* --- MEDIA LIGHTBOX (MODAL) --- */}
+      <AnimatePresence>
+        {activeMedia && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setActiveMedia(null)} 
+            className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer"
           >
-            <div className="p-2 rounded-full border border-yellow-300 bg-white/50 backdrop-blur-md group-hover:border-yellow-500 transition-colors">
-              <ArrowLeft size={14} />
-            </div>
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()} 
+              className="relative max-w-5xl w-full max-h-[85vh] bg-black rounded-3xl overflow-hidden shadow-2xl flex items-center justify-center"
+            >
+              <button 
+                onClick={() => setActiveMedia(null)}
+                className="absolute top-6 right-6 z-[110] p-3 bg-white/10 hover:bg-red-600 text-white rounded-full transition-all backdrop-blur-md"
+              >
+                <X size={24} />
+              </button>
+
+              {activeMedia.type === "image" ? (
+                <img src={activeMedia.url} className="w-full h-full object-contain mx-auto" />
+              ) : (
+                <video 
+                  key={activeMedia.url} 
+                  src={activeMedia.url}
+                  className="max-w-full max-h-full"
+                  autoPlay 
+                  controls
+                  playsInline 
+                />
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* --- HEADER --- */}
+      <div className="bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-12 pb-32 px-6 border-b border-yellow-200">
+        <div className="max-w-7xl mx-auto">
+          <button onClick={() => router.back()} className="mb-8 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-yellow-800 hover:text-black transition">
+            <div className="p-2 rounded-full border border-yellow-300 bg-white/50"><ArrowLeft size={14} /></div>
             Back to Search
           </button>
 
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-
-            {/* Left: Logo & Content */}
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-8 flex-1">
-              {/* Logo Container */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="w-44 h-44 flex-shrink-0 bg-white p-4 rounded-[2.5rem] shadow-xl border border-yellow-100 flex items-center justify-center"
-              >
-                {vendor.company_logo ? (
-                  <img
-                    src={vendor.company_logo}
-                    className="w-full h-full object-contain"
-                    alt="Company Logo"
-                  />
-                ) : (
-                  <Building2 size={64} className="text-yellow-600/30" />
-                )}
-              </motion.div>
-
-              {/* Text Info */}
-              <div className="text-center md:text-left">
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-4">
-                  <span className="bg-white/80 backdrop-blur-md border border-yellow-300 text-yellow-800 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
-                    <Sparkles size={10} className="inline mr-1 mb-0.5" /> {vendor.status}
-                  </span>
-                  {vendor.user_type?.map((type: string, i: number) => (
-                    <span
-                      key={i}
-                      className="bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest"
-                    >
-                      {type}
-                    </span>
-                  ))}
-
-                </div>
-
-                <motion.h1
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-4xl md:text-6xl font-black text-gray-900 tracking-tighter leading-[0.9] mb-6"
-                >
-                  {vendor.company_name.split(' ')[0]} <br />
-                  <span className="text-red-600 italic">{vendor.company_name.split(' ').slice(1).join(' ')}</span>
-                </motion.h1>
-
-                <div className="flex flex-wrap justify-center md:justify-start gap-6 text-gray-600 font-bold text-sm">
-                  <div className="flex items-center gap-2">
-                    <MapPin size={18} className="text-yellow-600" /> {vendor.city}, {vendor.state}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck size={18} className="text-red-600" /> GST: {vendor.gst_number || "Verified"}
-                  </div>
-                </div>
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="w-40 h-40 bg-white p-4 rounded-[2.5rem] shadow-lg border border-yellow-100 flex items-center justify-center">
+              {vendor.company_logo ? <img src={vendor.company_logo} className="max-w-full max-h-full object-contain" alt="Logo" /> : <Building2 size={40} className="text-yellow-200" />}
+            </div>
+            <div className="text-center md:text-left">
+              <span className="bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase mb-4 inline-block tracking-tighter">
+                {vendor.sector || 'General Business'}
+              </span>
+              <h1 className="text-4xl md:text-6xl font-black text-gray-900 leading-[0.9] tracking-tighter">
+                {vendor.company_name}
+              </h1>
+              <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-4 text-gray-600 font-bold text-sm">
+                <div className="flex items-center gap-1"><MapPin size={16} className="text-yellow-600"/> {vendor.city}, {vendor.state}</div>
+                <div className="flex items-center gap-1"><ShieldCheck size={16} className="text-red-600"/> GST: {vendor.gst_number || 'N/A'}</div>
               </div>
             </div>
-
-            {/* Right: Floating Visual Card */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, rotate: 0 }}
-              animate={{ opacity: 1, scale: 1, rotate: 3 }}
-              transition={{ type: "spring", stiffness: 100 }}
-              className="hidden lg:block bg-white p-10 rounded-[4rem] shadow-2xl border-2 border-yellow-100 relative"
-            >
-              <div className="absolute -top-4 -right-4 bg-red-600 text-white p-4 rounded-3xl animate-bounce shadow-xl">
-                <Award size={32} strokeWidth={2.5} />
-              </div>
-              <div className="bg-yellow-50 p-6 rounded-[2.5rem]">
-                <Layers size={100} className="text-yellow-600" strokeWidth={1.5} />
-              </div>
-              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[8px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full whitespace-nowrap">
-                VERIFIED BUSINESS PROFILE
-              </div>
-            </motion.div>
-
           </div>
         </div>
       </div>
 
-      {/* --- MAIN CONTENT AREA --- */}
-      <div className="max-w-7xl mx-auto px-6 -mt-16 pb-20 relative z-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* --- CONTENT GRID --- */}
+      <div className="max-w-7xl mx-auto px-6 -mt-12 pb-20 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-20">
+        <div className="lg:col-span-8 space-y-6">
+          
+          {/* GALLERY & MEDIA SECTION */}
+          <AccordionSection title="Gallery & Media" icon={<ImageIcon size={20}/>} isOpen={openSection === "media"} onToggle={() => setOpenSection("media")}>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {vendor.media_files?.map((img: string, i: number) => (
+                <div key={i} onClick={() => setActiveMedia({url: img, type: 'image'})} className="aspect-square rounded-2xl overflow-hidden cursor-zoom-in group relative bg-slate-50 border border-slate-100 shadow-sm">
+                  <img src={img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Maximize2 className="text-white" />
+                  </div>
+                </div>
+              ))}
 
-          {/* LEFT SIDE: DETAILS & CATALOG */}
-          <div className="lg:col-span-8 space-y-6">
+              {getVideos().map((vid: any, i: number) => {
+                const url = typeof vid === 'string' ? vid : vid.url;
+                return (
+                  <div key={i} onClick={() => setActiveMedia({url: url, type: 'video'})} className="aspect-square rounded-2xl bg-black overflow-hidden cursor-pointer group relative border border-slate-200 shadow-sm">
+                    <video 
+                      src={url} 
+                      autoPlay 
+                      muted 
+                      loop 
+                      playsInline 
+                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                    />
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                       <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                          <Play className="text-white ml-1" fill="white" size={30} />
+                       </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </AccordionSection>
 
-            {/* Quick Metrics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <StatCard
-                label="Category"
-                value={
-                  <div className="flex flex-col">
-                    {vendor.user_type?.map((c: string, i: number) => (
-                      <span key={i} className="block">{c}</span>
+          {/* BUSINESS OVERVIEW */}
+          <AccordionSection title="Business Overview" icon={<Info size={20}/>} isOpen={openSection === "overview"} onToggle={() => setOpenSection("overview")}>
+            <div className="space-y-6">
+              <p className="text-slate-700 text-lg leading-relaxed font-medium">{vendor.profile_info || "No description provided."}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-slate-100">
+                <div>
+                  <h4 className="text-[10px] font-black uppercase text-slate-400 mb-3 tracking-widest">Office Address</h4>
+                  <p className="text-sm font-bold text-slate-800 leading-relaxed bg-slate-50 p-4 rounded-2xl">
+                    {vendor.flat_no} {vendor.floor && `${vendor.floor} Floor,`} {vendor.building}<br/>
+                    {vendor.street}, {vendor.area}<br/>
+                    {vendor.city}, {vendor.state} - {vendor.pincode}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-[10px] font-black uppercase text-slate-400 mb-3 tracking-widest">Keywords</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {vendor.business_keywords?.split(',').map((k: string, idx: number) => (
+                      <span key={idx} className="bg-yellow-100 px-3 py-1.5 rounded-lg text-[10px] font-black text-yellow-800 uppercase border border-yellow-200">{k.trim()}</span>
                     ))}
                   </div>
-                }
-                icon={<Box />}
-              />
-              <StatCard label="Catalog" value={`${products.length} Items`} icon={<ShoppingBag />} />
-              <StatCard label="Established" value={new Date(vendor.created_at).getFullYear()} icon={<Clock />} />
-              <StatCard label="Trust Score" value="A+" icon={<Award />} />
-            </div>
-
-            <div className="space-y-4">
-
-
-              {/* Media Gallery */}
-              <AccordionSection
-                title="Media Gallery"
-                icon={<ImageIcon size={20} />}
-                isOpen={openSection === "media"}
-                onToggle={() => toggleSection("media")}
-              >
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {vendor.media_files?.map((img: string, i: number) => (
-                    <div key={i} className="aspect-square rounded-2xl overflow-hidden border border-slate-100">
-                      <img src={img} className="w-full h-full object-cover" />
-                    </div>
-                  ))}
-                </div>
-              </AccordionSection>
-
-              {/* Business Overview Accordion */}
-              <AccordionSection
-                title="Business Overview"
-                icon={<Info size={20} />}
-                isOpen={openSection === "overview"}
-                onToggle={() => toggleSection("overview")}
-              >
-                <div className="space-y-6">
-                  {/* Profile Description */}
-                  <p className="text-slate-600 text-lg leading-relaxed font-medium">
-                    {vendor.profile_info || "Premium business providing specialized services."}
-                  </p>
-
-                  {/* Detailed Address Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-slate-100">
-                    <div>
-                      <h4 className="text-[10px] font-black uppercase text-slate-400 mb-2 flex items-center gap-1">
-                        <MapPin size={12} className="text-yellow-600" /> Registered Address
-                      </h4>
-                      <address className="not-italic text-sm font-bold text-slate-800 leading-relaxed">
-                        {/* Constructing address from your specific SQL fields */}
-                        {vendor.flat_no && <span>{vendor.flat_no}, </span>}
-                        {vendor.floor && <span>{vendor.floor} Floor, </span>}
-                        {vendor.building && <span>{vendor.building}</span>}
-                        {(vendor.flat_no || vendor.building) && <br />}
-
-                        {vendor.street && <span>{vendor.street}, </span>}
-                        {vendor.area && <span>{vendor.area}</span>}
-                        {(vendor.street || vendor.area) && <br />}
-
-                        {vendor.landmark && (
-                          <span className="text-slate-500 font-medium">
-                            Near {vendor.landmark}
-                            <br />
-                          </span>
-                        )}
-
-                        <span className="text-slate-900 uppercase">
-                          {vendor.city}, {vendor.state} - {vendor.pincode}
-                        </span>
-                      </address>
-
-                      {/* Optional: Add a 'Get Directions' link using Google Maps */}
-                      <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${vendor.company_name} ${vendor.city} ${vendor.pincode}`)}`}
-                        target="_blank"
-                        className="mt-3 inline-flex items-center gap-1 text-[11px] font-black text-yellow-600 hover:text-yellow-700 uppercase tracking-wider"
-                      >
-                        <Navigation size={12} /> Get Directions
-                      </a>
-                    </div>
-
-                    {/* Keywords / Tags */}
-                    <div>
-                      <h4 className="text-[10px] font-black uppercase text-slate-400 mb-2">Service Keywords</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {vendor.business_keywords?.split(',').map((k: string) => (
-                          <span key={k} className="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg text-[10px] font-bold border border-slate-200 uppercase">
-                            {k.trim()}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </AccordionSection>
-
-              {/* Product Catalog */}
-              <AccordionSection
-                title="Product Catalog"
-                icon={<ShoppingBag size={18} />}
-                isOpen={openSection === "products"}
-                onToggle={() => toggleSection("products")}
-              >
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pt-4">
-                  {products.map((p) => (
-                    <motion.div
-                      key={p.id}
-                      whileHover={{ y: -2 }}
-                      className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:border-[#DC143C] transition"
-                    >
-                      {/* Image (SMALL HEIGHT) */}
-                      <div className="relative h-32 bg-slate-50">
-                        {p.product_image ? (
-                          <img
-                            src={p.product_image}
-                            alt={p.product_name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-slate-300">
-                            <Box size={24} />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Content (COMPACT) */}
-                      <div className="p-3">
-                        <h4 className="font-semibold text-slate-800 text-sm leading-snug line-clamp-2 mb-2">
-                          {p.product_name}
-                        </h4>
-
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-bold text-[#DC143C]">
-                            ₹{p.price}
-                          </span>
-
-                          <button className="text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-[#DC143C]">
-                            View
-                          </button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </AccordionSection>
-
-            </div>
-          </div>
-
-          {/* RIGHT SIDE: CONTACT & WEBSITES */}
-          <div className="lg:col-span-4">
-            <div className="sticky top-8 space-y-4">
-
-              {/* --- SIDEBAR CONTACT BOX --- */}
-              <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl">
-                <h3 className="text-xl font-black mb-8 flex items-center gap-3">
-                  <div className="p-2 bg-yellow-400 rounded-lg">
-                    <User className="text-black" size={20} />
-                  </div>
-                  Contact Details
-                </h3>
-
-                <div className="space-y-6">
-                  <ContactRow label="Owner / Manager" value={vendor.owner_name} icon={<User size={18} />} />
-                  <ContactRow label="Mobile Line" value={vendor.mobile_number} icon={<Smartphone size={18} />} />
-                  <ContactRow label="Official Email" value={vendor.email} icon={<Mail size={18} />} />
-
-                  {/* --- WEBSITE SECTION (BELOW EMAIL) --- */}
-                  {vendor.websites && vendor.websites.length > 0 && (
-                    <div className="pt-4 border-t border-white/10">
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">
-                        Official Websites
-                      </p>
-                      <div className="space-y-3">
-                        {vendor.websites.map((url: string, i: number) => (
-                          <a
-                            key={i}
-                            href={url.startsWith('http') ? url : `https://${url}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-3 group"
-                          >
-                            <div className="p-2 bg-white/5 rounded-lg group-hover:bg-yellow-400/20 transition-colors">
-                              <Globe size={16} className="text-yellow-400" />
-                            </div>
-                            <span className="text-sm font-bold text-slate-300 group-hover:text-yellow-400 truncate transition-colors max-w-[200px]">
-                              {/* This cleans the URL for display (removes https://) */}
-                              {url.replace(/(^\w+:|^)\/\//, '').split('/')[0]}
-                            </span>
-                            <ExternalLink size={12} className="ml-auto opacity-30 group-hover:opacity-100 transition-opacity" />
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Call Buttons */}
-                <div className="mt-10 space-y-3">
-                  <a href={`tel:${vendor.mobile_number}`} className="flex items-center justify-center gap-3 bg-yellow-400 text-black font-black py-5 rounded-2xl hover:bg-yellow-300 transition-all">
-                    <Phone size={20} /> Call Now
-                  </a>
                 </div>
               </div>
-
-              {/* Status Footer */}
-              <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Plan</span>
-                  <span className="text-[10px] font-black text-green-600 uppercase">Active</span>
-                </div>
-                <p className="font-black text-slate-900">{vendor.subscription_plan || "Verified Business"}</p>
-              </div>
-
             </div>
-          </div>
+          </AccordionSection>
 
+          {/* PRODUCT CATALOG (RESTORED) */}
+          <AccordionSection title="Product Catalog" icon={<ShoppingBag size={20}/>} isOpen={openSection === "products"} onToggle={() => setOpenSection("products")}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {products.length > 0 ? products.map(p => (
+                 <div key={p.id} className="bg-white border border-slate-100 rounded-2xl p-2 hover:shadow-xl hover:border-yellow-400 transition-all group">
+                    <div onClick={() => setActiveMedia({url: p.product_image, type: 'image'})} className="aspect-square bg-slate-50 rounded-xl mb-3 overflow-hidden cursor-zoom-in relative">
+                      <img src={p.product_image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={p.product_name} />
+                    </div>
+                    <div className="px-1 pb-1">
+                      <h5 className="text-xs font-black text-slate-900 truncate uppercase tracking-tight">{p.product_name}</h5>
+                      <p className="text-red-600 font-black text-sm mt-1">₹{p.price}</p>
+                    </div>
+                 </div>
+              )) : (
+                <p className="text-slate-400 text-sm font-bold col-span-full py-10 text-center italic">No products listed by this vendor.</p>
+              )}
+            </div>
+          </AccordionSection>
         </div>
-      </div>
-    </div>
-  );
-}
 
-/* --- REUSABLE COMPONENTS --- */
-
-function StatCard({ label, value, icon }: any) {
-  return (
-    <div className="bg-white p-5 rounded-[1.5rem] border border-slate-100 shadow-sm hover:border-yellow-200 transition-colors">
-      <div className="text-yellow-500 mb-3">{icon}</div>
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{label}</p>
-      {/* FIXED: Changed <p> to <div> to allow nested block elements */}
-      <div className="text-lg font-black text-slate-900 tracking-tight leading-tight">
-        {value}
+        {/* SIDEBAR */}
+        <div className="lg:col-span-4">
+          <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white sticky top-8 shadow-2xl">
+            <h3 className="text-xl font-black mb-8 flex items-center gap-3">
+              <div className="p-2 bg-yellow-400 rounded-xl text-black"><Briefcase size={20}/></div>
+              Contact Info
+            </h3>
+            <div className="space-y-6">
+              <ContactRow label="Primary Contact" value={vendor.owner_name} icon={<User size={18}/>} />
+              <ContactRow label="Mobile Number" value={vendor.mobile_number} icon={<Smartphone size={18}/>} />
+              <ContactRow label="Official Email" value={vendor.email} icon={<Mail size={18}/>} />
+            </div>
+            <div className="mt-10">
+              <a href={`tel:${vendor.mobile_number}`} className="flex items-center justify-center gap-3 bg-yellow-400 text-black font-black py-5 rounded-2xl hover:bg-yellow-300 transition-all w-full shadow-lg shadow-yellow-400/20">
+                <Phone size={20}/> Call Vendor
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -396,10 +226,10 @@ function StatCard({ label, value, icon }: any) {
 function ContactRow({ label, value, icon }: any) {
   return (
     <div className="flex items-start gap-4">
-      <div className="text-slate-500 mt-1">{icon}</div>
-      <div className="overflow-hidden">
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">{label}</p>
-        <p className="text-sm font-bold text-slate-200 truncate">{value || "Not Disclosed"}</p>
+      <div className="text-yellow-400 mt-1">{icon}</div>
+      <div>
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{label}</p>
+        <p className="text-sm font-bold text-slate-100">{value || "Not Provided"}</p>
       </div>
     </div>
   );
@@ -407,22 +237,23 @@ function ContactRow({ label, value, icon }: any) {
 
 function AccordionSection({ title, icon, children, isOpen, onToggle }: any) {
   return (
-    <div className={`bg-white rounded-[2rem] border-2 transition-all ${isOpen ? 'border-yellow-400' : 'border-slate-50'}`}>
-      <button onClick={onToggle} className="w-full flex items-center justify-between p-6">
+    <div className={`bg-white rounded-[2.5rem] border-2 transition-all duration-300 ${isOpen ? 'border-yellow-400 shadow-xl' : 'border-slate-50'}`}>
+      <button onClick={onToggle} className="w-full flex items-center justify-between p-7">
         <div className="flex items-center gap-4">
-          <div className={`p-3 rounded-xl transition-colors ${isOpen ? 'bg-yellow-400 text-black shadow-lg shadow-yellow-400/20' : 'bg-slate-50 text-slate-400'}`}>
-            {icon}
-          </div>
-          <h2 className="text-lg font-black text-slate-900">{title}</h2>
+          <div className={`p-3.5 rounded-2xl transition-all ${isOpen ? 'bg-yellow-400 text-black shadow-lg shadow-yellow-400/30' : 'bg-slate-50 text-slate-400'}`}>{icon}</div>
+          <h2 className="text-xl font-black text-slate-900 tracking-tight">{title}</h2>
         </div>
-        <ChevronDown size={20} className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-yellow-600' : 'text-slate-300'}`} />
+        <ChevronDown size={20} className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
       <AnimatePresence>
         {isOpen && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }}>
-            <div className="px-6 pb-8">
-              {children}
-            </div>
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }} 
+            animate={{ height: "auto", opacity: 1 }} 
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.4, ease: "circOut" }}
+          >
+            <div className="px-8 pb-10 overflow-hidden">{children}</div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -432,9 +263,9 @@ function AccordionSection({ title, icon, children, isOpen, onToggle }: any) {
 
 function LoadingSpinner() {
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-yellow-100/30">
-      <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin mb-4" />
-      <p className="font-black text-xs uppercase tracking-[0.3em] text-black">Loading Vendor...</p>
+    <div className="h-screen flex flex-col items-center justify-center bg-[#FFFDF5]">
+      <div className="w-12 h-12 border-4 border-yellow-200 border-t-yellow-500 rounded-full animate-spin mb-6" />
+      <p className="font-black text-[10px] uppercase tracking-[0.4em] text-yellow-800">Fetching Business Profile...</p>
     </div>
   );
 }

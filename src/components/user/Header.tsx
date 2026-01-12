@@ -97,32 +97,36 @@ export default function UserFeed() {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
 
-      if (!user?.id) {
+      if (!user) {
         setUserRole(null);
         setProfileColor("#FFD700");
         setProfileMedal("");
         return;
       }
 
-      const { data: vendor } = await supabase
-        .from("vendor_register")
-        .select("subscription_plan_id")
-        .eq("user_id", user.id) // confirm column name
-        .maybeSingle();
+      // ✅ 1. READ ROLE FROM AUTH (THIS WAS MISSING)
+      const role = user.user_metadata?.role || "user";
+      setUserRole(role);
 
-      if (vendor?.subscription_plan_id) {
-        setUserRole("vendor");
-
-        const { data: plan } = await supabase
-          .from("subscription_plans")
-          .select("color, medals")
-          .eq("id", vendor.subscription_plan_id)
+      // ✅ 2. ONLY IF VENDOR → LOAD EXTRA DETAILS
+      if (role === "vendor") {
+        const { data: vendor } = await supabase
+          .from("vendor_register")
+          .select("subscription_plan_id")
+          .eq("user_id", user.id)
           .maybeSingle();
 
-        setProfileColor(plan?.color || "#FFD700");
-        setProfileMedal(plan?.medals || "");
+        if (vendor?.subscription_plan_id) {
+          const { data: plan } = await supabase
+            .from("subscription_plans")
+            .select("color, medals")
+            .eq("id", vendor.subscription_plan_id)
+            .maybeSingle();
+
+          setProfileColor(plan?.color || "#FFD700");
+          setProfileMedal(plan?.medals || "");
+        }
       } else {
-        setUserRole("user");
         setProfileColor("#FFD700");
         setProfileMedal("");
       }
@@ -313,7 +317,7 @@ export default function UserFeed() {
   const navLinks = [
     { name: "Home", href: "/user" },
     { name: "Plans", href: "/user/subscription-plans" },
-    { name: "Listing", href: "/user/listing" },
+    { name: "Products", href: "/user/listing" },
     { name: "Video", href: "/user/video" },
     { name: "Transport", href: "/user/transport" },
     { name: "Enquiry", href: "/user/enquiry" },
@@ -324,7 +328,11 @@ export default function UserFeed() {
   return (
     <div className="pt-[60px] bg-black">
       {/* ---------------- HEADER ---------------- */}
-      <header className="fixed top-0 left-0 right-0 z-[9999] h-16 bg-black border-b border-red-50 shadow-sm">
+      <header
+        className={`fixed top-0 left-0 right-0 z-[9999] h-16 bg-black/80 backdrop-blur-sm border-b border-red-50 shadow-sm transition-all duration-300
+    ${showLoginPopup || showRegisterPopup || openVendor ? "hidden" : "block"}
+  `}
+      >
         <div className="max-w-7xl mx-auto h-full flex items-center justify-between px-6">
 
           {/* 1. Logo Section: Optimized sizing */}

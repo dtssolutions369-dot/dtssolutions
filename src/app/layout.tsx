@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "QuickTick",
-  description: "QuickTick – Smart & Fast Service Booking Platform",
+  title: "QickTick",
+  description: "QickTick – Smart & Fast Service Booking Platform",
   icons: {
     icon: "/icon.png",
   },

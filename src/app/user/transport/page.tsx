@@ -178,7 +178,7 @@ export default function TransportPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-800/60 ml-2">Cargo Description</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-800/60 ml-2">Product Description</label>
                   <textarea 
                     placeholder="DESCRIBE YOUR GOODS..." rows={2}
                     className="w-full p-4 bg-[#FEF3C7]/20 border border-transparent rounded-2xl focus:border-yellow-400 focus:bg-white outline-none transition-all font-bold uppercase text-[11px] tracking-widest text-gray-700 placeholder:text-yellow-800/30"
@@ -225,12 +225,13 @@ export default function TransportPage() {
                       <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-2">
                            <span className={`w-1.5 h-1.5 rounded-full ${isPast ? 'bg-gray-300' : 'bg-red-600 animate-pulse'}`}></span>
-                           <span className={`text-[8px] font-black uppercase tracking-widest ${isPast ? 'text-gray-400' : 'text-red-600'}`}>{isPast ? 'Archived' : 'Live'}</span>
+                           <span className={`text-[8px] font-black uppercase tracking-widest ${isPast ? 'text-gray-400' : 'text-red-600'}`}>{isPast ? 'Archived' : 'Live Lead'}</span>
                         </div>
                         <span className="text-[8px] font-black text-gray-300">ID_{req.id}</span>
                       </div>
 
                       <div className="mb-4">
+                        {/* Locations */}
                         <div className="flex items-center gap-2 mb-2">
                           <MapPin size={14} className="text-yellow-600"/>
                           <p className="text-sm font-black italic uppercase tracking-tighter text-gray-900 leading-tight">
@@ -238,16 +239,29 @@ export default function TransportPage() {
                           </p>
                         </div>
                         
-                        <div className="flex gap-2">
-                          <div className="flex items-center gap-1.5 text-[8px] font-black text-gray-500 uppercase italic bg-gray-50 px-2 py-1 rounded-full">
+                        {/* Badges: Date & Weight */}
+                        <div className="flex gap-2 mb-3">
+                          <div className="flex items-center gap-1.5 text-[8px] font-black text-gray-500 uppercase italic bg-gray-50 px-2 py-1 rounded-full border border-gray-100">
                             <Calendar size={10} className="text-yellow-600"/> {req.travel_date}
                           </div>
-                          <div className="flex items-center gap-1.5 text-[8px] font-black text-gray-500 uppercase italic bg-gray-50 px-2 py-1 rounded-full">
+                          <div className="flex items-center gap-1.5 text-[8px] font-black text-gray-500 uppercase italic bg-gray-50 px-2 py-1 rounded-full border border-gray-100">
                             <Weight size={10} className="text-yellow-600"/> {req.weight_kg || '0'} KG
                           </div>
                         </div>
+
+                        {/* --- PRODUCT DESCRIPTION --- */}
+                        {req.goods_description && (
+                          <div className="flex items-start gap-2 bg-yellow-50/50 p-3 rounded-xl border border-yellow-100/50">
+                            <Package size={12} className="text-yellow-600 mt-0.5 shrink-0" />
+                            <p className="text-[10px] font-bold uppercase tracking-tight text-gray-600 leading-snug">
+                              <span className="text-yellow-800/50 text-[8px] block mb-0.5 font-black">Goods:</span>
+                              {req.goods_description}
+                            </p>
+                          </div>
+                        )}
                       </div>
 
+                      {/* Contact Section */}
                       <div className="relative rounded-2xl bg-gray-900 p-4 overflow-hidden mt-4">
                         <div className={`space-y-1 transition-all duration-500 ${!hasSubscription ? 'blur-sm select-none pointer-events-none opacity-20' : ''}`}>
                           <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase italic">

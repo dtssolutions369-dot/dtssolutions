@@ -224,10 +224,12 @@ export default function VendorRegister({
         if (!formData.company_logo) return "Company logo is required";
         if (!formData.company_name.trim()) return "Company name is required";
         if (!formData.business_keywords.trim()) return "Business keywords are required";
-        if (formData.gst_number.length !== 15) return "GST Number must be exactly 15 characters";
+        // Make GST optional:
+        if (formData.gst_number && formData.gst_number.length !== 15) return "GST Number must be exactly 15 characters if provided";
         if (!formData.sector.trim()) return "Business sector is required";
         if (!formData.profile_info.trim()) return "Business description is required";
         return null;
+
       case 4:
         if (!formData.building.trim()) return "Building/Project name is required";
         if (!formData.street.trim()) return "Street/Road is required";
@@ -464,7 +466,16 @@ export default function VendorRegister({
 
       toast.success("Registration successful! Welcome onboard.");
 
-// 🔥 IMPORTANT
+      // ✅ SET ROLE IN SUPABASE AUTH (CRITICAL)
+      await supabase.auth.updateUser({
+        data: {
+          role: "vendor",
+        },
+      });
+
+      await supabase.auth.refreshSession();
+
+      // 🔥 IMPORTANT
       onSuccess();   // refresh header, user role, profile
       onClose();     // close modal
 
@@ -486,7 +497,7 @@ export default function VendorRegister({
       <Toaster position="top-right" reverseOrder={false} />
       <Script id="razorpay-checkout-js" src="https://checkout.razorpay.com/v1/checkout.js" />
 
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md transition-all duration-300 p-4">
         <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
           {/* Header with Close Button */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
@@ -591,11 +602,10 @@ export default function VendorRegister({
                         ].map((option) => (
                           <label
                             key={option.value}
-                            className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                              formData.user_type.includes(option.value)
-                                ? "border-blue-600 bg-blue-50"
-                                : "border-gray-300 hover:border-gray-400"
-                            }`}
+                            className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${formData.user_type.includes(option.value)
+                              ? "border-blue-600 bg-blue-50"
+                              : "border-gray-300 hover:border-gray-400"
+                              }`}
                           >
                             <input
                               type="checkbox"
@@ -1039,15 +1049,13 @@ export default function VendorRegister({
                             <div
                               key={p.id}
                               onClick={() => setFormData({ ...formData, subscription_plan_id: p.id.toString() })}
-                              className={`group relative overflow-hidden rounded-2xl transition-all duration-300 cursor-pointer border-2 ${
-                                isSelected ? "bg-blue-50 border-blue-600 shadow-lg -translate-y-1" : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-md"
-                              }`}
+                              className={`group relative overflow-hidden rounded-2xl transition-all duration-300 cursor-pointer border-2 ${isSelected ? "bg-blue-50 border-blue-600 shadow-lg -translate-y-1" : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-md"
+                                }`}
                             >
                               <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div className="flex items-center gap-4">
-                                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
-                                    isSelected ? "bg-gray-900 text-yellow-300 rotate-6" : "bg-gray-200 text-gray-500"
-                                  }`}>
+                                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${isSelected ? "bg-gray-900 text-yellow-300 rotate-6" : "bg-gray-200 text-gray-500"
+                                    }`}>
                                     <Check size={24} strokeWidth={isSelected ? 3 : 2} />
                                   </div>
                                   <div>

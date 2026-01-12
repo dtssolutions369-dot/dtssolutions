@@ -405,6 +405,22 @@ export default function Home() {
             behavior: "smooth",
         });
     };
+
+
+    // Inside your export default function Home() ...
+    const bannerScrollRef = useRef<HTMLDivElement | null>(null);
+
+    // Add this specific scroll handler for banners
+    const scrollBanners = (direction: "left" | "right") => {
+        if (!bannerScrollRef.current) return;
+        const container = bannerScrollRef.current;
+        // Adjust scroll amount based on banner width (approx 480px + gap)
+        const scrollAmount = 500;
+        container.scrollBy({
+            left: direction === "left" ? -scrollAmount : scrollAmount,
+            behavior: "smooth",
+        });
+    };
     return (
         <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-900 text-white">
             {/* HERO SECTION - Redesigned with yellow/red/black theme */}
@@ -557,8 +573,7 @@ export default function Home() {
             </div>
 
             {/* HOW IT WORKS – Clean White Background Design */}
-            <section className="pb-16 sm:pb-24 pt-8 sm:pt-10 bg-white relative z-0 overflow-hidden">
-
+            <section className="pt-6 pb-6 sm:pt-8 sm:pb-8 bg-white relative z-0 overflow-hidden">
                 {/* Soft background accents */}
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute top-24 left-1/4 w-56 sm:w-72 h-56 sm:h-72 bg-yellow-200/40 rounded-full blur-3xl" />
@@ -668,98 +683,71 @@ export default function Home() {
                 </div>
             </section>
 
+           {/* POPULAR CATEGORIES GRID - UNIFORM SIZE */}
+<section className="py-10 bg-[#FFFBEB]">
+  <div className="max-w-7xl mx-auto px-6">
 
-            {/* CATEGORIES SECTION */}
-            <section className="py-20 pt-10 bg-[#FFFBEB] relative overflow-hidden">
-                {/* Global Style to hide scrollbars while allowing scroll functionality */}
-                <style jsx global>{`
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    `}</style>
+    {/* --- HEADER --- */}
+    <div className="mb-6 text-center">
+      <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">
+        Popular <span className="text-red-600">Categories</span>
+      </h2>
+      <p className="mt-2 text-gray-500 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+        Select a category below to quickly find services you need.
+      </p>
+    </div>
 
-                <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-200/30 rounded-full blur-3xl -mr-32 -mt-32" />
-                <div className="absolute bottom-0 left-0 w-80 h-80 bg-red-100/30 rounded-full blur-3xl -ml-40 -mb-40" />
+    {/* --- GRID OF CATEGORIES (2 ROWS) --- */}
+    <div className="grid grid-cols-5 md:grid-cols-10 gap-4 md:gap-6 justify-items-center">
+      {loading ? (
+        [...Array(20)].map((_, i) => (
+          <div key={i} className="flex flex-col items-center animate-pulse">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg bg-gray-200 mb-2" />
+            <div className="h-3 w-12 bg-gray-200 rounded" />
+          </div>
+        ))
+      ) : (
+        categories?.map((cat) => (
+          <div
+            key={cat.id}
+            className="flex flex-col items-center cursor-pointer"
+            onClick={() => router.push(`/user/services/${cat.id}`)}
+          >
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg bg-gray-50 border border-gray-100 shadow-sm flex items-center justify-center transition-transform hover:scale-105 hover:shadow-md">
+              {cat.image_url ? (
+                <Image
+                  src={cat.image_url}
+                  alt={cat.name}
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                />
+              ) : (
+                <span className="text-gray-400 font-bold text-lg">{cat.name.charAt(0)}</span>
+              )}
+            </div>
+            <p className="mt-2 text-xs md:text-sm font-semibold text-gray-800 text-center truncate w-20 md:w-24">
+              {cat.name}
+            </p>
+          </div>
+        ))
+      )}
+    </div>
 
-                <div className="max-w-7xl mx-auto px-6 relative z-10">
-                    <div className="text-center mb-12">
-                        <span className="text-red-600 font-bold tracking-[0.25em] uppercase text-[10px] md:text-xs">
-                            Premium Services
-                        </span>
-                        <h2 className="mt-3 text-4xl font-extrabold text-gray-900 tracking-tight">
-                            Popular <span className="text-red-600">Categories</span>
-                        </h2>
-                        <div className="mx-auto mt-5 h-1.5 w-16 bg-gradient-to-r from-yellow-500 to-red-600 rounded-full" />
-                    </div>
+    {/* --- CENTERED VIEW ALL LINK --- */}
+    <div className="mt-6 flex justify-center">
+      <Link
+        href="/user/view-more?type=categories"
+        className="group flex items-center gap-2 text-red-600 font-bold text-sm bg-red-50 px-6 py-2 rounded-full hover:bg-red-600 hover:text-white transition-all"
+      >
+        View all categories
+        <span className="group-hover:translate-x-1 transition-transform">→</span>
+      </Link>
+    </div>
 
-                    {/* SLIDER WRAPPER */}
-                    <div className="relative group">
+  </div>
+</section>
 
-                        {/* LEFT ARROW */}
-                        <button
-                            onClick={() => scroll("left")}
-                            className="absolute -left-6 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center bg-white text-gray-900 w-12 h-12 rounded-full shadow-xl border border-gray-100 hover:bg-red-600 hover:text-white transition-all duration-300 opacity-0 group-hover:opacity-100"
-                        >
-                            <ChevronLeft size={24} strokeWidth={3} />
-                        </button>
-
-                        {/* SCROLLABLE CONTAINER */}
-                        <div
-                            ref={scrollRef}
-                            className="flex gap-8 overflow-x-auto hide-scrollbar snap-x snap-mandatory scroll-smooth pb-4"
-                        >
-                            {loading ? (
-                                [...Array(4)].map((_, i) => (
-                                    <div key={i} className="min-w-[85%] md:min-w-[30%] h-72 bg-gray-200 rounded-2xl animate-pulse" />
-                                ))
-                            ) : (
-                                categories?.map((cat) => (
-                                    <div
-                                        key={cat.id}
-                                        /* IMPORTANT: This class name must match the one in your scroll function */
-                                        className="category-card snap-center min-w-[85%] md:min-w-[30%] cursor-pointer group/card"
-                                        onClick={() => router.push(`/user/services/${cat.id}`)}
-                                    >
-                                        <div className="relative h-72 rounded-2xl overflow-hidden border-4 border-white shadow-lg transition-all duration-500 group-hover/card:shadow-2xl">
-                                            {cat.image_url && (
-                                                <Image
-                                                    src={cat.image_url}
-                                                    alt={cat.name}
-                                                    fill
-                                                    className="object-cover transition-transform duration-700 group-hover/card:scale-110"
-                                                />
-                                            )}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                                            <div className="absolute bottom-0 left-0 right-0 p-6">
-                                                <h3 className="text-xl font-bold text-white group-hover/card:text-yellow-400 transition-colors">
-                                                    {cat.name}
-                                                </h3>
-                                                <div className="mt-4 flex items-center gap-1 text-white text-xs font-bold uppercase tracking-widest">
-                                                    Explore Now
-                                                    <ChevronRight size={14} className="group-hover/card:translate-x-1 transition-transform" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-
-                        {/* RIGHT ARROW */}
-                        <button
-                            onClick={() => scroll("right")}
-                            className="absolute -right-6 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center bg-white text-gray-900 w-12 h-12 rounded-full shadow-xl border border-gray-100 hover:bg-red-600 hover:text-white transition-all duration-300 opacity-0 group-hover:opacity-100"
-                        >
-                            <ChevronRight size={24} strokeWidth={3} />
-                        </button>
-                    </div>
-
-                    <div className="flex justify-center mt-12">
-                        <Link href="/user/view-more?type=categories" className="px-10 py-3.5 bg-gray-900 text-white rounded-xl font-bold uppercase text-xs tracking-[0.2em] hover:bg-red-600 transition-all">
-                            View All Categories
-                        </Link>
-                    </div>
-                </div>
-            </section>
 
             {/* TRUST CTA - Redesigned & Compact with 3 Buttons */}
             <section className="py-16  bg-[#FEF3C7] relative overflow-hidden border-y border-yellow-200">
@@ -812,257 +800,255 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* DIGITAL BRANDING - Premium scroll with yellow/red/black accents */}
-            <section className="py-24 pt-10 bg-[#FCF9F1] overflow-hidden relative">
-                {/* Decorative Background Text */}
-                <div className="absolute top-10 left-10 text-9xl font-black text-black/[0.02] select-none pointer-events-none">
+            {/* DIGITAL BRANDING - Compact Studio Slider */}
+            <section className="py-16 bg-[#FCF9F1] overflow-hidden relative border-b border-gray-100">
+                {/* Decorative Background Text - Reduced Size */}
+                <div className="absolute top-6 left-6 text-6xl font-black text-black/[0.03] select-none pointer-events-none">
                     STUDIO
                 </div>
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
-                    {/* Header */}
-                    <div className="text-center mb-14">
-                        {/* Title */}
-                        <h2 className="text-5xl md:text-6xl font-black text-gray-900 tracking-tight">
-                            Digital <span className="text-yellow-600">Branding</span>
-                        </h2>
+                    {/* --- LARGE CENTERED HEADER & CONTROLS --- */}
+                    {/* --- BALANCED CENTERED HEADER --- */}
+                    <div className="flex flex-col items-center text-center mb-10">
+                        <div className="mb-6">
+                            <span className="text-red-600 font-bold tracking-[0.2em] uppercase text-[10px] mb-2 block">
+                                Creative Studio
+                            </span>
+                            <h2 className="text-3xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter">
+                                Digital <span className="text-yellow-600">Branding</span>
+                            </h2>
+                            <div className="w-12 h-1 bg-red-600 mx-auto mt-3 rounded-full" />
+                            <p className="text-gray-500 mt-4 text-sm md:text-base max-w-lg mx-auto leading-relaxed">
+                                High-impact video storytelling to elevate your digital presence.
+                            </p>
+                        </div>
 
-                        {/* Description */}
-                        <p className="text-gray-600 max-w-3xl mx-auto mt-6 text-lg leading-relaxed">
-                            Elevate your presence. Showcase your business with high-impact video storytelling
-                            that captures attention instantly.
-                        </p>
-
-                        {/* Controls Row (Arrows + View More) */}
-                        <div className="mt-10 flex items-center justify-center gap-6">
-                            {/* Arrows */}
-                            <div className="flex gap-3">
+                        {/* Compact Control Pill */}
+                        <div className="flex items-center gap-4 bg-white px-5 py-2 rounded-xl border border-gray-100 shadow-sm">
+                            <div className="flex gap-2">
                                 <button
                                     onClick={() => scroll("left")}
-                                    className="p-4 rounded-full border border-gray-200
-        hover:bg-yellow-500 hover:border-yellow-500 transition-all"
+                                    className="p-2 rounded-full border border-gray-200 hover:bg-yellow-500 hover:border-yellow-500 transition-all"
+                                >
+                                    <ChevronLeft size={14} />
+                                </button>
+                                <button
+                                    onClick={() => scroll("right")}
+                                    className="p-2 rounded-full bg-black text-white hover:bg-red-600 transition-all"
+                                >
+                                    <ChevronRight size={14} />
+                                </button>
+                            </div>
+
+                            <span className="h-4 w-px bg-gray-200"></span>
+
+                            <Link
+                                href="/user/view-more?type=branding"
+                                className="text-[10px] font-black uppercase tracking-widest text-gray-900 hover:text-red-600 transition flex items-center gap-1"
+                            >
+                                View More <ArrowRight size={12} />
+                            </Link>
+                        </div>
+                    </div>
+                    {/* --- VIDEO SLIDER --- */}
+                    <div
+                        ref={scrollRef}
+                        className="flex gap-5 overflow-x-auto hide-scrollbar snap-x snap-mandatory pb-4"
+                    >
+                        {brandingVideos.map((video) => (
+                            <Link
+                                key={video.id}
+                                href="/user/view-more?type=branding"
+                                className="min-w-[280px] md:min-w-[340px] group/card snap-start block"
+                            >
+                                <div className="relative h-[200px] md:h-[240px] rounded-[2rem] overflow-hidden shadow-lg bg-gray-200 border-4 border-white transition-all duration-500 group-hover/card:border-yellow-400 group-hover/card:shadow-2xl">
+                                    <video
+                                        src={video.video_url}
+                                        autoPlay muted loop playsInline
+                                        className="w-full h-full object-cover"
+                                    />
+
+                                    {/* Tint Overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60 group-hover/card:opacity-40 transition-opacity" />
+
+                                    {/* LIVE Indicator */}
+                                    <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-black/20 backdrop-blur-md px-2 py-1 rounded-md opacity-0 group-hover/card:opacity-100 transition-opacity">
+                                        <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                                        <span className="text-[8px] font-bold text-white uppercase tracking-tighter">Live</span>
+                                    </div>
+
+                                    {/* Floating Label - Now acts as the primary Call to Action */}
+                                    <div className="absolute bottom-5 left-5 right-5">
+                                        <div className="bg-white/10 backdrop-blur-md border border-white/20 py-2.5 px-4 rounded-xl transform translate-y-2 group-hover/card:translate-y-0 transition-all duration-500 flex justify-between items-center">
+                                            <p className="text-white font-bold tracking-wide uppercase text-[10px]">
+                                                Premium Showcase
+                                            </p>
+                                            <ArrowRight size={14} className="text-white group-hover/card:translate-x-1 transition-transform" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+
+                    {/* --- COMPACT PAGINATION --- */}
+                    <div className="flex justify-center items-center gap-2 mt-6">
+                        <div className="h-1 w-8 bg-yellow-500 rounded-full" />
+                        <div className="h-1 w-1 bg-gray-300 rounded-full" />
+                        <div className="h-1 w-1 bg-gray-300 rounded-full" />
+                    </div>
+                </div>
+            </section>
+
+            {/* DIGITAL BANNERS - Premium Scrolling Layout */}
+            <section className="py-20 pt-10 bg-white relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-6">
+
+                    {/* --- CENTERED HEADER & CONTROLS --- */}
+                    <div className="flex flex-col items-center text-center mb-10">
+                        {/* Title Section */}
+                        <div className="mb-6">
+                            <h2 className="text-3xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter">
+                                Digital <span className="text-yellow-500 italic">Banners</span>
+                            </h2>
+                            {/* Centered Decorative Line */}
+                            <div className="w-16 h-1 bg-yellow-500 mt-3 mb-4 rounded-full mx-auto" />
+                            <p className="text-gray-500 font-medium text-sm md:text-base max-w-lg mx-auto">
+                                Professional curated assets for your digital presence.
+                            </p>
+                        </div>
+
+                        {/* NEW CENTERED ARROW & ACTION CONTROLS */}
+                        <div className="flex flex-wrap items-center justify-center gap-4">
+                            {/* Arrows Group */}
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => scrollBanners("left")}
+                                    className="p-2.5 rounded-full border border-gray-200 text-gray-400 hover:bg-yellow-500 hover:border-yellow-500 hover:text-black transition-all shadow-sm active:scale-90"
                                 >
                                     <ChevronLeft size={20} />
                                 </button>
-
                                 <button
-                                    onClick={() => scroll("right")}
-                                    className="p-4 rounded-full bg-black text-white
-        hover:bg-red-600 transition-all"
+                                    onClick={() => scrollBanners("right")}
+                                    className="p-2.5 rounded-full border border-gray-200 text-gray-400 hover:bg-yellow-500 hover:border-yellow-500 hover:text-black transition-all shadow-sm active:scale-90"
                                 >
                                     <ChevronRight size={20} />
                                 </button>
                             </div>
 
-                            {/* Divider */}
-                            <span className="h-6 w-px bg-gray-300"></span>
+                            {/* Divider - Hidden on very small screens */}
+                            <span className="hidden sm:block h-6 w-px bg-gray-200 mx-1"></span>
 
-                            {/* View More (Top) */}
-                            <Link
-                                href="/user/view-more?type=branding"
-                                className="text-sm font-black uppercase tracking-widest
-      text-gray-900 hover:text-yellow-600 transition"
-                            >
-                                View More →
+                            {/* View All Button */}
+                            <Link href="/user/view-more?type=banners">
+                                <button className="flex items-center gap-2 bg-gray-900 text-white hover:bg-yellow-500 hover:text-black transition-all px-6 py-2.5 rounded-full font-bold text-[11px] uppercase tracking-wider shadow-md">
+                                    View All <ArrowRight size={14} />
+                                </button>
                             </Link>
                         </div>
                     </div>
 
-
-                    {/* Video Slider Container */}
-                    <div className="relative">
+                    {/* ---------- SCROLLING SECTION ---------- */}
+                    <div className="relative -mx-4">
                         <div
-                            ref={scrollRef}
-                            className="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4"
+                            ref={bannerScrollRef} // Link to the new ref
+                            className="
+                    flex gap-6 overflow-x-auto
+                    snap-x snap-mandatory
+                    scrollbar-hide
+                    px-4
+                "
+                            style={{
+                                msOverflowStyle: 'none',
+                                scrollbarWidth: 'none',
+                                paddingBottom: '30px',
+                                marginBottom: '-30px'
+                            }}
                         >
-                            {brandingVideos.length === 0 ? (
-                                <div className="w-full py-32 text-center border-2 border-dashed border-yellow-200 rounded-[3rem] bg-yellow-50/50 text-gray-400 italic">
-                                    No branding videos available yet.
-                                </div>
-                            ) : (
-                                brandingVideos.map((video) => (
-                                    <div
-                                        key={video.id}
-                                        className="min-w-[300px] md:min-w-[380px] group/card snap-start"
-                                    >
-                                        {/* The "Video Frame" */}
-                                        <div className="relative h-400px] rounded-[2.5rem] overflow-hidden shadow-2xl bg-gray-200 border-[8px] border-white transition-transform duration-500 group-hover/card:scale-[0.98]">
-                                            <video
-                                                src={video.video_url}
-                                                autoPlay
-                                                muted
-                                                loop
-                                                playsInline
-                                                className="w-full h-full object-cover"
-                                            />
+                            {imageBanners.map((banner: any) => (
+                                <div
+                                    key={banner.id}
+                                    className="
+                            group relative aspect-video
+                            min-w-[280px] md:min-w-[400px] lg:min-w-[480px]
+                            rounded-3xl overflow-hidden
+                            border border-gray-100 shadow-sm
+                            hover:shadow-2xl hover:-translate-y-3
+                            transition-all duration-500
+                            snap-center
+                        "
+                                >
+                                    <img
+                                        src={banner.image_url}
+                                        alt={banner.title || "Banner"}
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    />
 
-                                            {/* Overlay with subtle color tint */}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover/card:opacity-30 transition-opacity" />
-
-                                            {/* Corner Accents */}
-                                            <div className="absolute top-6 right-6 flex flex-col gap-1 opacity-0 group-hover/card:opacity-100 transition-opacity">
-                                                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                                                <span className="text-[10px] font-bold text-white uppercase">Live</span>
-                                            </div>
-
-                                            {/* Floating Label */}
-                                            <div className="absolute bottom-8 left-8 right-8">
-                                                <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl transform translate-y-4 group-hover/card:translate-y-0 transition-transform duration-500">
-                                                    <p className="text-white font-bold tracking-wide uppercase text-sm">
-                                                        Premium Showcase
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    {/* Gradient Overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8 text-left">
+                                        <p className="text-yellow-500 font-black uppercase tracking-[0.2em] text-[10px] mb-2">
+                                            Premium Asset
+                                        </p>
+                                        <h3 className="text-white font-bold text-xl leading-tight">
+                                            {banner.title || 'Untitled Banner'}
+                                        </h3>
                                     </div>
-                                ))
-                            )}
+                                </div>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Custom Pagination Dots */}
-                    <div className="flex justify-center items-center gap-3 mt-12">
-                        <div className="h-1.5 w-12 bg-yellow-500 rounded-full" />
-                        <div className="h-1.5 w-2 bg-gray-300 rounded-full" />
-                        <div className="h-1.5 w-2 bg-gray-300 rounded-full" />
-                    </div>
                 </div>
             </section>
 
-            {/* DIGITAL BANNERS - Fixed Image Layout */}
-            <section className="py-24 pt-10 bg-white relative">
-                <div className="max-w-7xl mx-auto px-6 text-center">
-                    {/* ---------- CENTERED HEADER ---------- */}
-                    <div className="flex flex-col items-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter">
-                            Digital <span className="text-yellow-500 italic">Banners</span>
-                        </h2>
-                        <div className="w-20 h-1.5 bg-yellow-500 mt-4 mb-4 rounded-full" />
-                        <p className="text-gray-500 font-medium">
-                            Professional curated assets for your digital presence.
-                        </p>
-
-                        {/* Desktop View More - Centered below text */}
-                        <Link
-                            href="/user/view-more?type=banners"
-                            className="mt-8 hidden md:block"
-                        >
-                            <button
-                                className="flex items-center gap-2 bg-gray-900 text-white hover:bg-yellow-500 hover:text-black transition-all px-8 py-3 rounded-full font-bold text-sm shadow-xl hover:shadow-yellow-500/20"
-                            >
-                                View All Banners <ArrowRight size={18} />
-                            </button>
-                        </Link>
-                    </div>
-
-                    {/* ---------- GRID SECTION ---------- */}
-                    <div
-                        className="
-                        flex gap-6 overflow-x-auto pb-4
-                        md:grid md:grid-cols-2
-                        lg:grid-cols-3
-                        md:gap-8
-                        snap-x snap-mandatory
-                        scrollbar-hide
-                    "
-                    >
-                        {imageBanners.slice(0, 3).map((banner: any) => (
-
-                            <div key={banner.id}
-
-                                className="
-                                    group relative aspect-video
-                                    min-w-[280px] sm:min-w-[320px] md:min-w-0
-                                    rounded-3xl overflow-hidden
-                                    border border-gray-100 shadow-sm
-                                    hover:shadow-2xl hover:-translate-y-2
-                                    transition-all duration-500
-                                    snap-start
-                                "
-                            >
-
-                                <img
-                                    src={banner.image_url}
-                                    alt={banner.title || "Banner"}
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                />
-                                {/* Subtle Overlay on Hover */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
-                                    <p className="text-white font-bold uppercase tracking-widest text-xs">
-                                        {banner.title || 'Premium Asset'}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* ---------- MOBILE VIEW MORE ---------- */}
-                    <div className="mt-12 md:hidden">
-                        <Link
-                            href="/user/view-more?type=banners"
-                            className="block w-full"
-                        >
-                            <button className="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl shadow-lg hover:bg-yellow-600 transition-colors uppercase tracking-[0.2em] text-xs">
-                                View More Banners
-                            </button>
-                        </Link>
-                    </div>
-                </div>
-            </section>
-
-            {/* TRANSPORT BANNER - Amber Premium Design */}
-            <section className="py-20 pt-10 bg-[#FEF3C7] relative overflow-hidden border-y border-yellow-200">
-                {/* Decorative Elements */}
+            {/* COMPACT TRANSPORT BANNER */}
+            <section className="py-12 bg-[#FEF3C7] relative overflow-hidden border-y border-yellow-200">
+                {/* Decorative Elements - Scaled down */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-                <div className="absolute -top-24 -right-24 w-64 h-64 bg-yellow-400/20 rounded-full blur-3xl" />
-                <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-red-400/10 rounded-full blur-3xl" />
+                <div className="absolute -top-12 -right-12 w-32 h-32 bg-yellow-400/20 rounded-full blur-2xl" />
 
-                <div className="max-w-7xl mx-auto px-6 relative z-10">
+                <div className="max-w-5xl mx-auto px-6 relative z-10">
 
-                    {/* Header Section */}
-                    <div className="mb-12 text-center">
-                        <span className="inline-block px-4 py-1 mb-4 bg-white/50 border border-yellow-300 text-red-600 text-xs font-bold uppercase tracking-[0.2em] rounded-full">
-                            Logistics & Movement
+                    {/* --- COMPACT HEADER --- */}
+                    <div className="mb-8 text-center">
+                        <span className="inline-block px-3 py-0.5 mb-3 bg-white/50 border border-yellow-300 text-red-600 text-[10px] font-bold uppercase tracking-widest rounded-full">
+                            Logistics
                         </span>
-                        <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
+                        <h2 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
                             Transport <span className="text-red-600">Services</span>
                         </h2>
-                        <p className="text-gray-700 mt-4 max-w-xl mx-auto text-lg font-medium leading-relaxed">
-                            Explore our latest transport-related promotions.
-                            <span className="block text-yellow-700 font-bold mt-1">Reliable • Fast • Secure</span>
+                        <p className="text-gray-600 mt-2 text-xs md:text-sm font-medium">
+                            Reliable • Fast • Secure Movement
                         </p>
                     </div>
 
-                    {/* Banner and Button Container */}
+                    {/* --- SMALLER BANNER FRAME --- */}
                     <div className="flex flex-col items-center">
-                        {/* The "Floating" Banner Frame */}
-                        <div className="w-full max-w-5xl group relative">
-                            {/* Shadow Glow behind the banner */}
-                            <div className="absolute inset-0 bg-black/5 rounded-[2.5rem] blur-xl translate-y-4 group-hover:translate-y-6 transition-transform duration-500" />
+                        <div className="w-full max-w-3xl group relative">
+                            {/* Shadow Glow */}
+                            <div className="absolute inset-0 bg-black/5 rounded-3xl blur-lg translate-y-2 group-hover:translate-y-4 transition-transform duration-500" />
 
-                            <div className="relative h-[220px] md:h-[300px] rounded-[2.5rem] overflow-hidden shadow-2xl border-[6px] border-white group-hover:border-yellow-100 transition-all duration-500">
+                            <div className="relative h-[150px] md:h-[200px] rounded-3xl overflow-hidden shadow-xl border-4 border-white transition-all duration-500">
                                 <Image
                                     src="/transport_banner.jpg"
                                     alt="Transport Banner"
                                     fill
-                                    className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                                    sizes="(max-width: 1200px) 100vw, 1200px"
+                                    className="object-cover transition-transform duration-1000 group-hover:scale-105"
                                 />
-
-                                {/* Glassmorphism Overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-500" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
                             </div>
                         </div>
 
-                        {/* Overlapping Action Button */}
-                        <div className="-mt-10 relative z-20">
+                        {/* --- COMPACT ACTION BUTTON --- */}
+                        <div className="-mt-6 relative z-20">
                             <button
                                 onClick={() => router.push("/user/transport")}
-                                className="group flex items-center gap-4 bg-gray-900 text-white px-12 py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-black transition-all duration-300 shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:shadow-[0_25px_50px_rgba(0,0,0,0.4)] transform hover:-translate-y-1 active:scale-95"
+                                className="group flex items-center gap-3 bg-gray-900 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-black transition-all shadow-xl hover:-translate-y-0.5 active:scale-95"
                             >
-                                <span className="border-r border-white/20 pr-4">Go to Transport Services</span>
-                                <div className="bg-red-600 p-2 rounded-lg group-hover:scale-110 transition-transform">
-                                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <span>Explore Services</span>
+                                <div className="bg-red-600 p-1.5 rounded-md group-hover:translate-x-1 transition-transform">
+                                    <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                     </svg>
                                 </div>
@@ -1072,211 +1058,216 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* HELP & EARN - Premium Light Community Grid with View More */}
-            <section className="py-24 pt-10 bg-[#FFFDF5] relative overflow-hidden">
-                {/* Decorative Background Elements */}
-                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-yellow-300 to-transparent opacity-50" />
-                <div className="absolute -top-24 -right-24 w-96 h-96 bg-yellow-200/20 rounded-full blur-[100px]" />
+            {/* HELP & EARN - Compact Community Grid */}
+            <section className="py-16 pt-8 bg-[#FFFDF5] relative overflow-hidden">
+                {/* Decorative Elements - Reduced */}
+                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-yellow-300 to-transparent opacity-30" />
+                <div className="absolute -top-12 -right-12 w-48 h-48 bg-yellow-200/20 rounded-full blur-[60px]" />
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
-                    {/* Header Section */}
-                    <div className="mb-20 text-center">
-                        <span className="inline-block px-4 py-1.5 mb-4 bg-yellow-100 text-yellow-700 text-xs font-bold uppercase tracking-[0.2em] rounded-full">
+
+                    {/* --- COMPACT CENTERED HEADER --- */}
+                    <div className="mb-10 text-center">
+                        <span className="inline-block px-3 py-1 mb-3 bg-yellow-100 text-yellow-700 text-[10px] font-bold uppercase tracking-widest rounded-full">
                             Community Impact
                         </span>
-                        <h2 className="text-5xl md:text-6xl font-black text-gray-900 tracking-tight">
+                        <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">
                             Help & <span className="text-red-600">Earn</span>
                         </h2>
-                        <div className="w-16 h-1 bg-red-600 mx-auto mt-6 rounded-full" />
-                        <p className="text-gray-600 mt-8 max-w-2xl mx-auto text-xl leading-relaxed">
+                        <div className="w-12 h-1 bg-red-600 mx-auto mt-3 rounded-full" />
+                        <p className="text-gray-500 mt-4 max-w-xl mx-auto text-sm md:text-base leading-relaxed">
                             Contribute to local initiatives and earn rewards.
-                            <span className="block text-yellow-600 font-bold mt-1">Make a difference in your community today.</span>
+                            <span className="font-bold text-yellow-600 ml-1">Make a difference today.</span>
                         </p>
                     </div>
 
-                    {/* Grid Container */}
+                    {/* --- GRID CONTAINER --- */}
                     <div
                         className="
-                        flex gap-6 overflow-x-auto pb-6
-                        sm:grid sm:grid-cols-3
-                        md:grid-cols-4
-                        lg:grid-cols-5
-                        sm:gap-8
-                        snap-x snap-mandatory
-                        scrollbar-hide
-                    "
+                flex gap-4 overflow-x-auto pb-4
+                sm:grid sm:grid-cols-3
+                md:grid-cols-4
+                lg:grid-cols-5
+                snap-x snap-mandatory
+                hide-scrollbar
+            "
                     >
                         {helpAndEarn.length === 0 ? (
-                            <div className="col-span-full py-20 text-center border-2 border-dashed border-yellow-200 rounded-[3rem] bg-yellow-50/50 text-gray-400 italic">
-                                No community initiatives available at the moment.
+                            <div className="col-span-full py-10 text-center border-2 border-dashed border-yellow-200 rounded-3xl bg-yellow-50/50 text-gray-400 italic text-sm">
+                                No community initiatives available.
                             </div>
                         ) : (
-                            helpAndEarn.slice(0, 10).map((item) => ( // Show only first 10 on the main feed
+                            helpAndEarn.slice(0, 5).map((item) => (
                                 <div
                                     key={item.id}
                                     onClick={() => router.push(`/user/help`)}
-                                    className="
-                                        group relative flex flex-col items-center cursor-pointer
-                                        min-w-[220px] sm:min-w-0
-                                        snap-start
-                                    "
+                                    className="group relative flex flex-col items-center cursor-pointer min-w-[180px] sm:min-w-0 snap-start"
                                 >
-
-                                    <div className="relative w-full aspect-square rounded-[2.5rem] overflow-hidden bg-white shadow-lg border-[6px] border-white group-hover:shadow-2xl group-hover:border-yellow-400/20 transition-all duration-500 ease-in-out">
+                                    {/* BOX FRAME */}
+                                    <div className="relative w-full aspect-square rounded-[2rem] overflow-hidden bg-white shadow-md border-4 border-white group-hover:shadow-xl group-hover:border-yellow-400/20 transition-all duration-500">
                                         {item.image_url ? (
                                             <Image
                                                 src={item.image_url}
                                                 alt={item.name}
                                                 fill
-                                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                                className="object-cover transition-transform duration-700 group-hover:scale-105"
                                             />
                                         ) : (
-                                            <div className="flex items-center justify-center h-full text-gray-300 bg-gray-50">
-                                                <span className="text-[10px] uppercase tracking-widest font-black">Design Pending</span>
-                                            </div>
+                                            <div className="flex items-center justify-center h-full text-gray-300 bg-gray-50 text-[8px] uppercase font-bold">Design Pending</div>
                                         )}
 
-                                        <div className="absolute inset-0 bg-gradient-to-t from-red-600/90 via-red-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center">
-                                            <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                                <span className="text-white font-black text-xs uppercase tracking-widest bg-black/30 backdrop-blur-md px-5 py-2.5 rounded-xl border border-white/20">
-                                                    Join Now
-                                                </span>
-                                            </div>
+                                        {/* JOIN OVERLAY */}
+                                        <div className="absolute inset-0 bg-red-600/80 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                                            <span className="text-white font-black text-[10px] uppercase tracking-widest bg-black/20 px-4 py-2 rounded-lg backdrop-blur-sm">
+                                                Join Now
+                                            </span>
                                         </div>
                                     </div>
 
-                                    <div className="mt-6 text-center">
-                                        <p className="text-gray-900 font-black text-lg group-hover:text-red-600 transition-colors duration-300">
+                                    {/* NAME */}
+                                    <div className="mt-4 text-center">
+                                        <p className="text-gray-900 font-bold text-sm group-hover:text-red-600 transition-colors">
                                             {item.name}
                                         </p>
-                                        <div className="w-0 group-hover:w-8 h-1 bg-yellow-500 mx-auto mt-2 transition-all duration-500 rounded-full" />
                                     </div>
                                 </div>
                             ))
                         )}
                     </div>
 
-                    {/* VIEW MORE DETAILS BUTTON */}
-                    <div className="mt-20 flex flex-col items-center">
+                    {/* --- COMPACT VIEW MORE BUTTON --- */}
+                    <div className="mt-10 flex justify-center">
                         <button
                             onClick={() => router.push('/user/view-more?type=help')}
-                            className="group flex items-center gap-4 bg-White text-black px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-white transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 active:scale-95"
+                            className="group flex items-center gap-3 bg-white border border-gray-100 text-black px-8 py-3 rounded-xl font-bold text-[11px] uppercase tracking-widest hover:bg-gray-50 transition-all shadow-md hover:shadow-lg active:scale-95"
                         >
-                            <span className="border-r border-white/20 pr-4">View More Details</span>
-                            <div className="bg-red-600 p-2 rounded-lg group-hover:rotate-45 transition-transform duration-300">
-                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <span>View All Details</span>
+                            <div className="bg-red-600 p-1.5 rounded-lg group-hover:translate-x-1 transition-transform">
+                                <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                 </svg>
                             </div>
                         </button>
-
-                        {/* Visual indicator */}
-                        <div className="mt-8 flex gap-1.5">
-                            <div className="w-8 h-1.5 bg-red-600 rounded-full"></div>
-                            <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
-                            <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
-                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* CERTIFICATES SECTION - Amber Gallery */}
-            <section className="py-24 pt-10 bg-[#FEF3C7] border-y border-yellow-200">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="mb-16 text-center">
-                        <span className="text-red-600 font-bold tracking-widest uppercase text-xs">Verified Excellence</span>
-                        <h2 className="text-5xl md:text-6xl font-black text-gray-900 mt-2">
+            {/* CERTIFICATES SECTION - Compact Amber Gallery */}
+            <section className="py-16 pt-8 bg-[#FEF3C7] border-y border-yellow-200">
+                <div className="max-w-6xl mx-auto px-6">
+
+                    {/* --- COMPACT HEADER --- */}
+                    <div className="mb-10 text-center">
+                        <span className="text-red-600 font-bold tracking-[0.2em] uppercase text-[10px]">
+                            Verified Excellence
+                        </span>
+                        <h2 className="text-3xl md:text-4xl font-black text-gray-900 mt-2 tracking-tight">
                             Our <span className="text-yellow-600 drop-shadow-sm">Certificates</span>
                         </h2>
-                        <p className="text-yellow-900/70 mt-6 max-w-2xl mx-auto text-xl font-medium">
+                        <div className="w-12 h-1 bg-yellow-500 mx-auto mt-3 rounded-full opacity-50" />
+                        <p className="text-yellow-900/70 mt-4 max-w-xl mx-auto text-sm md:text-base font-medium">
                             Celebrating our achievements and recognitions over the years.
                         </p>
                     </div>
 
+                    {/* --- COMPACT GRID --- */}
                     <div
                         className="
-                            flex gap-6 overflow-x-auto pb-6
-                            sm:grid sm:grid-cols-2
-                            lg:grid-cols-4
-                            sm:gap-8
-                            snap-x snap-mandatory
-                            scrollbar-hide
-                        "
+                flex gap-5 overflow-x-auto pb-6
+                sm:grid sm:grid-cols-2
+                lg:grid-cols-4
+                snap-x snap-mandatory
+                hide-scrollbar
+            "
                     >
                         {certificates.slice(0, 4).map((item) => (
                             <div
                                 key={item.id}
                                 className="
-                                    group bg-white p-4
-                                    rounded-[2.5rem] shadow-xl
-                                    hover:-translate-y-2 transition-all duration-500
-                                    min-w-[240px] sm:min-w-0
-                                    snap-start
-                                "
+                        group bg-white p-3
+                        rounded-[2rem] shadow-lg
+                        hover:-translate-y-1.5 transition-all duration-500
+                        min-w-[220px] sm:min-w-0
+                        snap-start border border-yellow-100
+                    "
                             >
-                                <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden bg-gray-100">
-                                    <Image src={item.image_url} alt={item.name} fill className="object-cover" />
+                                <div className="relative aspect-[4/5] rounded-[1.5rem] overflow-hidden bg-gray-50">
+                                    <Image
+                                        src={item.image_url}
+                                        alt={item.name}
+                                        fill
+                                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                    />
                                 </div>
-                                <h3 className="text-gray-900 font-black text-lg mt-5 text-center px-2">{item.name}</h3>
+                                <h3 className="text-gray-900 font-bold text-sm mt-4 text-center px-2 line-clamp-1">
+                                    {item.name}
+                                </h3>
                             </div>
                         ))}
                     </div>
 
-                    {/* VIEW MORE BUTTON */}
-                    <div className="mt-16 flex justify-center">
-                        <button onClick={() => router.push('/user/view-more?type=certificates')} className="group flex items-center gap-4 bg-gray-900 text-white px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-black transition-all shadow-xl hover:shadow-2xl">
-                            <span className="border-r border-white/20 pr-4">View All Certificates</span>
-                            <div className="bg-red-600 p-2 rounded-lg group-hover:rotate-90 transition-transform">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" /></svg>
+                    {/* --- COMPACT ACTION BUTTON --- */}
+                    <div className="mt-10 flex justify-center">
+                        <button
+                            onClick={() => router.push('/user/view-more?type=certificates')}
+                            className="group flex items-center gap-3 bg-gray-900 text-white px-8 py-3.5 rounded-xl font-bold text-[11px] uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95"
+                        >
+                            <span className="border-r border-white/10 pr-3">View All</span>
+                            <div className="bg-red-600 p-1.5 rounded-md group-hover:rotate-90 transition-transform duration-300">
+                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" />
+                                </svg>
                             </div>
                         </button>
                     </div>
                 </div>
             </section>
 
-            {/* PODCASTS SECTION */}
-            <section className="py-24 pt-10 bg-[#FFFDF5] relative overflow-hidden">
-                {/* Re-using the same hide-scrollbar style logic */}
-                <style jsx global>{`
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    `}</style>
+            {/* PODCASTS SECTION - Compact Version */}
+            <section className="py-16 pt-8 bg-[#FFFDF5] relative overflow-hidden">
+                <div className="max-w-6xl mx-auto px-6">
 
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="text-center mb-16">
-                        <h2 className="text-5xl md:text-6xl font-black text-gray-900">
+                    {/* --- COMPACT HEADER --- */}
+                    <div className="text-center mb-10">
+                        <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">
                             Latest <span className="text-red-600">Podcasts</span>
                         </h2>
-                        <div className="w-12 h-1.5 bg-yellow-500 mx-auto mt-4 rounded-full"></div>
+                        <div className="w-10 h-1 bg-yellow-500 mx-auto mt-3 rounded-full"></div>
+                        <p className="text-gray-500 text-sm mt-3">Watch and listen to our latest episodes.</p>
                     </div>
 
-                    {/* Arrow & Slider Wrapper */}
+                    {/* --- ARROW & SLIDER WRAPPER --- */}
                     <div className="relative group/slider">
 
-                        {/* LEFT ARROW */}
+                        {/* LEFT ARROW - Adjusted to fit compact size */}
                         <button
                             onClick={() => scrollPodcasts("left")}
-                            className="absolute -left-6 top-[120px] -translate-y-1/2 z-30 hidden md:flex items-center justify-center bg-white text-gray-900 w-12 h-12 rounded-full shadow-xl border border-gray-100 hover:bg-red-600 hover:text-white transition-all duration-300 opacity-0 group-hover/slider:opacity-100"
+                            className="absolute -left-4 top-[100px] -translate-y-1/2 z-30 hidden md:flex items-center justify-center bg-white text-gray-900 w-10 h-10 rounded-full shadow-lg border border-gray-100 hover:bg-red-600 hover:text-white transition-all duration-300 opacity-0 group-hover/slider:opacity-100"
                         >
-                            <ChevronLeft size={24} strokeWidth={3} />
+                            <ChevronLeft size={20} strokeWidth={3} />
                         </button>
 
                         {/* SCROLLABLE CONTAINER */}
                         <div
                             ref={podcastScrollRef}
-                            className="flex gap-8 overflow-x-auto hide-scrollbar snap-x snap-mandatory pb-8 px-2 scroll-smooth"
+                            className="flex gap-6 overflow-x-auto hide-scrollbar snap-x snap-mandatory pb-6 px-1 scroll-smooth"
                         >
                             {podcasts.slice(0, 6).map((podcast) => (
-                                <div key={podcast.id} className="min-w-[320px] md:min-w-[400px] snap-center group">
-                                    <div className="h-[240px] rounded-[2.5rem] overflow-hidden shadow-lg border-4 border-white relative">
+                                <div key={podcast.id} className="min-w-[280px] md:min-w-[340px] snap-center group">
+                                    {/* Video Thumbnail Frame */}
+                                    <div className="h-[180px] md:h-[220px] rounded-[2rem] overflow-hidden shadow-md border-4 border-white relative group-hover:shadow-xl transition-all duration-500">
                                         <video src={podcast.video_url} className="w-full h-full object-cover" />
+
+                                        {/* Play Button Overlay */}
                                         <div className="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/40 transition-all">
-                                            <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40">
-                                                <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[15px] border-l-white border-b-[8px] border-b-transparent ml-1" />
+                                            <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40 group-hover:scale-110 transition-transform">
+                                                <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[12px] border-l-white border-b-[6px] border-b-transparent ml-1" />
                                             </div>
                                         </div>
                                     </div>
-                                    <h3 className="mt-6 text-xl font-black text-gray-900 text-center">
+
+                                    {/* Title */}
+                                    <h3 className="mt-4 text-base md:text-lg font-bold text-gray-900 text-center line-clamp-1 group-hover:text-red-600 transition-colors">
                                         {podcast.title || podcast.name}
                                     </h3>
                                 </div>
@@ -1286,28 +1277,28 @@ export default function Home() {
                         {/* RIGHT ARROW */}
                         <button
                             onClick={() => scrollPodcasts("right")}
-                            className="absolute -right-6 top-[120px] -translate-y-1/2 z-30 hidden md:flex items-center justify-center bg-white text-gray-900 w-12 h-12 rounded-full shadow-xl border border-gray-100 hover:bg-red-600 hover:text-white transition-all duration-300 opacity-0 group-hover/slider:opacity-100"
+                            className="absolute -right-4 top-[100px] -translate-y-1/2 z-30 hidden md:flex items-center justify-center bg-white text-gray-900 w-10 h-10 rounded-full shadow-lg border border-gray-100 hover:bg-red-600 hover:text-white transition-all duration-300 opacity-0 group-hover/slider:opacity-100"
                         >
-                            <ChevronRight size={24} strokeWidth={3} />
+                            <ChevronRight size={20} strokeWidth={3} />
                         </button>
                     </div>
 
-                    {/* VIEW MORE BUTTON */}
-                    <div className="mt-12 flex justify-center">
+                    {/* --- COMPACT VIEW MORE --- */}
+                    <div className="mt-8 flex justify-center">
                         <button
                             onClick={() => router.push('/user/view-more?type=podcasts')}
-                            className="group flex items-center gap-4 bg-white border-2 border-gray-900 text-gray-900 px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-all shadow-lg"
+                            className="group flex items-center gap-3 bg-white border-2 border-gray-900 text-gray-900 px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-all shadow-md active:scale-95"
                         >
                             <span>Explore Podcasts</span>
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                         </button>
                     </div>
                 </div>
             </section>
 
             {/* INFLUENCERS SECTION - Split Media Design (Image & Video) */}
-            <section className="py-24 pt-10 bg-[#FEF3C7] border-t border-yellow-200 relative overflow-hidden">
-
+            <section className="py-10 pt-10 bg-[#FEF3C7] border-t border-yellow-200 relative overflow-hidden">
+                {/* Decorative background element */}
                 <div className="absolute top-0 right-0 w-1/3 h-full bg-[#FDE68A]/30 -skew-x-12 translate-x-20 pointer-events-none" />
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -1316,7 +1307,7 @@ export default function Home() {
                         <span className="text-red-600 font-black tracking-[0.4em] uppercase text-xs">
                             Community Voices
                         </span>
-                        <h2 className="text-5xl md:text-6xl font-black text-gray-900 mt-4">
+                        <h2 className="text-5xl md:text-6xl font-black text-gray-900 mt-4 tracking-tighter">
                             Our <span className="text-yellow-600">Influencers</span>
                         </h2>
                         <div className="w-16 h-2 bg-red-600 mx-auto mt-6 rounded-full" />
@@ -1325,7 +1316,7 @@ export default function Home() {
                     {/* DUAL MEDIA GRID */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
-                        {/* LEFT SIDE — IMAGES (2 ONLY, SMALL) */}
+                        {/* LEFT SIDE — IMAGES (Brand Ambassadors) */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="h-px flex-1 bg-yellow-400/50"></div>
@@ -1334,14 +1325,14 @@ export default function Home() {
                                 </span>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-4 lg:gap-6">
                                 {influencers
                                     .filter(inf => inf.media_type === "image")
                                     .slice(0, 2)
                                     .map((inf) => (
                                         <div
                                             key={inf.id}
-                                            className="group relative aspect-square rounded-[2rem] overflow-hidden border-4 border-white shadow-lg bg-white transition-all duration-500 hover:-rotate-1"
+                                            className="group relative aspect-[4/5] rounded-[2rem] overflow-hidden border-4 border-white shadow-xl bg-white transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
                                         >
                                             <Image
                                                 src={inf.media_url}
@@ -1349,9 +1340,8 @@ export default function Home() {
                                                 fill
                                                 className="object-cover transition-transform duration-700 group-hover:scale-110"
                                             />
-
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-5 flex flex-col justify-end">
-                                                <p className="text-white font-bold text-base">
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 p-6 flex flex-col justify-end">
+                                                <p className="text-white font-black text-xl translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                                                     {inf.name}
                                                 </p>
                                             </div>
@@ -1360,7 +1350,7 @@ export default function Home() {
                             </div>
                         </div>
 
-                        {/* RIGHT SIDE — VIDEOS (2 ONLY, SMALL) */}
+                        {/* RIGHT SIDE — VIDEOS (Live Stories) */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-4 mb-4">
                                 <span className="text-yellow-800 font-black text-sm uppercase tracking-widest">
@@ -1369,14 +1359,14 @@ export default function Home() {
                                 <div className="h-px flex-1 bg-yellow-400/50"></div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-4 lg:gap-6">
                                 {influencers
                                     .filter(inf => inf.media_type === "video")
                                     .slice(0, 2)
                                     .map((inf) => (
                                         <div
                                             key={inf.id}
-                                            className="group relative aspect-square rounded-[2.5rem] overflow-hidden shadow-xl border-[5px] border-white bg-black transition-all duration-700 hover:shadow-red-500/20"
+                                            className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-xl border-[6px] border-white bg-black transition-all duration-700 hover:shadow-red-500/20"
                                         >
                                             <video
                                                 src={inf.media_url}
@@ -1384,48 +1374,41 @@ export default function Home() {
                                                 muted
                                                 loop
                                                 playsInline
-                                                className="w-full h-full object-cover opacity-90 group-hover:opacity-100"
+                                                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
                                             />
 
                                             {/* CONTENT OVERLAY */}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-5 flex flex-col justify-end">
-                                                <p className="text-white font-black text-lg mb-1">
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent p-6 flex flex-col justify-end">
+                                                <p className="text-white font-black text-xl mb-2">
                                                     {inf.name}
                                                 </p>
-                                                <div className="w-6 h-1 bg-red-600 rounded-full group-hover:w-full transition-all duration-500" />
+                                                <div className="w-8 h-1 bg-red-600 rounded-full group-hover:w-full transition-all duration-500" />
                                             </div>
 
                                             {/* PLAY BADGE */}
-                                            <div className="absolute top-4 right-4 w-9 h-9 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30">
-                                                <div className="w-0 h-0 border-t-[5px] border-t-transparent border-l-[9px] border-l-white border-b-[5px] border-b-transparent ml-0.5" />
+                                            <div className="absolute top-5 right-5 w-10 h-10 bg-red-600/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                                <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent ml-1" />
                                             </div>
                                         </div>
                                     ))}
                             </div>
                         </div>
-
                     </div>
-
 
                     {/* VIEW MORE BUTTON */}
                     <div className="mt-20 flex justify-center">
                         <button
                             onClick={() => router.push("/user/view-more?type=influencers")}
-                            className="group flex items-center gap-5 bg-gray-900 text-white px-12 py-6 rounded-[2rem] font-black text-sm uppercase tracking-widest hover:bg-black transition-all shadow-[0_20px_40px_rgba(0,0,0,0.2)] hover:-translate-y-1"
+                            className="group flex items-center gap-6 bg-gray-900 text-white pl-10 pr-4 py-4 rounded-full font-black text-sm uppercase tracking-widest hover:bg-black transition-all shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:-translate-y-1 active:scale-95"
                         >
-                            <span className="border-r border-white/10 pr-5">
-                                View All Stories
-                            </span>
-                            <div className="bg-red-600 p-2.5 rounded-xl group-hover:scale-110 transition-transform">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                </svg>
+                            <span>View All Stories</span>
+                            <div className="bg-red-600 w-12 h-12 rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform duration-300">
+                                <ArrowRight className="w-6 h-6 text-white" />
                             </div>
                         </button>
                     </div>
                 </div>
             </section>
-
         </div>
     );
 }

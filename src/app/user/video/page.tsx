@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import {
   Play, X, Clock, Sparkles, Search, Video,
-  MonitorPlay, Building2, MapPin, Briefcase, Users
+  MonitorPlay, MapPin, ChevronRight, User
 } from "lucide-react";
 
 export default function VideoPage() {
@@ -17,7 +18,6 @@ export default function VideoPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSector, setSelectedSector] = useState("All Sectors");
   const [selectedArea, setSelectedArea] = useState("All Areas");
-  const [selectedUserType, setSelectedUserType] = useState("All Types");
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -26,10 +26,9 @@ export default function VideoPage() {
 
     const fetchAllVideos = async () => {
       setLoading(true);
-
       const { data: registerData } = await supabase
         .from("vendor_register")
-        .select("id, company_name, video_files, sector, area, user_type")
+        .select("id, company_name, video_files, sector, area")
         .not("video_files", "is", null);
 
       const { data: standaloneData } = await supabase
@@ -45,19 +44,12 @@ export default function VideoPage() {
           return {
             ...video,
             uniqueId: `reg-${vendor.id}-${index}`,
-            title: video.title || "Company Showcase",
-            vendorName: vendor.company_name,
+            title: vendor.company_name || "Company Showcase",
             vendorId: vendor.id,
             sector: vendor.sector || "General",
             area: vendor.area || "N/A",
-            userType: vendor.user_type || [],
             isYouTube: !!ytId,
             ytId,
-            thumbnail: ytId
-              ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
-              : (video.thumbnail || "/api/placeholder/400/225"),
-            category: "Provider",
-            duration: "Showcase",
             source: "register",
           };
         });
@@ -69,20 +61,13 @@ export default function VideoPage() {
 
         return {
           uniqueId: `sta-${video.id}`,
-          title: video.video_title,
+          title: video.video_title || "Official Tutorial",
           url: video.video_url,
-          vendorName: "Admin",
           vendorId: null,
           sector: Array.isArray(video.business_sector) ? video.business_sector[0] : video.business_sector || "General",
           area: video.area || "N/A",
-          userType: video.legal_type || "All",
           isYouTube: !!ytId,
           ytId,
-          thumbnail: ytId
-            ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
-            : "/api/placeholder/400/225",
-          duration: "Tutorial",
-          category: "Verified",
           source: "standalone",
         };
       });
@@ -96,53 +81,68 @@ export default function VideoPage() {
   }, []);
 
   const filteredVideos = videos.filter((v) => {
-    const matchesSearch =
-      v.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      v.vendorName?.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesSector = selectedSector === "All Sectors" ||
-      (Array.isArray(v.sector) ? v.sector.includes(selectedSector) : v.sector === selectedSector);
-
+    const matchesSearch = v.title?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSector = selectedSector === "All Sectors" || v.sector === selectedSector;
     const matchesArea = selectedArea === "All Areas" || v.area === selectedArea;
-
-    const matchesUserType = selectedUserType === "All Types" ||
-      (Array.isArray(v.userType) ? v.userType.includes(selectedUserType) : v.userType === selectedUserType);
-
-    return matchesSearch && matchesSector && matchesArea && matchesUserType;
+    return matchesSearch && matchesSector && matchesArea;
   });
 
   const sectors = ["All Sectors", ...new Set(videos.flatMap(v => v.sector).filter(Boolean))];
   const areas = ["All Areas", ...new Set(videos.map(v => v.area).filter(Boolean))];
-  const userTypes = ["All Types", ...new Set(videos.flatMap(v => v.userType).filter(Boolean))];
 
-  // --- MOBILE VIEW (REELS STYLE) ---
+  // --- MOBILE REELS VIEW (AUTOPLAY) ---
   if (isMobile && !loading) {
     return (
       <div className="h-screen w-full bg-black overflow-y-scroll snap-y snap-mandatory scrollbar-hide">
         {filteredVideos.map((video) => (
-          <div key={video.uniqueId} className="h-screen w-full snap-start relative flex items-center justify-center bg-black">
-            <div className="absolute inset-0 z-0">
+          <div key={video.uniqueId} className="h-screen w-full snap-start relative flex items-center justify-center bg-black overflow-hidden">
+            <div className="absolute inset-0">
               {video.isYouTube ? (
                 <iframe
-                  src={`https://www.youtube.com/embed/${video.ytId}?autoplay=1&mute=1&loop=1&playlist=${video.ytId}&controls=0`}
-                  className="w-full h-full pointer-events-none"
+                  src={`https://www.youtube.com/embed/${video.ytId}?autoplay=1&mute=1&loop=1&playlist=${video.ytId}&controls=0&modestbranding=1&rel=0`}
+                  className="w-full h-full scale-[1.7] pointer-events-none"
                   allow="autoplay; encrypted-media"
                 />
               ) : (
-                <video
-                  src={video.url}
-                  autoPlay loop muted playsInline
-                  className="w-full h-full object-cover"
+                <video 
+                  src={video.url} 
+                  autoPlay 
+                  loop 
+                  muted 
+                  playsInline 
+                  className="w-full h-full object-cover" 
                 />
               )}
             </div>
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80" />
-            <div className="absolute bottom-10 left-6 z-10 text-white pr-20">
-              <span className="text-red-500 font-black text-xs uppercase tracking-widest">{video.sector}</span>
-              <h3 className="font-black text-2xl leading-tight mt-1">{video.title}</h3>
-              <p className="text-sm opacity-80 mt-2 flex items-center gap-2">
-                <Building2 size={14} /> {video.vendorName}
-              </p>
+            
+            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/90 pointer-events-none" />
+
+            <div className="absolute bottom-10 left-5 right-16 z-20 text-white">
+               <div className="flex items-center gap-2 mb-3">
+                  <span className="bg-red-600 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">
+                    {video.sector}
+                  </span>
+                  <span className="flex items-center gap-1 text-[11px] font-bold text-yellow-400">
+                    <MapPin size={12} /> {video.area}
+                  </span>
+               </div>
+               <h3 className="text-2xl font-black leading-tight mb-6 drop-shadow-lg">{video.title}</h3>
+               
+               {video.vendorId && (
+                 <Link 
+                   href={`/vendor/view/${video.vendorId}`} 
+                   className="inline-flex items-center justify-center gap-2 bg-yellow-400 text-black px-6 py-3 rounded-full text-sm font-black shadow-xl active:scale-95 transition-transform"
+                 >
+                    <User size={18} /> VIEW PROFILE
+                 </Link>
+               )}
+            </div>
+
+            <div className="absolute bottom-28 right-4 flex flex-col items-center z-30 opacity-80">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 shadow-lg mb-1">
+                  <Sparkles className="text-yellow-400" size={20} />
+                </div>
+                <span className="text-[10px] font-black text-white uppercase">Quick</span>
             </div>
           </div>
         ))}
@@ -150,90 +150,76 @@ export default function VideoPage() {
     );
   }
 
-  // --- DESKTOP VIEW ---
+  // --- DESKTOP VIEW (GRID AUTOPLAY) ---
   return (
     <div className="min-h-screen bg-[#FFFDF5] text-gray-900 pb-20 font-sans">
-      {/* Header Section */}
-      <div className="bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-24 pb-40 px-6 relative overflow-hidden border-b border-yellow-200">
-        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(#F59E0B_0.5px,transparent_0.5px)] [background-size:24px_24px]" />
-        <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+      <div className="bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-12 pb-20 px-6 border-b border-yellow-200">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-left">
-            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 py-1.5 rounded-full mb-6 shadow-sm border border-yellow-300">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-600 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
-              </span>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-800">Verified Tutorials</span>
-            </motion.div>
-            <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-6xl md:text-8xl font-black tracking-tighter text-gray-900 leading-[0.85]">
-              Video <br /> <span className="text-red-600 italic">Hub</span>
-            </motion.h1>
+            <h1 className="text-5xl md:text-6xl font-black tracking-tighter">
+              Video <span className="text-red-600 italic">Hub</span>
+            </h1>
           </div>
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="hidden lg:block bg-white p-12 rounded-[4rem] shadow-2xl border-2 border-yellow-100 relative rotate-3">
-            <MonitorPlay size={100} className="text-yellow-600" strokeWidth={1.5} />
-          </motion.div>
+          <MonitorPlay size={50} className="text-yellow-600 hidden md:block opacity-40" />
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 -mt-24 relative z-20">
-        {/* Search & Filter Bar */}
-        <div className="bg-white p-4 rounded-[2.5rem] shadow-2xl border border-yellow-100 mb-16">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-yellow-600" size={20} />
+      <div className="max-w-7xl mx-auto px-6 -mt-10 relative z-20">
+        {/* Filters */}
+        <div className="bg-white p-3 rounded-2xl shadow-xl border border-yellow-100 mb-10">
+          <div className="flex flex-col md:flex-row gap-3">
+            <div className="relative flex-grow">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-yellow-600" size={18} />
               <input
                 type="text"
                 placeholder="SEARCH TUTORIALS..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-14 pr-12 py-5 bg-[#FEF3C7]/30 border-none rounded-2xl outline-none font-black uppercase text-sm tracking-widest"
+                className="w-full pl-11 pr-4 py-3 bg-yellow-50/50 rounded-xl outline-none font-bold text-xs uppercase"
               />
             </div>
-            {/* Sector, Area, Type Selects (Simplified for space) */}
-            <div className="flex gap-2">
-              <select value={selectedSector} onChange={(e) => setSelectedSector(e.target.value)} className="bg-yellow-50 px-4 py-2 rounded-xl text-[10px] font-black uppercase">
-                {sectors.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
-              <select value={selectedArea} onChange={(e) => setSelectedArea(e.target.value)} className="bg-yellow-50 px-4 py-2 rounded-xl text-[10px] font-black uppercase">
-                {areas.map(a => <option key={a} value={a}>{a}</option>)}
-              </select>
-            </div>
+            <select value={selectedSector} onChange={(e) => setSelectedSector(e.target.value)} className="bg-yellow-50/50 px-4 py-3 rounded-xl text-[10px] font-black uppercase border-none cursor-pointer">
+              {sectors.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+            <select value={selectedArea} onChange={(e) => setSelectedArea(e.target.value)} className="bg-yellow-50/50 px-4 py-3 rounded-xl text-[10px] font-black uppercase border-none cursor-pointer">
+              {areas.map(a => <option key={a} value={a}>{a}</option>)}
+            </select>
           </div>
         </div>
 
         {/* Video Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-10">
           {filteredVideos.map((video) => (
-            <motion.div key={video.uniqueId} layout className="group bg-white rounded-[2.5rem] border border-yellow-100 shadow-sm overflow-hidden flex flex-col h-full">
+            <motion.div key={video.uniqueId} className="group bg-white rounded-[2.5rem] border border-yellow-100 shadow-sm overflow-hidden flex flex-col h-full hover:shadow-xl transition-all duration-300">
               <div className="relative h-60 w-full overflow-hidden cursor-pointer" onClick={() => setSelectedVideo(video)}>
                 {video.isYouTube ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${video.ytId}?autoplay=1&mute=1&loop=1&playlist=${video.ytId}&controls=0`}
-                    className="w-full h-full pointer-events-none"
-                    allow="autoplay; encrypted-media"
+                  <iframe 
+                    src={`https://www.youtube.com/embed/${video.ytId}?autoplay=1&mute=1&loop=1&playlist=${video.ytId}&controls=0`} 
+                    className="w-full h-full pointer-events-none" 
                   />
                 ) : (
-                  <video
-                    src={video.url}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="metadata"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
+                  <video src={video.url} autoPlay muted loop playsInline className="w-full h-full object-cover" />
                 )}
-
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity z-20">
                   <Play size={48} className="text-white fill-current" />
                 </div>
               </div>
-              <div className="p-6">
-                <span className="text-[10px] font-black text-red-600 uppercase tracking-widest">{video.sector}</span>
+
+              <div className="p-6 flex flex-col flex-grow">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-[10px] font-black text-red-600 uppercase tracking-widest">{video.sector}</span>
+                </div>
                 <h3 className="text-xl font-black mt-1 line-clamp-1">{video.title}</h3>
-                <div className="flex items-center gap-2 mt-4 text-gray-500">
-                  <Building2 size={14} />
-                  <span className="text-sm font-bold">{video.vendorName}</span>
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <MapPin size={14} className="text-yellow-600" />
+                    <span className="text-sm font-bold">{video.area}</span>
+                  </div>
+                  {video.vendorId && (
+                    <Link href={`/vendor/view/${video.vendorId}`} className="text-gray-300 hover:text-red-600 transition-colors">
+                      <ChevronRight size={22} />
+                    </Link>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -241,34 +227,21 @@ export default function VideoPage() {
         </div>
       </div>
 
-      {/* Video Modal */}
+      {/* Modal with high-quality autoplay */}
       <AnimatePresence>
         {selectedVideo && (
-          <motion.div
-            className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[999] flex items-center justify-center p-4"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={() => setSelectedVideo(null)}
-          >
-            <motion.div
-              className="w-full max-w-4xl bg-white rounded-[2rem] overflow-hidden"
-              onClick={(e) => e.stopPropagation()}
-            >
+          <motion.div className="fixed inset-0 bg-black/95 z-[999] flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedVideo(null)}>
+            <motion.div className="w-full max-w-4xl bg-white rounded-[2rem] overflow-hidden" onClick={(e) => e.stopPropagation()}>
               <div className="aspect-video w-full bg-black">
                 {selectedVideo.isYouTube ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${selectedVideo.ytId}?autoplay=1`}
-                    className="w-full h-full" allowFullScreen
-                  />
+                  <iframe src={`https://www.youtube.com/embed/${selectedVideo.ytId}?autoplay=1`} className="w-full h-full" allowFullScreen allow="autoplay" />
                 ) : (
                   <video src={selectedVideo.url} controls autoPlay className="w-full h-full" />
                 )}
               </div>
-              <div className="p-8">
-                <h2 className="text-2xl font-black uppercase">{selectedVideo.title}</h2>
-                <div className="flex gap-4 mt-2">
-                  <span className="flex items-center gap-1 text-xs font-bold text-gray-500"><MapPin size={14} /> {selectedVideo.area}</span>
-                  <span className="flex items-center gap-1 text-xs font-bold text-gray-500"><Clock size={14} /> {selectedVideo.duration}</span>
-                </div>
+              <div className="p-6 flex justify-between items-center">
+                <h2 className="text-xl font-black uppercase">{selectedVideo.title}</h2>
+                <button onClick={() => setSelectedVideo(null)} className="bg-gray-100 text-gray-500 px-5 py-2 rounded-xl text-xs font-black">CLOSE</button>
               </div>
             </motion.div>
           </motion.div>
