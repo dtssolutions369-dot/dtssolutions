@@ -23,6 +23,14 @@ export default function VendorProfileDetail() {
   const [isSaving, setIsSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
+  const sectorOptions = [
+    { label: "Manufacturer", value: "manufacturer" },
+    { label: "Industrial", value: "industrial" },
+    { label: "Distributor", value: "distributor" },
+    { label: "Retailer", value: "retailer" },
+    { label: "Service Provider", value: "service" },
+  ];
+
   const fetchProfileBySession = useCallback(async () => {
     try {
       setLoading(true);
@@ -70,7 +78,7 @@ export default function VendorProfileDetail() {
       const filePath = `portfolio/${vendor.id}/${type}s/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('vendor-assets') // Ensure this matches the dashboard name exactly
+        .from('vendor-videos') // Updated bucket name
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false
@@ -78,7 +86,7 @@ export default function VendorProfileDetail() {
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('vendor-assets')
+        .from('vendor-videos')
         .getPublicUrl(filePath);
 
       if (type === 'video') {
@@ -121,7 +129,7 @@ export default function VendorProfileDetail() {
           owner_name: editForm.owner_name,
           company_name: editForm.company_name,
           mobile_number: editForm.mobile_number,
-          websites: editForm.websites,
+          websites: editForm.websites?.filter((w: string) => w.trim() !== "") || [], // Filter out empty websites
           profile_info: editForm.profile_info,
           flat_no: editForm.flat_no,
           floor: editForm.floor,
@@ -134,7 +142,7 @@ export default function VendorProfileDetail() {
           pincode: editForm.pincode,
           gst_number: editForm.gst_number,
           business_keywords: editForm.business_keywords,
-          sector: editForm.sector,
+          sector: editForm.sector, // Assuming sector is stored as string, but for multiple, you might need to adjust to array or comma-separated
           media_files: editForm.media_files,
           video_files: editForm.video_files,
         })
@@ -189,7 +197,63 @@ export default function VendorProfileDetail() {
                     <InputField label="First Name" value={editForm.first_name} onChange={(v: any) => setEditForm({ ...editForm, first_name: v })} />
                     <InputField label="Last Name" value={editForm.last_name} onChange={(v: any) => setEditForm({ ...editForm, last_name: v })} />
                   </div>
+                  <InputField label="Owner Name" value={editForm.owner_name} onChange={(v: any) => setEditForm({ ...editForm, owner_name: v })} />
+                  <InputField label="Company Name" value={editForm.company_name} onChange={(v: any) => setEditForm({ ...editForm, company_name: v })} />
                   <InputField label="Mobile" value={editForm.mobile_number} onChange={(v: any) => setEditForm({ ...editForm, mobile_number: v })} />
+                  <InputField label="GST Number" value={editForm.gst_number} onChange={(v: any) => setEditForm({ ...editForm, gst_number: v })} />
+
+                  {/* Sector Multi-Select */}
+                  {/* Sector Checkboxes */}
+                  <div className="w-full">
+                    <label className="text-[10px] font-black uppercase text-slate-500 mb-2 block ml-1">
+                      Sector
+                    </label>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      {sectorOptions.map((option) => {
+                        const selectedSectors = editForm.sector
+                          ? editForm.sector.split(",")
+                          : [];
+
+                        const isChecked = selectedSectors.includes(option.value);
+
+                        return (
+                          <label
+                            key={option.value}
+                            className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all
+            ${isChecked
+                                ? "bg-yellow-100 border-yellow-400"
+                                : "bg-white border-slate-200 hover:border-yellow-300"
+                              }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={(e) => {
+                                let updated = [...selectedSectors];
+
+                                if (e.target.checked) {
+                                  updated.push(option.value);
+                                } else {
+                                  updated = updated.filter(v => v !== option.value);
+                                }
+
+                                setEditForm({
+                                  ...editForm,
+                                  sector: updated.join(","),
+                                });
+                              }}
+                              className="accent-yellow-500"
+                            />
+                            <span className="text-xs font-bold uppercase">
+                              {option.label}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+
 
                   <div className="pt-2">
                     <label className="text-[10px] font-black uppercase text-slate-400 flex justify-between mb-2">Websites <button onClick={() => setEditForm({ ...editForm, websites: [...(editForm.websites || []), ""] })} className="text-yellow-600"><Plus size={14} /></button></label>
@@ -213,13 +277,16 @@ export default function VendorProfileDetail() {
                   </div>
                   <InputField label="Building" value={editForm.building} onChange={(v: any) => setEditForm({ ...editForm, building: v })} />
                   <InputField label="Street/Area" value={editForm.street} onChange={(v: any) => setEditForm({ ...editForm, street: v })} />
+                  <InputField label="Area" value={editForm.area} onChange={(v: any) => setEditForm({ ...editForm, area: v })} />
+                  <InputField label="Landmark" value={editForm.landmark} onChange={(v: any) => setEditForm({ ...editForm, landmark: v })} />
                   <div className="grid grid-cols-2 gap-3">
                     <InputField label="City" value={editForm.city} onChange={(v: any) => setEditForm({ ...editForm, city: v })} />
-                    <InputField label="Pincode" value={editForm.pincode} onChange={(v: any) => setEditForm({ ...editForm, pincode: v })} />
+                    <InputField label="State" value={editForm.state} onChange={(v: any) => setEditForm({ ...editForm, state: v })} />
                   </div>
+                  <InputField label="Pincode" value={editForm.pincode} onChange={(v: any) => setEditForm({ ...editForm, pincode: v })} />
                 </div>
 
-                {/* COL 3: MEDIA (VIDEOS & IMAGES) */}
+                {/* COL 3: MEDIA & PROFILE */}
                 <div className="space-y-6">
                   <SectionTitle icon={<Layers size={14} />} title="Media Portfolio" />
 
@@ -265,6 +332,23 @@ export default function VendorProfileDetail() {
                       ))}
                       {uploading && <p className="text-[9px] text-yellow-600 animate-pulse font-bold uppercase">Uploading high-quality media...</p>}
                     </div>
+                  </div>
+
+                  {/* Profile Info */}
+                  <div className="pt-4 border-t border-slate-200">
+                    <SectionTitle icon={<Info size={14} />} title="Profile Info" />
+                    <textarea
+                      value={editForm.profile_info || ""}
+                      onChange={(e) => setEditForm({ ...editForm, profile_info: e.target.value })}
+                      className="w-full bg-white border border-slate-200 p-3 rounded-xl text-xs font-bold resize-none"
+                      rows={4}
+                      placeholder="Describe your business..."
+                    />
+                  </div>
+
+                  {/* Business Keywords */}
+                  <div className="pt-2">
+                    <InputField label="Business Keywords" value={editForm.business_keywords} onChange={(v: any) => setEditForm({ ...editForm, business_keywords: v })} />
                   </div>
                 </div>
               </div>
@@ -325,7 +409,7 @@ export default function VendorProfileDetail() {
                 className="text-3xl md:text-5xl lg:text-7xl font-black text-gray-900 tracking-tighter leading-[0.85] uppercase mb-6"
               >
                 {vendor.company_name.split(' ')[0]} <br />
-                             <span className="text-red-600 italic">
+                <span className="text-red-600 italic">
                   {vendor.company_name.split(' ').slice(1).join(' ') || "Enterprise"}
                 </span>
               </motion.h1>

@@ -141,7 +141,7 @@ export default function Footer() {
               © {new Date().getFullYear()} QICKTICK INDIA PRIVATE LIMITED.
             </p>
             <p className="text-[10px] text-slate-600">
-              Developed by <a href="https://rakvih.in/" target="_blank" rel="noopener noreferrer" className="text-amber-500 hover:underline">Rakhivh</a>
+              Developed by <a href="https://rakvih.in/" target="_blank" rel="noopener noreferrer" className="text-amber-500 hover:underline">Rakivh</a>
             </p>
           </div>
 

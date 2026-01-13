@@ -683,70 +683,113 @@ export default function Home() {
                 </div>
             </section>
 
-           {/* POPULAR CATEGORIES GRID - UNIFORM SIZE */}
-<section className="py-10 bg-[#FFFBEB]">
-  <div className="max-w-7xl mx-auto px-6">
+            {/* POPULAR CATEGORIES GRID - MOBILE FRIENDLY */}
 
-    {/* --- HEADER --- */}
-    <div className="mb-6 text-center">
-      <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">
-        Popular <span className="text-red-600">Categories</span>
-      </h2>
-      <p className="mt-2 text-gray-500 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
-        Select a category below to quickly find services you need.
-      </p>
-    </div>
+            <section className="py-8 md:py-10 bg-[#FFFBEB]">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
-    {/* --- GRID OF CATEGORIES (2 ROWS) --- */}
-    <div className="grid grid-cols-5 md:grid-cols-10 gap-4 md:gap-6 justify-items-center">
-      {loading ? (
-        [...Array(20)].map((_, i) => (
-          <div key={i} className="flex flex-col items-center animate-pulse">
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg bg-gray-200 mb-2" />
-            <div className="h-3 w-12 bg-gray-200 rounded" />
-          </div>
-        ))
-      ) : (
-        categories?.map((cat) => (
-          <div
-            key={cat.id}
-            className="flex flex-col items-center cursor-pointer"
-            onClick={() => router.push(`/user/services/${cat.id}`)}
-          >
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg bg-gray-50 border border-gray-100 shadow-sm flex items-center justify-center transition-transform hover:scale-105 hover:shadow-md">
-              {cat.image_url ? (
-                <Image
-                  src={cat.image_url}
-                  alt={cat.name}
-                  width={40}
-                  height={40}
-                  className="object-contain"
-                />
-              ) : (
-                <span className="text-gray-400 font-bold text-lg">{cat.name.charAt(0)}</span>
-              )}
-            </div>
-            <p className="mt-2 text-xs md:text-sm font-semibold text-gray-800 text-center truncate w-20 md:w-24">
-              {cat.name}
-            </p>
-          </div>
-        ))
-      )}
-    </div>
+                    {/* --- HEADER --- */}
+                    <div className="mb-6 text-center">
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900">
+                            Popular <span className="text-red-600">Categories</span>
+                        </h2>
+                        <p className="mt-2 text-gray-500 text-sm sm:text-base max-w-2xl mx-auto">
+                            Select a category below to quickly find services you need.
+                        </p>
+                    </div>
 
-    {/* --- CENTERED VIEW ALL LINK --- */}
-    <div className="mt-6 flex justify-center">
-      <Link
-        href="/user/view-more?type=categories"
-        className="group flex items-center gap-2 text-red-600 font-bold text-sm bg-red-50 px-6 py-2 rounded-full hover:bg-red-600 hover:text-white transition-all"
-      >
-        View all categories
-        <span className="group-hover:translate-x-1 transition-transform">→</span>
-      </Link>
-    </div>
+                    {/* --- RESPONSIVE GRID --- */}
+                    <div className="
+      grid 
+      grid-cols-3 
+      sm:grid-cols-4 
+      md:grid-cols-6 
+      lg:grid-cols-10 
+      gap-4 sm:gap-5 
+      justify-items-center
+    ">
+                        {loading ? (
+                            [...Array(20)].map((_, i) => (
+                                <div key={i} className="flex flex-col items-center animate-pulse">
+                                    <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl bg-gray-200 mb-2" />
+                                    <div className="h-3 w-14 bg-gray-200 rounded" />
+                                </div>
+                            ))
+                        ) : (
+                            categories?.map((cat) => (
+                                <div
+                                    key={cat.id}
+                                    className="flex flex-col items-center cursor-pointer active:scale-95 transition"
+                                    onClick={() => router.push(`/user/services/${cat.id}`)}
+                                >
+                                    <div className="
+              w-14 h-14 
+              sm:w-16 sm:h-16 
+              md:w-20 md:h-20 
+              rounded-xl 
+              bg-gray-50 
+              border 
+              shadow-sm 
+              flex items-center justify-center
+              hover:shadow-md
+            ">
+                                        {cat.image_url ? (
+                                            <Image
+                                                src={cat.image_url}
+                                                alt={cat.name}
+                                                width={40}
+                                                height={40}
+                                                className="object-contain"
+                                            />
+                                        ) : (
+                                            <span className="text-gray-400 font-bold text-lg">
+                                                {cat.name.charAt(0)}
+                                            </span>
+                                        )}
+                                    </div>
 
-  </div>
-</section>
+                                    <p className="
+              mt-2 
+              text-[11px] 
+              sm:text-xs 
+              md:text-sm 
+              font-semibold 
+              text-gray-800 
+              text-center 
+              truncate 
+              w-16 sm:w-20 md:w-24
+            ">
+                                        {cat.name}
+                                    </p>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
+                    {/* --- VIEW ALL BUTTON --- */}
+                    <div className="mt-6 flex justify-center">
+                        <Link
+                            href="/user/view-more?type=categories"
+                            className="
+          group 
+          flex items-center gap-2 
+          text-red-600 
+          font-bold 
+          text-sm 
+          bg-red-50 
+          px-6 py-2 
+          rounded-full 
+          hover:bg-red-600 hover:text-white 
+          transition
+        "
+                        >
+                            View all categories
+                            <span className="group-hover:translate-x-1 transition-transform">→</span>
+                        </Link>
+                    </div>
+
+                </div>
+            </section>
 
 
             {/* TRUST CTA - Redesigned & Compact with 3 Buttons */}
