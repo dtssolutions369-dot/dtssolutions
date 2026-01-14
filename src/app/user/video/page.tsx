@@ -89,67 +89,104 @@ export default function VideoPage() {
 
   const sectors = ["All Sectors", ...new Set(videos.flatMap(v => v.sector).filter(Boolean))];
   const areas = ["All Areas", ...new Set(videos.map(v => v.area).filter(Boolean))];
-
-  // --- MOBILE REELS VIEW (AUTOPLAY) ---
+  // --- MOBILE REELS VIEW ---
   if (isMobile && !loading) {
     return (
-      <div className="h-screen w-full bg-black overflow-y-scroll snap-y snap-mandatory scrollbar-hide">
-        {filteredVideos.map((video) => (
-          <div key={video.uniqueId} className="h-screen w-full snap-start relative flex items-center justify-center bg-black overflow-hidden">
-            <div className="absolute inset-0">
-              {video.isYouTube ? (
-                <iframe
-                  src={`https://www.youtube.com/embed/${video.ytId}?autoplay=1&mute=1&loop=1&playlist=${video.ytId}&controls=0&modestbranding=1&rel=0`}
-                  className="w-full h-full scale-[1.7] pointer-events-none"
-                  allow="autoplay; encrypted-media"
-                />
-              ) : (
-                <video 
-                  src={video.url} 
-                  autoPlay 
-                  loop 
-                  muted 
-                  playsInline 
-                  className="w-full h-full object-cover" 
-                />
-              )}
-            </div>
-            
-            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/90 pointer-events-none" />
+      <div className="h-[100dvh] w-full bg-black overflow-hidden relative">
 
-            <div className="absolute bottom-10 left-5 right-16 z-20 text-white">
-               <div className="flex items-center gap-2 mb-3">
-                  <span className="bg-red-600 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">
+        {/* 1. FIXED UI OVERLAY (Always on top) */}
+        {/* 1. FIXED UI OVERLAY (Always on top) */}
+<div className="fixed inset-0 z-[150] pointer-events-none">
+  <div className="absolute top-24 left-0 right-0 px-4 pointer-events-auto space-y-2">
+    
+    {/* SEARCH INPUT */}
+    <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl flex items-center gap-2 p-3 shadow-2xl">
+      <Search className="text-yellow-400 ml-1" size={16} />
+      <input
+        type="text"
+        placeholder="SEARCH VIDEOS..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="bg-transparent w-full text-white text-[10px] font-black tracking-widest outline-none placeholder:text-white/40 uppercase"
+      />
+    </div>
+
+    {/* SECTOR & AREA FILTERS */}
+    <div className="flex gap-2">
+      <div className="flex-1 relative">
+        <select 
+          value={selectedSector} 
+          onChange={(e) => setSelectedSector(e.target.value)}
+          className="w-full bg-black/40 backdrop-blur-xl border border-white/10 text-white text-[9px] font-black uppercase tracking-tighter p-2.5 rounded-xl appearance-none outline-none"
+        >
+          {sectors.map(s => <option key={s} value={s} className="bg-gray-900">{s}</option>)}
+        </select>
+      </div>
+
+      <div className="flex-1 relative">
+        <select 
+          value={selectedArea} 
+          onChange={(e) => setSelectedArea(e.target.value)}
+          className="w-full bg-black/40 backdrop-blur-xl border border-white/10 text-white text-[9px] font-black uppercase tracking-tighter p-2.5 rounded-xl appearance-none outline-none"
+        >
+          {areas.map(a => <option key={a} value={a} className="bg-gray-900">{a}</option>)}
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+        {/* 2. VIDEO SCROLL LAYER */}
+        <div className="h-full w-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide">
+          {filteredVideos.map((video) => (
+            <div key={video.uniqueId} className="h-[100dvh] w-full snap-start relative bg-black">
+
+              {/* VIDEO BG */}
+              <div className="absolute inset-0 z-0">
+                {video.isYouTube ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${video.ytId}?autoplay=1&mute=1&loop=1&playlist=${video.ytId}&controls=0&modestbranding=1&rel=0&playsinline=1`}
+                    className="w-full h-full scale-[1.7] pointer-events-none"
+                  />
+                ) : (
+                  <video src={video.url} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                )}
+              </div>
+
+              <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90 z-10 pointer-events-none" />
+
+              {/* 3. CONTENT AREA - Lifted bottom-40 to clear mobile navigation */}
+              <div className="absolute bottom-40 left-6 right-20 z-[160] pointer-events-none">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="bg-red-600 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest text-white">
                     {video.sector}
                   </span>
-                  <span className="flex items-center gap-1 text-[11px] font-bold text-yellow-400">
-                    <MapPin size={12} /> {video.area}
+                  <span className="flex items-center gap-1 text-[10px] font-bold text-yellow-400 uppercase">
+                    <MapPin size={10} /> {video.area}
                   </span>
-               </div>
-               <h3 className="text-2xl font-black leading-tight mb-6 drop-shadow-lg">{video.title}</h3>
-               
-               {video.vendorId && (
-                 <Link 
-                   href={`/vendor/view/${video.vendorId}`} 
-                   className="inline-flex items-center justify-center gap-2 bg-yellow-400 text-black px-6 py-3 rounded-full text-sm font-black shadow-xl active:scale-95 transition-transform"
-                 >
-                    <User size={18} /> VIEW PROFILE
-                 </Link>
-               )}
-            </div>
-
-            <div className="absolute bottom-28 right-4 flex flex-col items-center z-30 opacity-80">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 shadow-lg mb-1">
-                  <Sparkles className="text-yellow-400" size={20} />
                 </div>
-                <span className="text-[10px] font-black text-white uppercase">Quick</span>
+
+                <h3 className="text-xl font-black text-white leading-tight mb-6 drop-shadow-2xl uppercase">
+                  {video.title}
+                </h3>
+
+                {video.vendorId && (
+                  <Link
+                    href={`/vendor/view/${video.vendorId}`}
+                    /* pointer-events-auto is CRITICAL for mobile clicking */
+                    /* z-[160] ensures it sits above all video overlays */
+                    className="pointer-events-auto inline-flex items-center justify-center gap-2 bg-yellow-400 text-black px-10 py-5 rounded-2xl text-[12px] font-black shadow-[0_15px_30px_rgba(250,204,21,0.4)] active:scale-95 transition-transform uppercase tracking-widest relative z-[160]"
+                  >
+                    <User size={18} /> VIEW PROFILE
+                  </Link>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     );
   }
-
   // --- DESKTOP VIEW (GRID AUTOPLAY) ---
   return (
     <div className="min-h-screen bg-[#FFFDF5] text-gray-900 pb-20 font-sans">
@@ -193,9 +230,9 @@ export default function VideoPage() {
             <motion.div key={video.uniqueId} className="group bg-white rounded-[2.5rem] border border-yellow-100 shadow-sm overflow-hidden flex flex-col h-full hover:shadow-xl transition-all duration-300">
               <div className="relative h-60 w-full overflow-hidden cursor-pointer" onClick={() => setSelectedVideo(video)}>
                 {video.isYouTube ? (
-                  <iframe 
-                    src={`https://www.youtube.com/embed/${video.ytId}?autoplay=1&mute=1&loop=1&playlist=${video.ytId}&controls=0`} 
-                    className="w-full h-full pointer-events-none" 
+                  <iframe
+                    src={`https://www.youtube.com/embed/${video.ytId}?autoplay=1&mute=1&loop=1&playlist=${video.ytId}&controls=0`}
+                    className="w-full h-full pointer-events-none"
                   />
                 ) : (
                   <video src={video.url} autoPlay muted loop playsInline className="w-full h-full object-cover" />

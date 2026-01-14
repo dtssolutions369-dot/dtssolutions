@@ -927,14 +927,6 @@ export default function Home() {
                                 View Enquiry
                             </button>
 
-                            {/* Add Business Button */}
-                            <button
-                                onClick={() => router.push('/provider/register')}
-                                className="px-6 py-4 bg-red-600 text-white rounded-xl font-bold text-sm uppercase tracking-wider hover:bg-red-700 transition-all shadow-xl shadow-red-200 active:scale-95 flex items-center gap-2"
-                            >
-                                <span>Add Business</span>
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"></path></svg>
-                            </button>
 
                         </div>
                     </div>

@@ -179,7 +179,7 @@ export default function HelpAndEarn() {
                     <BlackInput label="Full Name" name="name" value={paymentData.name} onChange={handleChange} />
                     <BlackInput label="Mobile" name="phone" value={paymentData.phone} onChange={handleChange} />
                   </div>
-                  <BlackInput label="EmaBlackInputil Address" name="email" type="email" value={paymentData.email} onChange={handleChange} />
+                  <BlackInput label="Email Address" name="email" type="email" value={paymentData.email} onChange={handleChange} />
                 </div>
               </div>
 
