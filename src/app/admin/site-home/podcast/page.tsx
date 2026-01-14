@@ -184,7 +184,7 @@ export default function PodcastAdminPage() {
                 <ShieldCheck className="text-[#e11d48]" size={20} />
                 <span className="text-red-900/60 text-[10px] font-black uppercase tracking-[0.3em]">Studio Uploads</span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-black uppercase italic tracking-tighter leading-none">
+              <h1 className="text-4xl md:text-6xl font-black text-black uppercase  tracking-tighter leading-none">
                 Podcast <span className="text-[#e11d48]">Manager</span>
               </h1>
             </div>
@@ -229,7 +229,7 @@ export default function PodcastAdminPage() {
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter truncate">{video.title}</h3>
+                  <h3 className="text-xl font-black text-slate-900 uppercase  tracking-tighter truncate">{video.title}</h3>
                   <p className="text-[9px] font-black text-slate-400 uppercase mt-2">Recorded: {new Date(video.created_at).toLocaleDateString()}</p>
                 </div>
               </div>
@@ -245,7 +245,7 @@ export default function PodcastAdminPage() {
           <div className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95">
             <div className="bg-red-600 p-8 flex flex-col items-center text-white text-center">
               <TriangleAlert size={40} className="mb-4" />
-              <h3 className="text-2xl font-black uppercase italic tracking-tighter">Discard Episode?</h3>
+              <h3 className="text-2xl font-black uppercase  tracking-tighter">Discard Episode?</h3>
             </div>
             <div className="p-8 flex gap-3">
               <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-4 bg-slate-100 text-slate-500 rounded-2xl font-black uppercase text-[10px]">Cancel</button>
@@ -265,7 +265,7 @@ export default function PodcastAdminPage() {
             <div className="bg-yellow-300 p-8 flex items-center justify-between border-b border-yellow-400 text-black">
               <div>
                 <p className="text-red-600 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Broadcasting Console</p>
-                <h3 className="text-2xl font-black uppercase italic tracking-tighter">{editingPodcast ? "Edit Episode" : "Publish Broadcast"}</h3>
+                <h3 className="text-2xl font-black uppercase  tracking-tighter">{editingPodcast ? "Edit Episode" : "Publish Broadcast"}</h3>
               </div>
               <button onClick={() => setShowModal(false)} className="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center"><X size={20} /></button>
             </div>

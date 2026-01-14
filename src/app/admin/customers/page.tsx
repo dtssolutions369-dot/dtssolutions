@@ -52,10 +52,10 @@ export default function CustomerListPage() {
                 <ShieldCheck className="text-[#e11d48]" size={20} />
                 <span className="text-red-900/60 text-[10px] font-black uppercase tracking-[0.3em]">Administrative Core</span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-black uppercase italic tracking-tighter leading-none">
+              <h1 className="text-4xl md:text-6xl font-black text-black uppercase  tracking-tighter leading-none">
                 Member <span className="text-[#e11d48]">Database</span>
               </h1>
-              <p className="text-red-900/80 text-xs mt-3 max-w-sm font-bold uppercase tracking-wide leading-relaxed italic">
+              <p className="text-red-900/80 text-xs mt-3 max-w-sm font-bold uppercase tracking-wide leading-relaxed ">
                 Verified platform intelligence. Monitoring registered user growth and authentication cycles.
               </p>
             </div>
@@ -126,7 +126,7 @@ export default function CustomerListPage() {
                       <td className="p-8">
                         <div className="flex items-center gap-5">
                           {/* Profile Circle */}
-                          <div className="w-14 h-14 rounded-2xl bg-black flex items-center justify-center text-[#facc15] font-black text-lg italic shadow-lg shadow-slate-200 group-hover:scale-110 transition-transform overflow-hidden">
+                          <div className="w-14 h-14 rounded-2xl bg-black flex items-center justify-center text-[#facc15] font-black text-lg  shadow-lg shadow-slate-200 group-hover:scale-110 transition-transform overflow-hidden">
                              {u.user_metadata?.name ? (
                                u.user_metadata.name.charAt(0).toUpperCase()
                              ) : (
@@ -135,7 +135,7 @@ export default function CustomerListPage() {
                           </div>
                           <div>
                             {/* Priority logic: If name exists, show it, else show email as primary */}
-                            <h4 className="font-black text-slate-900 leading-none mb-2 text-base uppercase italic tracking-tighter">
+                            <h4 className="font-black text-slate-900 leading-none mb-2 text-base uppercase  tracking-tighter">
                               {u.user_metadata?.name || u.email.split('@')[0]}
                             </h4>
                             <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] uppercase tracking-tighter">
@@ -147,7 +147,7 @@ export default function CustomerListPage() {
                       <td className="p-8">
                         <div className="flex flex-col">
                           <span className="text-[10px] font-black text-slate-400 uppercase mb-1">Joined</span>
-                          <div className="flex items-center gap-2 text-slate-700 font-bold text-xs italic">
+                          <div className="flex items-center gap-2 text-slate-700 font-bold text-xs ">
                             <Calendar size={14} className="text-red-600" />
                             {new Date(u.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                           </div>
@@ -156,7 +156,7 @@ export default function CustomerListPage() {
                       <td className="p-8">
                         <div className="flex flex-col">
                           <span className="text-[10px] font-black text-slate-400 uppercase mb-1">Network Activity</span>
-                          <div className="flex items-center gap-2 text-slate-700 font-bold text-xs italic">
+                          <div className="flex items-center gap-2 text-slate-700 font-bold text-xs ">
                             <Clock size={14} className="text-slate-400" />
                             {u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString() : "NONE RECORDED"}
                           </div>
@@ -190,7 +190,7 @@ export default function CustomerListPage() {
                   Total Records: {filteredUsers.length}
                 </p>
               </div>
-              <div className="flex gap-3 text-[10px] font-black uppercase tracking-widest text-slate-300 italic">
+              <div className="flex gap-3 text-[10px] font-black uppercase tracking-widest text-slate-300 ">
                  Security System Active
               </div>
             </div>

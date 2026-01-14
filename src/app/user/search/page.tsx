@@ -200,7 +200,7 @@ function SearchSearchResults() {
                         </button>
                         <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-900 leading-none uppercase">
                             Search <br />
-                            <span className="text-red-600 italic">Registry</span>
+                            <span className="text-red-600 ">Registry</span>
                         </h1>
                     </div>
                     <div className="hidden lg:block bg-white p-8 rounded-[2.5rem] rotate-3 shadow-xl border-2 border-yellow-100 relative">
@@ -354,7 +354,7 @@ function SearchSearchResults() {
                                             </div>
                                         </div>
                                         <div className="p-5 flex flex-col flex-1">
-                                            <h3 className="font-black text-sm text-gray-900 uppercase italic leading-tight truncate group-hover:text-red-600 transition-colors">{item.product_name}</h3>
+                                            <h3 className="font-black text-sm text-gray-900 uppercase  leading-tight truncate group-hover:text-red-600 transition-colors">{item.product_name}</h3>
                                             <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter truncate mb-4">{item.vendor_register?.company_name}</p>
                                             <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-100">
                                                 <span className="text-lg font-black text-gray-900 tracking-tighter">₹{item.price.toLocaleString()}</span>
@@ -377,8 +377,8 @@ function SearchSearchResults() {
                                 <span className="bg-[#0F172A] text-yellow-400 text-[9px] font-black uppercase tracking-[0.4em] px-6 py-2 rounded-full shadow-lg">Trust & Verification</span>
                             </div>
                             <h2 className="text-center mb-24 relative z-10">
-                                <span className="text-4xl md:text-7xl font-black italic text-[#0F172A] tracking-tighter uppercase leading-[0.85] block">SECURE ASSETS,</span>
-                                <span className="text-4xl md:text-7xl font-black italic text-red-600 tracking-tighter uppercase leading-[0.85] block">VERIFIED VENDORS.</span>
+                                <span className="text-4xl md:text-7xl font-black  text-[#0F172A] tracking-tighter uppercase leading-[0.85] block">SECURE ASSETS,</span>
+                                <span className="text-4xl md:text-7xl font-black  text-red-600 tracking-tighter uppercase leading-[0.85] block">VERIFIED VENDORS.</span>
                             </h2>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 relative z-10">
                                 <TrustCardItem num="01" color="bg-yellow-400" icon={<ShieldCheck size={28} />} title="Secure" desc="Military-grade encryption protecting every digital asset." />
@@ -402,7 +402,7 @@ function TrustCardItem({ num, color, icon, title, desc }: { num: string, color: 
             <div className={`w-16 h-16 ${color} rounded-[1.5rem] flex items-center justify-center shadow-xl mb-6 transform -rotate-3 group-hover:rotate-0 transition-transform duration-500`}>
                 {icon}
             </div>
-            <h3 className="text-lg font-black italic uppercase tracking-tighter text-gray-900 mb-2">{title}</h3>
+            <h3 className="text-lg font-black  uppercase tracking-tighter text-gray-900 mb-2">{title}</h3>
             <p className="text-gray-400 text-[10px] font-bold leading-relaxed uppercase tracking-wide">{desc}</p>
         </div>
     );

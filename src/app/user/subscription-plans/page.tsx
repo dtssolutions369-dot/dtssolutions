@@ -189,7 +189,7 @@ export default function SubscriptionPlanPage() {
             </div>
           )}
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-900 leading-none uppercase">
-            SCALE YOUR <br /> <span className="text-red-600 italic">BUSINESS</span>
+            SCALE YOUR <span className="text-red-600">BUSINESS</span>
           </h1>
           <p className="mt-4 text-gray-500 font-bold text-sm max-w-xl mx-auto leading-relaxed">
             Choose a protocol to unlock verified leads and priority ecosystem support.
@@ -219,7 +219,7 @@ export default function SubscriptionPlanPage() {
                       Current Active Protocol
                     </div>
                   ) : (
-                    <div className="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-3 italic">
+                    <div className="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-3 ">
                       Tier {idx + 1} System
                     </div>
                   )}

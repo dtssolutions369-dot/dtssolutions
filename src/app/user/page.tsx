@@ -85,6 +85,8 @@ export default function Home() {
     const [businessTypes, setBusinessTypes] = useState<string[]>([]);
     const [showResults, setShowResults] = useState(false);
     const [locationAvailability, setLocationAvailability] = useState<{ locations: string[] }>({ locations: [] });
+    const brandingScrollRef = useRef<HTMLDivElement | null>(null);
+    const [isBrandingPaused, setIsBrandingPaused] = useState(false);
 
     // Update state declarations with proper types
     const [podcasts, setPodcasts] = useState<Podcast[]>([]);
@@ -395,6 +397,23 @@ export default function Home() {
             behavior: "smooth",
         });
     };
+    const scrollBranding = (direction: "left" | "right") => {
+    if (!brandingScrollRef.current) return;
+
+    const container = brandingScrollRef.current;
+    const firstCard = container.querySelector("a") as HTMLElement;
+    const gap = 20;
+
+    const scrollAmount = firstCard
+        ? firstCard.offsetWidth + gap
+        : 360;
+
+    container.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+    });
+};
+
 
     const podcastScrollRef = useRef<HTMLDivElement | null>(null);
     const scrollPodcasts = (direction: "left" | "right") => {
@@ -406,6 +425,26 @@ export default function Home() {
             behavior: "smooth",
         });
     };
+    const AUTO_SCROLL_DELAY = 2000;
+
+    useEffect(() => {
+        const slider = brandingScrollRef.current;
+        if (!slider || isBrandingPaused) return;
+
+        const autoScrollBranding = setInterval(() => {
+            const firstCard = slider.querySelector("a") as HTMLElement;
+            const cardWidth = firstCard ? firstCard.offsetWidth + 20 : 360;
+            const maxScroll = slider.scrollWidth - slider.clientWidth;
+
+            if (slider.scrollLeft >= maxScroll - 10) {
+                slider.scrollTo({ left: 0, behavior: "smooth" });
+            } else {
+                slider.scrollBy({ left: cardWidth, behavior: "smooth" });
+            }
+        }, AUTO_SCROLL_DELAY);
+
+        return () => clearInterval(autoScrollBranding);
+    }, [isBrandingPaused, brandingVideos]);
 
     useEffect(() => {
         const slider = bannerScrollRef.current;
@@ -424,10 +463,11 @@ export default function Home() {
                 // Move to the next banner
                 slider.scrollBy({ left: cardWidth, behavior: "smooth" });
             }
-        }, 4000); // Banners move every 4 seconds
+        }, 1500); // Banners move every 4 seconds
 
         return () => clearInterval(autoScrollBanners);
     }, [isBannersPaused, imageBanners]);
+
     // Add this specific scroll handler for banners
     const scrollBanners = (direction: "left" | "right") => {
         if (!bannerScrollRef.current) return;
@@ -458,7 +498,7 @@ export default function Home() {
             } else {
                 slider.scrollBy({ left: cardWidth, behavior: "smooth" });
             }
-        }, 5000);
+        }, 1500);
 
         return () => clearInterval(autoScrollHelp);
     }, [isHelpPaused, helpAndEarn]);
@@ -478,7 +518,7 @@ export default function Home() {
             } else {
                 slider.scrollBy({ left: cardWidth, behavior: "smooth" });
             }
-        }, 4500); // Scrolls every 4.5 seconds
+        }, 1500); // Scrolls every 4.5 seconds
 
         return () => clearInterval(autoScrollPodcasts);
     }, [isPodcastsPaused, podcasts]);
@@ -646,7 +686,7 @@ export default function Home() {
 
                     {/* Section Header - REDUCED MARGIN BOTTOM HERE */}
                     <div className="text-center mb-8 sm:mb-12">
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900">
+                        <h2 className="text-5xl sm:text-5xl md:text-5xl font-black text-gray-900">
                             How <span className="text-yellow-500">QickTick</span> Works
                         </h2>
 
@@ -748,7 +788,7 @@ export default function Home() {
 
                     {/* --- HEADER --- */}
                     <div className="mb-6 text-center">
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900">
+                        <h2 className="text-5xl sm:text-5xl md:text-5xl font-extrabold text-gray-900">
                             Popular <span className="text-red-600">Categories</span>
                         </h2>
                         <p className="mt-2 text-gray-500 text-sm sm:text-base max-w-2xl mx-auto">
@@ -828,7 +868,7 @@ export default function Home() {
                     {/* --- VIEW ALL BUTTON --- */}
                     <div className="mt-6 flex justify-center">
                         <Link
-                            href="/user/view-more?type=categories"
+                            href="/user/ViewAllCategories"
                             className="
           group 
           flex items-center gap-2 
@@ -851,7 +891,7 @@ export default function Home() {
             </section>
 
             {/* TRUST CTA - Redesigned & Compact with 3 Buttons */}
-            <section className="py-16  bg-[#FEF3C7] relative overflow-hidden border-y border-yellow-200">
+            <section className="py-10  bg-[#FEF3C7] relative overflow-hidden border-y border-yellow-200">
                 {/* Subtle Pattern Overlay */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
 
@@ -860,7 +900,7 @@ export default function Home() {
 
                         {/* Text Content - Left Aligned for better flow */}
                         <div className="text-center lg:text-left flex-1">
-                            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-3">
+                            <h2 className="text-5xl md:text-5xl font-black text-gray-900 mb-3">
                                 Grow Your <span className="text-red-600">Business</span> with QickTick
                             </h2>
                             <p className="text-gray-700 text-lg font-medium max-w-xl">
@@ -902,11 +942,7 @@ export default function Home() {
             </section>
 
             {/* DIGITAL BRANDING - Compact Studio Slider */}
-            <section className="py-16 bg-[#FCF9F1] overflow-hidden relative border-b border-gray-100">
-                <div className="absolute top-6 left-6 text-6xl font-black text-black/[0.03] select-none pointer-events-none">
-                    STUDIO
-                </div>
-
+            <section className="py-18 md:py-8 bg-[#FCF9F1] overflow-hidden relative border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                     <div className="flex flex-col items-center text-center mb-10">
                         <div className="mb-6">
@@ -926,13 +962,13 @@ export default function Home() {
                         <div className="flex items-center gap-4 bg-white px-5 py-2 rounded-xl border border-gray-100 shadow-sm">
                             <div className="flex gap-2">
                                 <button
-                                    onClick={() => scroll("left")}
+                                    onClick={() => scrollBranding("left")}
                                     className="p-2 rounded-full border border-gray-200 hover:bg-yellow-500 hover:border-yellow-500 transition-all"
                                 >
                                     <ChevronLeft size={14} />
                                 </button>
                                 <button
-                                    onClick={() => scroll("right")}
+                                    onClick={() => scrollBranding("right")}
                                     className="p-2 rounded-full bg-black text-white hover:bg-red-600 transition-all"
                                 >
                                     <ChevronRight size={14} />
@@ -950,9 +986,10 @@ export default function Home() {
 
                     {/* --- VIDEO SLIDER --- */}
                     <div
-                        ref={scrollRef} // Ensure this matches your useEffect ref
-                        onMouseEnter={() => setIsPaused(true)}
-                        onMouseLeave={() => setIsPaused(false)}
+                        ref={brandingScrollRef}
+                        onMouseEnter={() => setIsBrandingPaused(true)}
+                        onMouseLeave={() => setIsBrandingPaused(false)}
+
                         className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 
                                 scrollbar-none ms-overflow-style-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                     >
@@ -996,15 +1033,15 @@ export default function Home() {
             </section>
 
             {/* DIGITAL BANNERS - Premium Scrolling Layout */}
-            <section className="py-20 pt-10 bg-white relative overflow-hidden">
+            <section className="py-18 md:py-8 bg-white relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-6">
 
                     {/* --- CENTERED HEADER & CONTROLS --- */}
                     <div className="flex flex-col items-center text-center mb-10">
                         {/* Title Section */}
                         <div className="mb-6">
-                            <h2 className="text-3xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter">
-                                Digital <span className="text-yellow-500 italic">Banners</span>
+                            <h2 className="text-5xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter">
+                                Digital <span className="text-yellow-500">Banners</span>
                             </h2>
                             {/* Centered Decorative Line */}
                             <div className="w-16 h-1 bg-yellow-500 mt-3 mb-4 rounded-full mx-auto" />
@@ -1104,7 +1141,7 @@ export default function Home() {
             </section>
 
             {/* COMPACT TRANSPORT BANNER */}
-            <section className="py-12 bg-[#FEF3C7] relative overflow-hidden border-y border-yellow-200">
+            <section className="py-18 md:py-8 bg-[#FEF3C7] relative overflow-hidden border-y border-yellow-200">
                 {/* Decorative Elements - Scaled down */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
                 <div className="absolute -top-12 -right-12 w-32 h-32 bg-yellow-400/20 rounded-full blur-2xl" />
@@ -1116,7 +1153,7 @@ export default function Home() {
                         <span className="inline-block px-3 py-0.5 mb-3 bg-white/50 border border-yellow-300 text-red-600 text-[10px] font-bold uppercase tracking-widest rounded-full">
                             Logistics
                         </span>
-                        <h2 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
+                        <h2 className="text-5xl md:text-5xl font-black text-gray-900 tracking-tight">
                             Transport <span className="text-red-600">Services</span>
                         </h2>
                         <p className="text-gray-600 mt-2 text-xs md:text-sm font-medium">
@@ -1160,7 +1197,7 @@ export default function Home() {
             </section>
 
             {/* HELP & EARN - Compact Community Grid */}
-            <section className="py-16 pt-8 bg-[#FFFDF5] relative overflow-hidden">
+            <section className="py-18 md:py-8 pt-8 bg-[#FFFDF5] relative overflow-hidden">
                 {/* Decorative Elements - Reduced */}
                 <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-yellow-300 to-transparent opacity-30" />
                 <div className="absolute -top-12 -right-12 w-48 h-48 bg-yellow-200/20 rounded-full blur-[60px]" />
@@ -1172,7 +1209,7 @@ export default function Home() {
                         <span className="inline-block px-3 py-1 mb-3 bg-yellow-100 text-yellow-700 text-[10px] font-bold uppercase tracking-widest rounded-full">
                             Community Impact
                         </span>
-                        <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">
+                        <h2 className="text-5xl md:text-5xl font-black text-gray-900 tracking-tight">
                             Help & <span className="text-red-600">Earn</span>
                         </h2>
                         <div className="w-12 h-1 bg-red-600 mx-auto mt-3 rounded-full" />
@@ -1197,7 +1234,7 @@ export default function Home() {
         "
                         >
                             {helpAndEarn.length === 0 ? (
-                                <div className="w-full py-10 text-center border-2 border-dashed border-yellow-200 rounded-3xl bg-yellow-50/50 text-gray-400 italic text-sm">
+                                <div className="w-full py-10 text-center border-2 border-dashed border-yellow-200 rounded-3xl bg-yellow-50/50 text-gray-400  text-sm">
                                     No community initiatives available.
                                 </div>
                             ) : (
@@ -1241,7 +1278,7 @@ export default function Home() {
                     </div>
 
                     {/* --- COMPACT VIEW MORE BUTTON --- */}
-                    <div className="mt-10 flex justify-center">
+                    <div className="mt-4 flex justify-center">
                         <button
                             onClick={() => router.push('/user/view-more?type=help')}
                             className="group flex items-center gap-3 bg-white border border-gray-100 text-black px-8 py-3 rounded-xl font-bold text-[11px] uppercase tracking-widest hover:bg-gray-50 transition-all shadow-md hover:shadow-lg active:scale-95"
@@ -1258,7 +1295,7 @@ export default function Home() {
             </section>
 
             {/* CERTIFICATES SECTION - Compact Amber Gallery */}
-            <section className="py-16 pt-8 bg-[#FEF3C7] border-y border-yellow-200">
+            <section className="py-18 md:py-5 pt-8 bg-[#FEF3C7] border-y border-yellow-200">
                 <div className="max-w-6xl mx-auto px-6">
 
                     {/* --- COMPACT HEADER --- */}
@@ -1266,7 +1303,7 @@ export default function Home() {
                         <span className="text-red-600 font-bold tracking-[0.2em] uppercase text-[10px]">
                             Verified Excellence
                         </span>
-                        <h2 className="text-3xl md:text-4xl font-black text-gray-900 mt-2 tracking-tight">
+                        <h2 className="text-5xl md:text-5xl font-black text-gray-900 mt-2 tracking-tight">
                             Our <span className="text-yellow-600 drop-shadow-sm">Certificates</span>
                         </h2>
                         <div className="w-12 h-1 bg-yellow-500 mx-auto mt-3 rounded-full opacity-50" />
@@ -1319,7 +1356,7 @@ export default function Home() {
                     </div>
 
                     {/* --- COMPACT ACTION BUTTON --- */}
-                    <div className="mt-10 flex justify-center">
+                    <div className="mt-4 flex justify-center">
                         <button
                             onClick={() => router.push('/user/view-more?type=certificates')}
                             className="group flex items-center gap-3 bg-gray-900 text-white px-8 py-3.5 rounded-xl font-bold text-[11px] uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95"
@@ -1336,12 +1373,12 @@ export default function Home() {
             </section>
 
             {/* PODCASTS SECTION - Compact Version */}
-            <section className="py-16 pt-8 bg-[#FFFDF5] relative overflow-hidden">
+            <section className="py-18 md:py-8 bg-[#FFFDF5] relative overflow-hidden">
                 <div className="max-w-6xl mx-auto px-6">
 
                     {/* --- COMPACT HEADER --- */}
                     <div className="text-center mb-10">
-                        <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">
+                        <h2 className="text-5xl md:text-5xl font-black text-gray-900 tracking-tight">
                             Latest <span className="text-red-600">Podcasts</span>
                         </h2>
                         <div className="w-10 h-1 bg-yellow-500 mx-auto mt-3 rounded-full"></div>
@@ -1349,15 +1386,7 @@ export default function Home() {
                     </div>
 
                     {/* --- ARROW & SLIDER WRAPPER --- */}
-                    <div className="relative group/slider">
-
-                        {/* LEFT ARROW */}
-                        <button
-                            onClick={() => scrollPodcasts("left")}
-                            className="absolute -left-4 top-[100px] -translate-y-1/2 z-30 hidden md:flex items-center justify-center bg-white text-gray-900 w-10 h-10 rounded-full shadow-lg border border-gray-100 hover:bg-red-600 hover:text-white transition-all duration-300 opacity-0 group-hover/slider:opacity-100"
-                        >
-                            <ChevronLeft size={20} strokeWidth={3} />
-                        </button>
+                    <div className="relative mb-4 group/slider">
 
                         {/* SCROLLABLE CONTAINER */}
                         <div
@@ -1411,17 +1440,10 @@ export default function Home() {
                             )}
                         </div>
 
-                        {/* RIGHT ARROW */}
-                        <button
-                            onClick={() => scrollPodcasts("right")}
-                            className="absolute -right-4 top-[100px] -translate-y-1/2 z-30 hidden md:flex items-center justify-center bg-white text-gray-900 w-10 h-10 rounded-full shadow-lg border border-gray-100 hover:bg-red-600 hover:text-white transition-all duration-300 opacity-0 group-hover/slider:opacity-100"
-                        >
-                            <ChevronRight size={20} strokeWidth={3} />
-                        </button>
                     </div>
 
                     {/* --- VIEW MORE BUTTON --- */}
-                    <div className="mt-8 flex justify-center">
+                    <div className="mt-4 flex justify-center">
                         <button
                             onClick={() => router.push('/user/view-more?type=podcasts')}
                             className="group flex items-center gap-3 bg-white border-2 border-gray-900 text-gray-900 px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-all shadow-md active:scale-95"
@@ -1434,13 +1456,13 @@ export default function Home() {
             </section>
 
             {/* INFLUENCERS SECTION - Split Media Design (Image & Video) */}
-            <section className="py-10 pt-10 bg-[#FEF3C7] border-t border-yellow-200 relative overflow-hidden">
+            <section className="py-18 md:py-8 bg-[#FEF3C7] border-t border-yellow-200 relative overflow-hidden">
                 {/* Decorative background element */}
                 <div className="absolute top-0 right-0 w-1/3 h-full bg-[#FDE68A]/30 -skew-x-12 translate-x-20 pointer-events-none" />
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                     {/* HEADER */}
-                    <div className="text-center mb-16">
+                    <div className="text-center mb-2 md:mb-8">
                         <span className="text-red-600 font-black tracking-[0.4em] uppercase text-xs">
                             Community Voices
                         </span>
@@ -1451,7 +1473,7 @@ export default function Home() {
                     </div>
 
                     {/* DUAL MEDIA GRID */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                    <div className="grid grid-cols-1 mb-4 lg:grid-cols-2 gap-12 items-start">
 
                         {/* LEFT SIDE — IMAGES (Brand Ambassadors) */}
                         <div className="space-y-6">
@@ -1538,17 +1560,19 @@ export default function Home() {
                     </div>
 
                     {/* VIEW MORE BUTTON */}
-                    <div className="mt-20 flex justify-center">
+                    <div className="mt-5 flex justify-center">
                         <button
                             onClick={() => router.push("/user/view-more?type=influencers")}
-                            className="group flex items-center gap-6 bg-gray-900 text-white pl-10 pr-4 py-4 rounded-full font-black text-sm uppercase tracking-widest hover:bg-black transition-all shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:-translate-y-1 active:scale-95"
+                            className="group flex items-center gap-4 bg-gray-900 text-white pl-6 pr-3 py-2.5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-[0_12px_30px_rgba(0,0,0,0.25)] hover:-translate-y-0.5 active:scale-95"
                         >
                             <span>View All Stories</span>
-                            <div className="bg-red-600 w-12 h-12 rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform duration-300">
-                                <ArrowRight className="w-6 h-6 text-white" />
+
+                            <div className="bg-red-600 w-9 h-9 rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform duration-300">
+                                <ArrowRight className="w-4 h-4 text-white" />
                             </div>
                         </button>
                     </div>
+
                 </div>
             </section>
         </div>

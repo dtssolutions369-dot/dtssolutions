@@ -1105,7 +1105,7 @@ const useMyLocation = async () => {
                         className="group relative inline-flex items-center justify-center px-12 py-6 font-bold uppercase tracking-wide text-white bg-gray-900 rounded-2xl shadow-xl hover:bg-yellow-300 transition-all duration-300 active:scale-95"
                       >
                         <div className="flex flex-col items-center gap-2">
-                          <span className="text-lg italic tracking-tight">VIP Membership <span className="text-blue-400 group-hover:text-white">Access</span></span>
+                          <span className="text-lg  tracking-tight">VIP Membership <span className="text-blue-400 group-hover:text-white">Access</span></span>
                           <span className="text-xs tracking-widest opacity-70">Scale your business today</span>
                         </div>
                         <div className="absolute -top-3 -right-3 w-10 h-10 bg-yellow-300 rounded-full flex items-center justify-center border-4 border-white shadow-lg animate-bounce">
@@ -1153,7 +1153,7 @@ const useMyLocation = async () => {
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <p className={`text-2xl font-bold italic tracking-tight ${isSelected ? "text-yellow-300" : "text-gray-900"}`}>₹{totalPrice.toLocaleString()}</p>
+                                  <p className={`text-2xl font-bold  tracking-tight ${isSelected ? "text-yellow-300" : "text-gray-900"}`}>₹{totalPrice.toLocaleString()}</p>
                                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-1">Inclusive of GST</p>
                                 </div>
                               </div>

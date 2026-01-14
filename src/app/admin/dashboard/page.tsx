@@ -61,10 +61,10 @@ export default function AdminDashboard() {
                 <ShieldCheck className="text-[#e11d48]" size={20} />
                 <span className="text-red-900/60 text-[10px] font-black uppercase tracking-[0.3em]">Central Command</span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-black uppercase italic tracking-tighter leading-none">
+              <h1 className="text-4xl md:text-6xl font-black text-black uppercase  tracking-tighter leading-none">
                 Admin <span className="text-[#e11d48]">Dashboard</span>
               </h1>
-              <p className="text-red-900/80 text-xs mt-3 max-w-sm font-bold uppercase tracking-wide leading-relaxed italic">
+              <p className="text-red-900/80 text-xs mt-3 max-w-sm font-bold uppercase tracking-wide leading-relaxed ">
                 Platform Intelligence Hub. Real-time monitoring of user metrics, vendor partnerships, and logistics.
               </p>
             </div>
@@ -72,7 +72,7 @@ export default function AdminDashboard() {
             <button 
               onClick={fetchCounts}
               disabled={loading}
-              className="bg-black hover:bg-red-600 text-white flex items-center gap-3 px-8 py-4 rounded-2xl transition-all shadow-2xl active:scale-95 group font-black text-[10px] uppercase tracking-widest italic"
+              className="bg-black hover:bg-red-600 text-white flex items-center gap-3 px-8 py-4 rounded-2xl transition-all shadow-2xl active:scale-95 group font-black text-[10px] uppercase tracking-widest "
             >
               <RefreshCw size={18} className={loading ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"} />
               Sync Data
@@ -94,7 +94,7 @@ export default function AdminDashboard() {
               <Activity className="text-emerald-500 animate-pulse" size={20} />
             </div>
             <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Authenticated Users</h2>
-            <p className="text-5xl font-black text-slate-900 italic tracking-tighter mb-6">{totalCustomers}</p>
+            <p className="text-5xl font-black text-slate-900  tracking-tighter mb-6">{totalCustomers}</p>
             <Link href="/admin/customers" className="mt-auto flex items-center justify-center gap-2 py-3 bg-slate-50 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">
               User Database <ArrowRight size={14} />
             </Link>
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
               <ShieldCheck className="text-blue-500" size={20} />
             </div>
             <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Partner Network</h2>
-            <p className="text-5xl font-black text-slate-900 italic tracking-tighter mb-6">{totalVendors}</p>
+            <p className="text-5xl font-black text-slate-900  tracking-tighter mb-6">{totalVendors}</p>
             <Link href="/admin/vendors" className="mt-auto flex items-center justify-center gap-2 py-3 bg-slate-50 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">
               Vendor Dossiers <ArrowRight size={14} />
             </Link>
@@ -121,10 +121,10 @@ export default function AdminDashboard() {
               <div className="p-4 bg-black text-[#facc15] rounded-2xl shadow-lg">
                 <Truck size={28} />
               </div>
-              <div className="px-3 py-1 bg-amber-50 text-amber-600 text-[9px] font-black uppercase rounded-lg border border-amber-100 italic">Live Loads</div>
+              <div className="px-3 py-1 bg-amber-50 text-amber-600 text-[9px] font-black uppercase rounded-lg border border-amber-100 ">Live Loads</div>
             </div>
             <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Transit Requests</h2>
-            <p className="text-5xl font-black text-slate-900 italic tracking-tighter mb-6">{totalTransport}</p>
+            <p className="text-5xl font-black text-slate-900  tracking-tighter mb-6">{totalTransport}</p>
             <Link href="/admin/transportation" className="mt-auto flex items-center justify-center gap-2 py-3 bg-slate-50 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">
               Travel Manifest <ArrowRight size={14} />
             </Link>
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-[3.5rem] border border-slate-200 p-10 shadow-2xl relative overflow-hidden">
           <div className="flex items-center gap-3 mb-8 border-b border-slate-50 pb-6">
             <div className="h-8 w-2 bg-[#e11d48] rounded-full" />
-            <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter">System Operations</h3>
+            <h3 className="text-xl font-black text-slate-900 uppercase  tracking-tighter">System Operations</h3>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -163,7 +163,7 @@ export default function AdminDashboard() {
           {/* System Footer Decorative Element */}
           <div className="mt-12 flex items-center justify-between text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">
              <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500"/> System Online</div>
-             <div className="italic">Authorized Admin Access Only</div>
+             <div className="">Authorized Admin Access Only</div>
           </div>
         </div>
       </div>

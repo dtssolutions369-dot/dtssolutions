@@ -31,7 +31,6 @@ const ProductImageSlider: React.FC<{ images: string[]; isActive: boolean }> = ({
     return (
       <div className="relative bg-gray-100 aspect-square flex items-center justify-center">
         <Package className="text-gray-300" size={48} />
-        <Badge isActive={isActive} />
       </div>
     );
   }
@@ -43,7 +42,6 @@ const ProductImageSlider: React.FC<{ images: string[]; isActive: boolean }> = ({
         className="w-full h-full object-cover" 
         alt="Product" 
       />
-      <Badge isActive={isActive} />
 
       {images.length > 1 && (
         <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-2 pointer-events-none">
@@ -73,11 +71,6 @@ const ProductImageSlider: React.FC<{ images: string[]; isActive: boolean }> = ({
   );
 };
 
-const Badge = ({ isActive }: { isActive: boolean }) => (
-  <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest z-10 shadow-sm ${isActive ? "bg-yellow-400 text-black" : "bg-red-500 text-white"}`}>
-    {isActive ? "Live" : "Draft"}
-  </div>
-);
 
 export default function VendorInventoryStudio() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -99,18 +92,42 @@ export default function VendorInventoryStudio() {
     fetchInitialData(); 
   }, []);
 
-  async function fetchInitialData() {
-    setFetching(true);
-    const { data: catData } = await supabase.from('categories').select('id, name').eq('is_active', true).order('name');
-    if (catData) setCategories(catData);
-    
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data: prodData } = await supabase.from('vendor_products').select('*').order('created_at', { ascending: false });
+ async function fetchInitialData() {
+  setFetching(true);
+
+  // Fetch active categories
+  const { data: catData } = await supabase
+    .from('categories')
+    .select('id, name')
+    .eq('is_active', true)
+    .order('name');
+  if (catData) setCategories(catData);
+
+  // Fetch current user
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    // Get the vendor record for this user
+    const { data: vendorRecord } = await supabase
+      .from('vendor_register')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (vendorRecord) {
+      // Fetch only products uploaded by this vendor
+      const { data: prodData } = await supabase
+        .from('vendor_products')
+        .select('*')
+        .eq('vendor_id', vendorRecord.id)  // <-- filter by logged-in vendor
+        .order('created_at', { ascending: false });
+
       if (prodData) setProducts(prodData);
     }
-    setFetching(false);
   }
+
+  setFetching(false);
+}
+
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -207,9 +224,9 @@ export default function VendorInventoryStudio() {
 
           <div className="text-center md:text-left">
 
-            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-5xl md:text-7xl font-black tracking-tighter text-gray-900 leading-none uppercase">
+            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-5xl md:text-5xl font-black tracking-tighter text-gray-900 leading-none uppercase">
 
-              Inventory <br /> <span className="text-red-600 italic">Studio</span>
+              Inventory <span className="text-red-600 ">Studio</span>
 
             </motion.h1>
 
@@ -320,7 +337,7 @@ export default function VendorInventoryStudio() {
               <span className="bg-white px-3 py-1 rounded-full border border-gray-200 text-[10px] font-black">{products.length} ITEMS</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               <AnimatePresence mode="popLayout">
                 {fetching ? (
                   Array(4).fill(0).map((_, i) => <div key={i} className="aspect-square bg-gray-200 rounded-3xl animate-pulse" />)

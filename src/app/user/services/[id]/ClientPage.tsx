@@ -100,7 +100,7 @@ export default function ServiceCategoryPage() {
             </div>
             <h1 className="text-5xl md:text-8xl font-black tracking-tighter text-gray-900 leading-[0.85] uppercase">
               {categoryName} <br/>
-              <span className="text-red-600 italic">HUB</span>
+              <span className="text-red-600 ">HUB</span>
             </h1>
           </div>
           
@@ -125,7 +125,7 @@ export default function ServiceCategoryPage() {
             placeholder="FILTER BY COMPANY NAME..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 bg-transparent border-none outline-none text-white font-black italic uppercase tracking-widest text-xs placeholder:text-gray-500"
+            className="flex-1 bg-transparent border-none outline-none text-white font-black  uppercase tracking-widest text-xs placeholder:text-gray-500"
           />
           <div className="hidden md:flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/5">
             <Filter size={12} className="text-gray-400" />
@@ -170,19 +170,19 @@ export default function ServiceCategoryPage() {
                     <div className="p-8 flex-1">
                       <div className="flex items-center gap-2 mb-3">
                          <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
-                         <span className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 italic">Registered Partner</span>
+                         <span className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 ">Registered Partner</span>
                       </div>
                       
-                      <h2 className="text-2xl font-black text-gray-900 mb-4 group-hover:text-red-600 transition-colors tracking-tighter uppercase leading-tight italic">
+                      <h2 className="text-2xl font-black text-gray-900 mb-4 group-hover:text-red-600 transition-colors tracking-tighter uppercase leading-tight ">
                         {vendor.company_name}
                       </h2>
 
                       <div className="space-y-3 border-t border-gray-50 pt-4">
                         <div className="flex items-center gap-2 text-gray-500">
                           <MapPin size={14} className="text-red-600" />
-                          <span className="text-[10px] font-black uppercase italic">{vendor.city}, {vendor.state}</span>
+                          <span className="text-[10px] font-black uppercase ">{vendor.city}, {vendor.state}</span>
                         </div>
-                        <p className="text-gray-400 text-[11px] font-bold uppercase tracking-tight leading-relaxed line-clamp-2 italic">
+                        <p className="text-gray-400 text-[11px] font-bold uppercase tracking-tight leading-relaxed line-clamp-2 ">
                           Technical solutions & industrial support specialized in {categoryName}.
                         </p>
                       </div>
@@ -192,7 +192,7 @@ export default function ServiceCategoryPage() {
                     <div className="p-4 bg-gray-50/50 mt-auto border-t border-gray-50 grid grid-cols-2 gap-3">
                       <button
                         onClick={() => router.push(`/vendor/view/${vendor.id}`)}
-                        className="col-span-2 bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest italic flex items-center justify-center gap-2 hover:bg-red-600 transition-all shadow-lg active:scale-95"
+                        className="col-span-2 bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest  flex items-center justify-center gap-2 hover:bg-red-600 transition-all shadow-lg active:scale-95"
                       >
                         Access Profile <ArrowRight size={14} />
                       </button>
@@ -215,7 +215,7 @@ export default function ServiceCategoryPage() {
               <div className="col-span-full py-32 flex flex-col items-center justify-center">
                 <div className="bg-white p-12 rounded-[4rem] border-4 border-dashed border-yellow-100 text-center">
                   <Search size={64} className="mx-auto text-yellow-200 mb-6" />
-                  <h3 className="text-2xl font-black text-gray-900 uppercase italic tracking-tighter">No Units Detected</h3>
+                  <h3 className="text-2xl font-black text-gray-900 uppercase  tracking-tighter">No Units Detected</h3>
                   <p className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.2em] mt-2">Try adjusting your signal filters</p>
                 </div>
               </div>
@@ -228,12 +228,12 @@ export default function ServiceCategoryPage() {
       <div className="max-w-7xl mx-auto px-6 mt-32">
         <div className="bg-gray-900 rounded-[4rem] p-12 md:p-20 relative overflow-hidden text-center">
            <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px]"></div>
-           <h2 className="text-3xl md:text-5xl font-black text-white italic uppercase tracking-tighter mb-8 relative z-10">
+           <h2 className="text-3xl md:text-5xl font-black text-white  uppercase tracking-tighter mb-8 relative z-10">
              Can't find the <span className="text-yellow-400">Right Provider?</span>
            </h2>
            <button 
              onClick={() => router.push('/enquiry')}
-             className="bg-yellow-400 text-black px-12 py-6 rounded-full font-black uppercase italic tracking-widest hover:bg-white transition-all shadow-2xl relative z-10 active:scale-95"
+             className="bg-yellow-400 text-black px-12 py-6 rounded-full font-black uppercase  tracking-widest hover:bg-white transition-all shadow-2xl relative z-10 active:scale-95"
            >
              Broadcast Your Requirement
            </button>

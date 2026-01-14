@@ -145,7 +145,7 @@ export default function InfluencerUploadPage() {
               <ShieldCheck size={20} className="text-[#e11d48]" />
               Secure Storage
             </div>
-            <h1 className="text-4xl md:text-6xl font-black text-black uppercase italic tracking-tighter leading-none">
+            <h1 className="text-4xl md:text-6xl font-black text-black uppercase  tracking-tighter leading-none">
               Influencer <span className="text-[#e11d48]">Uploads</span>
             </h1>
           </div>
@@ -185,7 +185,7 @@ export default function InfluencerUploadPage() {
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-black text-slate-900 uppercase italic truncate">{item.name}</h3>
+                  <h3 className="text-xl font-black text-slate-900 uppercase  truncate">{item.name}</h3>
                 </div>
               </div>
             ))}
@@ -199,7 +199,7 @@ export default function InfluencerUploadPage() {
           <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" onClick={() => setShowModal(false)} />
           <div className="relative w-full max-w-xl bg-white rounded-[3rem] shadow-2xl overflow-hidden">
             <div className="bg-yellow-300 p-8 flex items-center justify-between">
-              <h3 className="text-2xl font-black uppercase italic tracking-tighter">Native File Upload</h3>
+              <h3 className="text-2xl font-black uppercase  tracking-tighter">Native File Upload</h3>
               <button onClick={() => setShowModal(false)} className="bg-black text-white p-2 rounded-xl hover:bg-red-600 transition-colors"><X size={20} /></button>
             </div>
 

@@ -82,7 +82,7 @@ export default function EnquiriesPage() {
                 <ShieldCheck className="text-[#e11d48]" size={20} />
                 <span className="text-red-900/60 text-[10px] font-black uppercase tracking-[0.3em]">Communication Command</span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-black uppercase italic tracking-tighter leading-none">
+              <h1 className="text-4xl md:text-6xl font-black text-black uppercase  tracking-tighter leading-none">
                 Customer <span className="text-[#e11d48]">Enquiries</span>
               </h1>
             </div>
@@ -140,14 +140,14 @@ export default function EnquiriesPage() {
                   <tr key={e.id} className="hover:bg-slate-50/80 transition-all group cursor-default">
                     <td className="p-8">
                       <div className="flex items-center gap-5">
-                        <div className="w-12 h-12 rounded-xl bg-black flex items-center justify-center text-yellow-400 font-black text-lg italic shadow-lg">
+                        <div className="w-12 h-12 rounded-xl bg-black flex items-center justify-center text-yellow-400 font-black text-lg  shadow-lg">
                           {e.name.charAt(0)}
                         </div>
-                        <h4 className="font-black text-slate-900 text-base uppercase italic tracking-tighter">{e.name}</h4>
+                        <h4 className="font-black text-slate-900 text-base uppercase  tracking-tighter">{e.name}</h4>
                       </div>
                     </td>
                     <td className="p-8 font-bold text-xs text-slate-600">{e.email}</td>
-                    <td className="p-8 text-[10px] font-black text-slate-400 uppercase italic">
+                    <td className="p-8 text-[10px] font-black text-slate-400 uppercase ">
                       {e.created_at ? new Date(e.created_at).toLocaleDateString() : "???"}
                     </td>
                     <td className="p-8 text-right">
@@ -181,11 +181,11 @@ export default function EnquiriesPage() {
             <div className="w-20 h-20 bg-red-100 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
               <AlertTriangle className="text-red-600" size={40} />
             </div>
-            <h3 className="text-3xl font-black text-black uppercase italic tracking-tighter mb-4 leading-none">
+            <h3 className="text-3xl font-black text-black uppercase  tracking-tighter mb-4 leading-none">
               Confirm <br/><span className="text-red-600">Termination?</span>
             </h3>
             <p className="text-slate-500 text-xs font-bold uppercase tracking-wide leading-relaxed mb-8">
-              You are about to permanently erase the record for <span className="text-black italic">"{enquiryToDelete.name}"</span> from the command center. This cannot be undone.
+              You are about to permanently erase the record for <span className="text-black ">"{enquiryToDelete.name}"</span> from the command center. This cannot be undone.
             </p>
             <div className="flex flex-col gap-3">
               <button 
@@ -216,7 +216,7 @@ export default function EnquiriesPage() {
                     <div className="flex items-center gap-2 text-red-900/60 font-black text-[10px] uppercase tracking-[0.2em] mb-2">
                     <Hash size={14} /> REF-{selectedEnquiry.id}
                     </div>
-                    <h2 className="text-4xl font-black text-black uppercase italic leading-[0.8] tracking-tighter mb-4">
+                    <h2 className="text-4xl font-black text-black uppercase  leading-[0.8] tracking-tighter mb-4">
                     User <br/><span className="text-[#e11d48]">Profile</span>
                     </h2>
                 </div>
@@ -239,24 +239,24 @@ export default function EnquiriesPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                 <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
                   <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><Mail size={16} className="text-red-600"/> Contact</h4>
-                  <p className="text-sm font-black text-slate-900 italic tracking-tight">{selectedEnquiry.email}</p>
+                  <p className="text-sm font-black text-slate-900  tracking-tight">{selectedEnquiry.email}</p>
                 </div>
                 <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
                   <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><Calendar size={16} className="text-red-600"/> Timestamp</h4>
-                  <p className="text-sm font-black text-slate-900 italic">{new Date(selectedEnquiry.created_at!).toLocaleDateString()}</p>
+                  <p className="text-sm font-black text-slate-900 ">{new Date(selectedEnquiry.created_at!).toLocaleDateString()}</p>
                 </div>
               </div>
 
               <div className="mb-12 flex-1">
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 border-b pb-2 italic">Signal Body</h4>
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 border-b pb-2 ">Signal Body</h4>
                 <div className="bg-slate-900 p-8 rounded-[2.5rem] relative">
-                  <p className="text-yellow-400 text-lg font-bold italic leading-relaxed">"{selectedEnquiry.message}"</p>
+                  <p className="text-yellow-400 text-lg font-bold  leading-relaxed">"{selectedEnquiry.message}"</p>
                 </div>
               </div>
 
               <div className="flex gap-4">
-                <button onClick={() => setSelectedEnquiry(null)} className="flex-1 py-5 bg-slate-100 text-slate-900 rounded-[2rem] text-[10px] font-black uppercase hover:bg-black hover:text-white transition-all italic">Dismiss</button>
-                <button onClick={() => window.location.href = `mailto:${selectedEnquiry.email}`} className="flex-2 px-10 py-5 bg-black text-yellow-400 rounded-[2rem] text-[10px] font-black uppercase hover:bg-red-600 hover:text-white transition-all shadow-2xl italic flex items-center gap-2">Reply <ArrowRight size={16}/></button>
+                <button onClick={() => setSelectedEnquiry(null)} className="flex-1 py-5 bg-slate-100 text-slate-900 rounded-[2rem] text-[10px] font-black uppercase hover:bg-black hover:text-white transition-all ">Dismiss</button>
+                <button onClick={() => window.location.href = `mailto:${selectedEnquiry.email}`} className="flex-2 px-10 py-5 bg-black text-yellow-400 rounded-[2rem] text-[10px] font-black uppercase hover:bg-red-600 hover:text-white transition-all shadow-2xl  flex items-center gap-2">Reply <ArrowRight size={16}/></button>
               </div>
             </div>
           </div>

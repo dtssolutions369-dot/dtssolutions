@@ -170,10 +170,10 @@ export default function DigitalBanner() {
                 <ShieldCheck className="text-[#e11d48]" size={20} />
                 <span className="text-red-900/60 text-[10px] font-black uppercase tracking-[0.3em]">Web Management</span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-black uppercase italic tracking-tighter leading-none">
+              <h1 className="text-4xl md:text-6xl font-black text-black uppercase  tracking-tighter leading-none">
                 Digital <span className="text-[#e11d48]">Banners</span>
               </h1>
-              <p className="text-red-900/80 text-xs mt-3 max-w-sm font-bold uppercase tracking-wide leading-relaxed italic">
+              <p className="text-red-900/80 text-xs mt-3 max-w-sm font-bold uppercase tracking-wide leading-relaxed ">
                 Manage and deploy high-impact visual campaigns to your website's hero section in real-time.
               </p>
             </div>
@@ -210,7 +210,7 @@ export default function DigitalBanner() {
                   </div>
                 </div>
                 <div className="p-8">
-                  <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter truncate">{b.title}</h3>
+                  <h3 className="text-xl font-black text-slate-900 uppercase  tracking-tighter truncate">{b.title}</h3>
                   <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-50">
                     <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] uppercase">
                       <Calendar size={14} className="text-red-600" /> {new Date(b.created_at).toLocaleDateString()}
@@ -231,7 +231,7 @@ export default function DigitalBanner() {
           <div className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="bg-red-600 p-8 flex flex-col items-center text-white text-center">
               <TriangleAlert size={40} className="mb-4" />
-              <h3 className="text-2xl font-black uppercase italic tracking-tighter">Remove Banner?</h3>
+              <h3 className="text-2xl font-black uppercase  tracking-tighter">Remove Banner?</h3>
             </div>
             <div className="p-8 flex gap-3">
               <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-4 bg-slate-100 text-slate-500 rounded-2xl font-black uppercase text-[10px] tracking-widest">Cancel</button>
@@ -247,7 +247,7 @@ export default function DigitalBanner() {
           <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" onClick={() => setShowModal(false)} />
           <div className="relative w-full max-w-xl bg-white rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
             <div className="bg-yellow-300 p-8 flex items-center justify-between border-b border-yellow-400 text-black">
-              <h3 className="text-2xl font-black uppercase italic tracking-tighter">{editingBanner ? "Modify Banner" : "Create Asset"}</h3>
+              <h3 className="text-2xl font-black uppercase  tracking-tighter">{editingBanner ? "Modify Banner" : "Create Asset"}</h3>
               <button onClick={() => setShowModal(false)} className="w-10 h-10 bg-black text-white rounded-xl flex items-center justify-center hover:bg-red-600"><X size={18} /></button>
             </div>
             <div className="p-10 space-y-8">

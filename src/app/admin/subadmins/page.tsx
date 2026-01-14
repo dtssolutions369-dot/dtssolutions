@@ -78,10 +78,10 @@ export default function SubAdminPage() {
                 <ShieldCheck className="text-[#e11d48]" size={20} />
                 <span className="text-red-900/60 text-[10px] font-black uppercase tracking-[0.3em]">Security Infrastructure</span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-black uppercase italic tracking-tighter leading-none">
+              <h1 className="text-4xl md:text-6xl font-black text-black uppercase  tracking-tighter leading-none">
                 Access <span className="text-[#e11d48]">Control</span>
               </h1>
-              <p className="text-red-900/80 text-xs mt-3 max-w-sm font-bold uppercase tracking-wide leading-relaxed italic">
+              <p className="text-red-900/80 text-xs mt-3 max-w-sm font-bold uppercase tracking-wide leading-relaxed ">
                 Personnel authorization gateway. Provisioning sub-administrator credentials and security clearance levels.
               </p>
             </div>
@@ -113,7 +113,7 @@ export default function SubAdminPage() {
                   <UserPlus size={20} />
                 </div>
                 <div>
-                  <h2 className="text-lg font-black text-slate-900 uppercase italic tracking-tighter leading-none">Provision User</h2>
+                  <h2 className="text-lg font-black text-slate-900 uppercase  tracking-tighter leading-none">Provision User</h2>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">New Sub-Admin Access</p>
                 </div>
               </div>
@@ -152,7 +152,7 @@ export default function SubAdminPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-5 bg-black text-yellow-300 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] hover:bg-red-600 hover:text-white disabled:bg-slate-200 transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 italic"
+                  className="w-full py-5 bg-black text-yellow-300 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] hover:bg-red-600 hover:text-white disabled:bg-slate-200 transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 "
                 >
                   {submitting ? <Loader2 size={18} className="animate-spin" /> : (
                     <>Authorize Clearance <Key size={16} /></>
@@ -184,7 +184,7 @@ export default function SubAdminPage() {
                     <tr>
                       <td colSpan={3} className="p-32 text-center">
                         <UserCheck size={48} className="mx-auto text-slate-100 mb-4" />
-                        <p className="font-black text-[10px] uppercase tracking-[0.3em] text-slate-300 italic">No Authorized Personnel Detected</p>
+                        <p className="font-black text-[10px] uppercase tracking-[0.3em] text-slate-300 ">No Authorized Personnel Detected</p>
                       </td>
                     </tr>
                   ) : (
@@ -192,19 +192,19 @@ export default function SubAdminPage() {
                       <tr key={user.id} className="group hover:bg-slate-50 transition-all">
                         <td className="p-8">
                           <div className="flex items-center gap-5">
-                            <div className="w-12 h-12 rounded-xl bg-black flex items-center justify-center text-yellow-300 font-black text-lg italic shadow-lg">
+                            <div className="w-12 h-12 rounded-xl bg-black flex items-center justify-center text-yellow-300 font-black text-lg  shadow-lg">
                               {user.email.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                              <div className="font-black text-slate-900 text-base uppercase italic tracking-tighter leading-none mb-1">{user.email}</div>
-                              <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-tighter italic">
+                              <div className="font-black text-slate-900 text-base uppercase  tracking-tighter leading-none mb-1">{user.email}</div>
+                              <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-tighter ">
                                 <Hash size={12} className="text-red-500" /> ID: {user.id.slice(0, 8)} • Commissioned: {new Date(user.created_at).toLocaleDateString()}
                               </div>
                             </div>
                           </div>
                         </td>
                         <td className="p-8">
-                          <span className="px-5 py-2 bg-yellow-100 text-red-900 text-[9px] font-black uppercase tracking-widest rounded-full border border-yellow-200 group-hover:bg-red-600 group-hover:text-white group-hover:border-red-600 transition-all italic">
+                          <span className="px-5 py-2 bg-yellow-100 text-red-900 text-[9px] font-black uppercase tracking-widest rounded-full border border-yellow-200 group-hover:bg-red-600 group-hover:text-white group-hover:border-red-600 transition-all ">
                             {user.role}
                           </span>
                         </td>

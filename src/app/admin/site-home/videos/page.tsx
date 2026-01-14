@@ -221,10 +221,10 @@ export default function AdminVideosPage() {
                 <ShieldCheck className="text-[#e11d48]" size={20} />
                 <span className="text-red-900/60 text-[10px] font-black uppercase tracking-[0.3em]">Asset Manager</span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-black uppercase italic tracking-tighter leading-none">
+              <h1 className="text-4xl md:text-6xl font-black text-black uppercase  tracking-tighter leading-none">
                 Vendor <span className="text-[#e11d48]">Videos</span>
               </h1>
-              <p className="text-red-900/80 text-xs mt-3 max-w-sm font-bold uppercase tracking-wide leading-relaxed italic">
+              <p className="text-red-900/80 text-xs mt-3 max-w-sm font-bold uppercase tracking-wide leading-relaxed ">
                 Broadcast and curate high-impact video assets. Filter through admin-uploaded or vendor-submitted media.
               </p>
             </div>
@@ -297,7 +297,7 @@ export default function AdminVideosPage() {
                     <Globe size={12} className="text-red-500" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{v.area || "GLOBAL REGION"}</span>
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter leading-tight mb-2 truncate">{v.video_title}</h3>
+                  <h3 className="text-2xl font-black text-slate-900 uppercase  tracking-tighter leading-tight mb-2 truncate">{v.video_title}</h3>
                   <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wide mb-5">
                     {v.vendor_name ? `Prop: ${v.vendor_name}` : "Admin Asset"}
                   </p>
@@ -323,7 +323,7 @@ export default function AdminVideosPage() {
           <div className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 text-center">
             <div className="bg-red-600 p-10 text-white">
               <TriangleAlert size={48} className="mx-auto mb-4" />
-              <h3 className="text-3xl font-black uppercase italic tracking-tighter">Destroy Asset?</h3>
+              <h3 className="text-3xl font-black uppercase  tracking-tighter">Destroy Asset?</h3>
               <p className="text-red-100 text-[10px] font-bold uppercase mt-3 tracking-widest opacity-80 leading-relaxed">
                 You are about to permanently wipe <br/> <span className="text-white underline">{deleteTarget.video_title}</span>
               </p>
@@ -343,7 +343,7 @@ export default function AdminVideosPage() {
           <div className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
             <div className="bg-yellow-300 p-8 flex items-center justify-between border-b border-yellow-400 text-black">
               <div>
-                <h3 className="text-2xl font-black uppercase italic tracking-tighter leading-none">
+                <h3 className="text-2xl font-black uppercase  tracking-tighter leading-none">
                   {editing ? "Refine Asset" : "Deploy Media"}
                 </h3>
                 <p className="text-red-900 text-[9px] font-black uppercase tracking-widest mt-1 opacity-70">Multimedia Configuration</p>

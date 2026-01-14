@@ -37,6 +37,37 @@ export default function VendorDetailPage() {
   }, [id]);
 
   if (loading || !vendor) return <LoadingSpinner />;
+  const getProductImageUrl = (path: string) => {
+    if (!path) return "";
+    if (path.startsWith("http")) return path; // already a full URL
+    const { data } = supabase.storage.from("products").getPublicUrl(path);
+    return data?.publicUrl || "";
+  };
+
+  function ImageSlider({ images }: { images: string[] }) {
+    const [current, setCurrent] = useState(0);
+    const [fade, setFade] = useState(true);
+
+    useEffect(() => {
+      if (images.length <= 1) return;
+      const interval = setInterval(() => {
+        setFade(false);
+        setTimeout(() => {
+          setCurrent((prev) => (prev + 1) % images.length);
+          setFade(true);
+        }, 300);
+      }, 3000); // change image every 3 seconds
+      return () => clearInterval(interval);
+    }, [images]);
+
+    return (
+      <img
+        src={images[current]}
+        alt="Product Image"
+        className={`w-full h-full object-cover transition-opacity duration-500 ${fade ? "opacity-100" : "opacity-0"}`}
+      />
+    );
+  }
 
   const getVideos = () => {
     if (!vendor.video_files) return [];
@@ -47,7 +78,13 @@ export default function VendorDetailPage() {
     ...getVideos().map((vid: any) => ({
       url: typeof vid === "string" ? vid : vid.url,
       type: "video"
-    }))
+    })),
+    ...products.flatMap((p) =>
+      (p.product_image?.split("|||") || []).map((img: string) => ({
+        url: getProductImageUrl(img),
+        type: "image"
+      }))
+    )
   ];
 
   return (
@@ -224,15 +261,23 @@ export default function VendorDetailPage() {
                 <div key={p.id} className="bg-white border border-slate-100 rounded-2xl p-2 hover:shadow-xl hover:border-yellow-400 transition-all group">
                   <div
                     onClick={() => {
-                      const index = mediaList.findIndex(
-                        (m) => m.url === p.product_image
-                      );
-                      if (index !== -1) setActiveIndex(index);
-                    }}
+  if (!p.product_image) return;
+  const firstImageUrl = getProductImageUrl(p.product_image.split("|||")[0]);
+  const index = mediaList.findIndex((m) => m.url === firstImageUrl);
+  if (index !== -1) setActiveIndex(index);
+}}
+
                     className="aspect-square bg-slate-50 rounded-xl mb-3 overflow-hidden cursor-zoom-in relative"
                   >
 
-                    <img src={p.product_image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={p.product_name} />
+                    {p.product_image ? (
+                      <ImageSlider images={p.product_image.split("|||").map(getProductImageUrl)} />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-yellow-600/30">
+                        <ShoppingBag size={36} />
+                      </div>
+                    )}
+
                   </div>
                   <div className="px-1 pb-1">
                     <h5 className="text-xs font-black text-slate-900 truncate uppercase tracking-tight">{p.product_name}</h5>
@@ -240,7 +285,7 @@ export default function VendorDetailPage() {
                   </div>
                 </div>
               )) : (
-                <p className="text-slate-400 text-sm font-bold col-span-full py-10 text-center italic">No products listed by this vendor.</p>
+                <p className="text-slate-400 text-sm font-bold col-span-full py-10 text-center ">No products listed by this vendor.</p>
               )}
             </div>
           </AccordionSection>

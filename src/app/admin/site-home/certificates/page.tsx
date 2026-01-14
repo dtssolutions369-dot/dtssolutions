@@ -173,10 +173,10 @@ export default function CertificatesPage() {
                 <ShieldCheck className="text-[#e11d48]" size={20} />
                 <span className="text-red-900/60 text-[10px] font-black uppercase tracking-[0.3em]">Credential System</span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-black uppercase italic tracking-tighter leading-none">
+              <h1 className="text-4xl md:text-6xl font-black text-black uppercase  tracking-tighter leading-none">
                 Official <span className="text-[#e11d48]">Certificates</span>
               </h1>
-              <p className="text-red-900/80 text-xs mt-3 max-w-sm font-bold uppercase tracking-wide leading-relaxed italic">
+              <p className="text-red-900/80 text-xs mt-3 max-w-sm font-bold uppercase tracking-wide leading-relaxed ">
                 Manage brand-authorized digital credentials. Changes published here affect the public verification portal.
               </p>
             </div>
@@ -228,7 +228,7 @@ export default function CertificatesPage() {
                     <div className="w-1 h-3 bg-red-600 rounded-full"></div>
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Vault ID: {cert.id}</span>
                   </div>
-                  <h3 className="text-lg font-black text-slate-900 leading-tight uppercase italic tracking-tighter group-hover:text-red-600 transition-colors">
+                  <h3 className="text-lg font-black text-slate-900 leading-tight uppercase  tracking-tighter group-hover:text-red-600 transition-colors">
                     {cert.name}
                   </h3>
                 </div>
@@ -245,7 +245,7 @@ export default function CertificatesPage() {
           <div className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="bg-red-600 p-8 flex flex-col items-center text-white text-center">
               <TriangleAlert size={40} className="mb-4" />
-              <h3 className="text-2xl font-black uppercase italic tracking-tighter">Remove Asset?</h3>
+              <h3 className="text-2xl font-black uppercase  tracking-tighter">Remove Asset?</h3>
               <p className="text-red-100 text-[10px] font-bold uppercase mt-2 tracking-widest opacity-80">This certificate will no longer be verifiable.</p>
             </div>
             <div className="p-8 flex gap-3">
@@ -267,7 +267,7 @@ export default function CertificatesPage() {
             <div className="bg-yellow-300 p-8 flex items-center justify-between border-b border-yellow-400 text-black">
               <div>
                 <p className="text-red-600 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Asset Manager</p>
-                <h3 className="text-2xl font-black uppercase italic tracking-tighter">{editingCert ? "Modify Certificate" : "New Credential"}</h3>
+                <h3 className="text-2xl font-black uppercase  tracking-tighter">{editingCert ? "Modify Certificate" : "New Credential"}</h3>
               </div>
               <button onClick={() => setShowModal(false)} className="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center hover:bg-red-600 transition-colors"><X size={20} /></button>
             </div>

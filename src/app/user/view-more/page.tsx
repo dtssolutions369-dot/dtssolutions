@@ -106,7 +106,7 @@ function ViewMoreContent() {
 
                 <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-900 uppercase leading-none">
                   {pageTitle.split(' ')[0]} <br />
-                  <span className="text-red-600 italic">{pageTitle.split(' ').slice(1).join(' ')}</span>
+                  <span className="text-red-600 ">{pageTitle.split(' ').slice(1).join(' ')}</span>
                 </h1>
               </div>
 

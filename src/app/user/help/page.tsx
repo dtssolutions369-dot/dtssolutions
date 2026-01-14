@@ -145,7 +145,7 @@ export default function HelpAndEarn() {
               <span className="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-800">Support Protocol v2.0</span>
             </div>
             <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-gray-900 leading-none">
-              GIVE <span className="text-red-600 italic">&</span> <br />
+              GIVE <span className="text-red-600 ">&</span> <br />
               <span className="underline decoration-yellow-400 decoration-4 underline-offset-4">EARN REWARDS</span>
             </h1>
           </div>
@@ -167,7 +167,7 @@ export default function HelpAndEarn() {
             {/* LEFT COLUMN: INFO */}
             <div className="lg:col-span-7">
               <div className="mb-8">
-                <h3 className="text-xl font-black tracking-tighter uppercase italic text-gray-900">
+                <h3 className="text-xl font-black tracking-tighter uppercase  text-gray-900">
                   1. Contributor Info
                 </h3>
                 <p className="text-gray-400 font-bold uppercase text-[9px] tracking-widest mt-1">
@@ -176,22 +176,22 @@ export default function HelpAndEarn() {
 
                 <div className="mt-6 space-y-5">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <YellowInput label="Full Name" name="name" value={paymentData.name} onChange={handleChange} />
-                    <YellowInput label="Mobile" name="phone" value={paymentData.phone} onChange={handleChange} />
+                    <BlackInput label="Full Name" name="name" value={paymentData.name} onChange={handleChange} />
+                    <BlackInput label="Mobile" name="phone" value={paymentData.phone} onChange={handleChange} />
                   </div>
-                  <YellowInput label="Email Address" name="email" type="email" value={paymentData.email} onChange={handleChange} />
+                  <BlackInput label="EmaBlackInputil Address" name="email" type="email" value={paymentData.email} onChange={handleChange} />
                 </div>
               </div>
 
               {/* Referral Info (Compact) */}
               <div className="pt-8 border-t border-dashed border-yellow-100">
-                <h3 className="text-sm font-black tracking-widest uppercase italic text-gray-900 mb-4">
+                <h3 className="text-sm font-black tracking-widest uppercase  text-gray-900 mb-4">
                   2. Referral <span className="text-gray-400 font-normal">(Optional)</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <YellowInput label="Ref. Name" name="referralName" value={paymentData.referralName} onChange={handleChange} />
-                  <YellowInput label="Ref. ID" name="referralId" value={paymentData.referralId} onChange={handleChange} />
-                  <YellowInput label="Ref. Phone" name="referralNumber" value={paymentData.referralNumber} onChange={handleChange} />
+                  <BlackInput label="Ref. Name" name="referralName" value={paymentData.referralName} onChange={handleChange} />
+                  <BlackInput label="Ref. ID" name="referralId" value={paymentData.referralId} onChange={handleChange} />
+                  <BlackInput label="Ref. Phone" name="referralNumber" value={paymentData.referralNumber} onChange={handleChange} />
                 </div>
               </div>
             </div>
@@ -200,7 +200,7 @@ export default function HelpAndEarn() {
             <div className="lg:col-span-5 bg-gray-50/50 p-6 rounded-[2rem] border border-yellow-50">
               <div className="flex items-center gap-2 mb-6">
                 <CreditCard className="text-yellow-500" size={20} />
-                <h3 className="text-lg font-black italic uppercase tracking-tighter text-gray-900">
+                <h3 className="text-lg font-black  uppercase tracking-tighter text-gray-900">
                   3. Select Impact
                 </h3>
               </div>
@@ -238,13 +238,13 @@ export default function HelpAndEarn() {
               <AnimatePresence>
                 {isOtherAmount && (
                   <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
-                    <YellowInput label="Amount (₹)" name="amount" type="number" value={paymentData.amount} onChange={handleChange} />
+                    <BlackInput label="Amount (₹)" name="amount" type="number" value={paymentData.amount} onChange={handleChange} />
                   </motion.div>
                 )}
               </AnimatePresence>
 
               <div className="mb-6">
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 italic ml-1">Benefit Category</label>
+                <label className="text-[9px] font-black uppercase tracking-widest text-gray-400  ml-1">Benefit Category</label>
                 <select
                   name="category" value={paymentData.category} onChange={handleChange} required
                   className="w-full mt-1.5 p-3.5 bg-white border border-gray-200 rounded-xl font-bold uppercase text-[10px] tracking-widest text-gray-700 focus:border-yellow-400 outline-none"
@@ -259,13 +259,13 @@ export default function HelpAndEarn() {
               {/* Total Display */}
               <div className="bg-yellow-400 p-4 rounded-2xl flex justify-between items-center shadow-lg">
                 <span className="text-[10px] font-black uppercase tracking-widest text-black/60">Grand Total</span>
-                <span className="text-2xl font-black italic text-black">₹{paymentData.amount || "0"}</span>
+                <span className="text-2xl font-black  text-black">₹{paymentData.amount || "0"}</span>
               </div>
 
               <button
                 onClick={handleSubmit}
                 disabled={paymentLoading || !paymentData.amount}
-                className="w-full mt-4 bg-gray-900 hover:bg-red-600 text-white py-4 rounded-xl font-black text-base italic uppercase transition-all flex items-center justify-center gap-3 shadow-xl disabled:opacity-50"
+                className="w-full mt-4 bg-gray-900 hover:bg-red-600 text-white py-4 rounded-xl font-black text-base  uppercase transition-all flex items-center justify-center gap-3 shadow-xl disabled:opacity-50"
               >
                 {paymentLoading ? <Loader2 className="animate-spin" size={18} /> : <>Pay Now <ArrowRight size={18} /></>}
               </button>
@@ -279,7 +279,7 @@ export default function HelpAndEarn() {
         <div className="bg-white rounded-[3rem] p-10 md:p-16 relative overflow-hidden border border-yellow-100 shadow-xl">
           <div className="relative z-10 flex flex-col items-center mb-12">
             <div className="bg-gray-900 text-yellow-400 text-[8px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest mb-4">Protocol</div>
-            <h2 className="text-3xl md:text-5xl font-black text-gray-900 italic uppercase tracking-tighter text-center">
+            <h2 className="text-3xl md:text-5xl font-black text-gray-900  uppercase tracking-tighter text-center">
               The <span className="text-red-600">Ecosystem</span>
             </h2>
           </div>
@@ -295,13 +295,19 @@ export default function HelpAndEarn() {
   );
 }
 
-function YellowInput({ label, name, value, onChange, type = "text", placeholder }: any) {
+function BlackInput({ label, name, value, onChange, type = "text", placeholder }: any) {
   return (
     <div className="space-y-1.5 w-full">
-      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-red-600 ml-2 italic">{label}</label>
+      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-red-600 ml-2 ">
+        {label}
+      </label>
       <input
-        type={type} name={name} value={value} onChange={onChange} placeholder={placeholder}
-        className="w-full p-3.5 bg-[#FEF3C7]/15 border border-transparent rounded-xl focus:border-yellow-400 focus:bg-white outline-none transition-all font-bold uppercase text-[10px] tracking-widest text-gray-700 placeholder:text-yellow-800/20"
+        type={type} 
+        name={name} 
+        value={value} 
+        onChange={onChange} 
+        placeholder={placeholder}
+        className="w-full p-3.5 bg-black/5 border border-black/10 rounded-xl focus:border-black focus:bg-white outline-none transition-all font-bold uppercase text-[10px] tracking-widest text-black placeholder:text-black/20"
       />
     </div>
   );
@@ -314,9 +320,9 @@ function StepCard({ num, icon, title, desc }: any) {
         <div className="w-12 h-12 rounded-xl bg-yellow-400 flex items-center justify-center text-black shadow-md rotate-3 group-hover:rotate-6 transition-transform">
           {icon}
         </div>
-        <span className="text-3xl font-black text-yellow-100 italic">{num}</span>
+        <span className="text-3xl font-black text-black ">{num}</span>
       </div>
-      <h4 className="text-gray-900 font-black italic uppercase tracking-widest text-sm mb-2">{title}</h4>
+      <h4 className="text-gray-900 font-black  uppercase tracking-widest text-sm mb-2">{title}</h4>
       <p className="text-gray-400 text-[9px] font-bold leading-relaxed uppercase tracking-wider">{desc}</p>
     </div>
   );

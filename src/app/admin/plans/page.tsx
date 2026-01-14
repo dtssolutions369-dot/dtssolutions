@@ -149,7 +149,7 @@ export default function AdminPlansPage() {
                                 <ShieldCheck className="text-[#e11d48]" size={20} />
                                 <span className="text-red-900/60 text-[10px] font-black uppercase tracking-[0.3em]">Billing Engine</span>
                             </div>
-                            <h1 className="text-4xl md:text-6xl font-black text-black uppercase italic tracking-tighter">
+                            <h1 className="text-4xl md:text-6xl font-black text-black uppercase  tracking-tighter">
                                 Subscription <span className="text-[#e11d48]">Plans</span>
                             </h1>
                         </div>
@@ -208,9 +208,9 @@ export default function AdminPlansPage() {
                                         <div className="flex justify-between items-start mb-6">
                                             <div>
                                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Plan Name</p>
-                                                <h3 className="font-black text-slate-900 uppercase italic text-2xl tracking-tight leading-none flex items-center gap-2">
+                                                <h3 className="font-black text-slate-900 uppercase  text-2xl tracking-tight leading-none flex items-center gap-2">
                                                     {plan.name} 
-                                                    {plan.medals && <span className="not-italic">{plan.medals}</span>}
+                                                    {plan.medals && <span className="not-">{plan.medals}</span>}
                                                 </h3>
                                             </div>
                                             <div className="bg-slate-50 p-2 rounded-2xl">
@@ -263,7 +263,7 @@ export default function AdminPlansPage() {
                     </div>
                     <div>
                         <p className="text-red-900/60 text-[10px] font-black uppercase tracking-[0.2em] mb-0.5">Configuration Suite</p>
-                        <h3 className="text-3xl font-black text-black uppercase italic tracking-tighter leading-none">
+                        <h3 className="text-3xl font-black text-black uppercase  tracking-tighter leading-none">
                             {editingId ? "Modify" : "Engineer"} <span className="text-[#e11d48]">Tier</span>
                         </h3>
                     </div>

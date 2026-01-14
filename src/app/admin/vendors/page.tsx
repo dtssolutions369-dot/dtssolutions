@@ -85,10 +85,10 @@ export default function VendorsPage() {
                 <ShieldCheck className="text-[#e11d48]" size={20} />
                 <span className="text-red-900/60 text-[10px] font-black uppercase tracking-[0.3em]">Administrative Portal</span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-black uppercase italic tracking-tighter leading-none">
+              <h1 className="text-4xl md:text-6xl font-black text-black uppercase  tracking-tighter leading-none">
                 Vendor <span className="text-[#e11d48]">Database</span>
               </h1>
-              <p className="text-red-900/80 text-xs mt-3 max-w-sm font-bold uppercase tracking-wide leading-relaxed italic">
+              <p className="text-red-900/80 text-xs mt-3 max-w-sm font-bold uppercase tracking-wide leading-relaxed ">
                 Strategic partner oversight. Auditing business compliance and marketplace integration.
               </p>
             </div>
@@ -148,7 +148,7 @@ export default function VendorsPage() {
                   </div>
                 </div>
                 
-                <h3 className="font-black text-slate-900 uppercase italic tracking-tighter text-xl mb-1 truncate">
+                <h3 className="font-black text-slate-900 uppercase  tracking-tighter text-xl mb-1 truncate">
                   {vendor.company_name || "Unidentified Corp"}
                 </h3>
                 
@@ -160,10 +160,10 @@ export default function VendorsPage() {
                 </div>
                 
                 <div className="space-y-3 mb-8 text-slate-500 font-bold text-[11px] uppercase tracking-wide">
-                   <div className="flex items-center gap-2 italic">
+                   <div className="flex items-center gap-2 ">
                      <MapPin size={14} className="text-slate-300" /> {vendor.city || 'GLOBAL'}, {vendor.state || 'IN'}
                    </div>
-                   <div className="flex items-center gap-2 italic">
+                   <div className="flex items-center gap-2 ">
                      <Hash size={14} className="text-slate-300" /> {vendor.gst_number || 'GST NOT FILED'}
                    </div>
                 </div>
@@ -195,7 +195,7 @@ export default function VendorsPage() {
                 <div className="w-40 h-40 bg-white rounded-[3rem] shadow-2xl overflow-hidden mb-8 border-[6px] border-white relative">
                   <Image src={selectedVendor.company_logo || "/placeholder-logo.png"} alt="Logo" fill className="object-cover" />
                 </div>
-                <h2 className="text-3xl font-black text-black uppercase italic text-center leading-[0.9] mb-4 tracking-tighter">
+                <h2 className="text-3xl font-black text-black uppercase  text-center leading-[0.9] mb-4 tracking-tighter">
                   {selectedVendor.company_name}
                 </h2>
                 <div className="px-6 py-2 bg-black text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-12 shadow-xl">
@@ -205,7 +205,7 @@ export default function VendorsPage() {
                 <div className="w-full space-y-6 pt-10 border-t border-black/10">
                   <div className="flex flex-col gap-1">
                     <span className="text-[9px] font-black text-black/40 uppercase tracking-widest">Authorized Head</span>
-                    <p className="text-sm font-black text-black uppercase italic tracking-tight">
+                    <p className="text-sm font-black text-black uppercase  tracking-tight">
                       {selectedVendor.first_name} {selectedVendor.last_name}
                     </p>
                   </div>
@@ -217,7 +217,7 @@ export default function VendorsPage() {
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-[9px] font-black text-black/40 uppercase tracking-widest">Verified Digital Presence</span>
-                    <a href={selectedVendor.website || '#'} target="_blank" className="text-sm font-black text-red-600 flex items-center gap-2 hover:underline italic">
+                    <a href={selectedVendor.website || '#'} target="_blank" className="text-sm font-black text-red-600 flex items-center gap-2 hover:underline ">
                       <Globe size={14}/> {selectedVendor.website || "OFFLINE"}
                     </a>
                   </div>
@@ -234,13 +234,13 @@ export default function VendorsPage() {
                     <div className="space-y-5">
                       <div>
                         <p className="text-[9px] text-slate-400 font-black uppercase mb-1">Tax Identification (GST)</p>
-                        <p className="text-lg font-black text-slate-900 tracking-tighter italic">
+                        <p className="text-lg font-black text-slate-900 tracking-tighter ">
                           {selectedVendor.gst_number || "PENDING"}
                         </p>
                       </div>
                       <div>
                         <p className="text-[9px] text-slate-400 font-black uppercase mb-1">Industry Vertical</p>
-                        <p className="text-lg font-black text-slate-900 tracking-tighter italic">
+                        <p className="text-lg font-black text-slate-900 tracking-tighter ">
                           {selectedVendor.sector || "N/A"}
                         </p>
                       </div>
@@ -251,7 +251,7 @@ export default function VendorsPage() {
                     <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
                       <MapPin size={16} className="text-red-600"/> Headquarters
                     </h4>
-                    <p className="text-sm font-bold text-slate-600 leading-relaxed mb-3 italic">{selectedVendor.address}</p>
+                    <p className="text-sm font-bold text-slate-600 leading-relaxed mb-3 ">{selectedVendor.address}</p>
                     <p className="text-xs font-black text-slate-900 uppercase tracking-tight">
                       {selectedVendor.city}, {selectedVendor.state} <span className="text-red-600 ml-2"># {selectedVendor.pincode}</span>
                     </p>
@@ -259,18 +259,18 @@ export default function VendorsPage() {
                 </div>
 
                 <div className="mb-12">
-                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 border-b border-slate-100 pb-3 italic">Intellectual Tags</h4>
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 border-b border-slate-100 pb-3 ">Intellectual Tags</h4>
                   <div className="flex flex-wrap gap-3">
                     {selectedVendor.business_keywords?.split(',').map((kw, i) => (
-                      <span key={i} className="px-5 py-2.5 bg-black text-[#facc15] text-[10px] font-black uppercase rounded-2xl border border-black italic">
+                      <span key={i} className="px-5 py-2.5 bg-black text-[#facc15] text-[10px] font-black uppercase rounded-2xl border border-black ">
                         {kw.trim()}
                       </span>
-                    )) || <span className="text-slate-300 text-xs italic font-bold">NO KEYWORDS FILED</span>}
+                    )) || <span className="text-slate-300 text-xs  font-bold">NO KEYWORDS FILED</span>}
                   </div>
                 </div>
 
                 <div className="mb-12 flex-1">
-                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 border-b border-slate-100 pb-3 italic">Asset Portfolio</h4>
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 border-b border-slate-100 pb-3 ">Asset Portfolio</h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {selectedVendor.media_files?.map((img, i) => (
                       <div key={i} className="aspect-square rounded-[2rem] overflow-hidden border-2 border-slate-100 shadow-sm hover:scale-105 transition-transform duration-500 bg-slate-100">
@@ -284,13 +284,13 @@ export default function VendorsPage() {
                 <div className="flex gap-4 sticky bottom-0 bg-white/90 backdrop-blur-sm pt-8 border-t border-slate-100">
                   <button 
                     onClick={() => { updateStatus(selectedVendor.id, 'rejected'); setSelectedVendor(null); }} 
-                    className="flex-1 py-5 bg-slate-100 text-slate-900 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] hover:bg-red-50 hover:text-red-600 transition-all active:scale-95 italic"
+                    className="flex-1 py-5 bg-slate-100 text-slate-900 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] hover:bg-red-50 hover:text-red-600 transition-all active:scale-95 "
                   >
                     Decline Partner
                   </button>
                   <button 
                     onClick={() => { updateStatus(selectedVendor.id, 'approved'); setSelectedVendor(null); }} 
-                    className="flex-1 py-5 bg-black text-[#facc15] rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] hover:bg-emerald-600 hover:text-white transition-all shadow-2xl active:scale-95 flex items-center justify-center gap-3 italic"
+                    className="flex-1 py-5 bg-black text-[#facc15] rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] hover:bg-emerald-600 hover:text-white transition-all shadow-2xl active:scale-95 flex items-center justify-center gap-3 "
                   >
                     <CheckCircle2 size={18}/> Authorize Partnership
                   </button>

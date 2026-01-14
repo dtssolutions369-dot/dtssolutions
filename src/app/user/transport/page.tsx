@@ -116,7 +116,7 @@ export default function TransportPage() {
             <div className="bg-gray-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 pointer-events-auto border border-white/10">
               <div className="bg-yellow-400 p-1.5 rounded-full"><CheckCircle2 className="text-black" size={16} /></div>
               <div className="flex flex-col">
-                <span className="font-black uppercase tracking-widest text-[10px] italic">Request Live</span>
+                <span className="font-black uppercase tracking-widest text-[10px] ">Request Live</span>
               </div>
               <button onClick={() => setShowToast(false)} className="text-white/40 hover:text-white ml-2"><X size={16} /></button>
             </div>
@@ -157,7 +157,7 @@ export default function TransportPage() {
           <div className="lg:col-span-7">
             <div className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-xl border border-yellow-100">
               <div className="mb-8">
-                <h3 className="text-xl font-black tracking-tighter uppercase italic text-gray-900">Post Cargo Slot</h3>
+                <h3 className="text-xl font-black tracking-tighter uppercase text-gray-900">Post your TRANSPORT </h3>
                 <p className="text-gray-400 font-bold uppercase text-[9px] tracking-widest mt-1">Connect with verified partners</p>
               </div>
 
@@ -167,7 +167,7 @@ export default function TransportPage() {
                   <Input label="Phone" placeholder="CONTACT..." error={errors.phone} value={formData.phone} onChange={(v: any) => setFormData({ ...formData, phone: v })} />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-[#FEF3C7]/15 rounded-[2rem] border border-yellow-100 focus-within:border-yellow-300 transition-all">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Input label="Pickup" placeholder="ORIGIN..." error={errors.pickup} value={formData.pickup} onChange={(v: any) => setFormData({ ...formData, pickup: v })} />
                   <Input label="Drop" placeholder="DESTINATION..." error={errors.drop} value={formData.drop} onChange={(v: any) => setFormData({ ...formData, drop: v })} />
                 </div>
@@ -180,17 +180,19 @@ export default function TransportPage() {
                 <div className="space-y-2">
                   <label className="text-[9px] font-black uppercase tracking-[0.2em] text-red-600 ml-2">Product Description</label>
                   <textarea
-                    placeholder="DESCRIBE YOUR GOODS..." rows={2}
-                    className="w-full p-4 bg-[#FEF3C7]/20 border border-transparent rounded-2xl focus:border-yellow-400 focus:bg-white outline-none transition-all font-bold uppercase text-[11px] tracking-widest text-gray-700 placeholder:text-yellow-800/30"
-                    value={formData.goods} onChange={(e) => setFormData({ ...formData, goods: e.target.value })}
-                  />
+  placeholder="DESCRIBE YOUR GOODS..." 
+  rows={2}
+  className="w-full p-4 bg-black/5 border border-black/10 rounded-2xl focus:border-black focus:bg-white outline-none transition-all font-bold uppercase text-[11px] tracking-widest text-black placeholder:text-black/30"
+  value={formData.goods} 
+  onChange={(e) => setFormData({ ...formData, goods: e.target.value })}
+/>
                 </div>
 
                 <button
                   type="submit" disabled={loading}
-                  className="w-full bg-gray-900 hover:bg-red-600 text-white py-5 rounded-2xl font-black text-lg italic uppercase tracking-tighter transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95 disabled:bg-gray-200"
+                  className="w-full bg-gray-900 hover:bg-red-600 text-white py-5 rounded-2xl font-black text-lg uppercase tracking-tighter transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95 disabled:bg-gray-200"
                 >
-                  {loading ? <Loader className="animate-spin" size={20} /> : <>Broadcast Lead <Send size={18} /></>}
+                  {loading ? <Loader className="animate-spin" size={20} /> : <>TRANSPORT  Submit <Send size={18} /></>}
                 </button>
               </form>
             </div>
@@ -199,7 +201,7 @@ export default function TransportPage() {
           {/* --- RIGHT: LIVE FEED --- */}
           <div className="lg:col-span-5 space-y-6">
             <div className="flex items-center justify-between px-2">
-              <h2 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-2 text-gray-900">
+              <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-2 text-gray-900">
                 <Clock className="text-red-600" size={20} /> Active Leads
               </h2>
               <span className="bg-yellow-400 text-black text-[8px] font-black px-2 py-0.5 rounded uppercase">Recent</span>
@@ -234,17 +236,17 @@ export default function TransportPage() {
                         {/* Locations */}
                         <div className="flex items-center gap-2 mb-2">
                           <MapPin size={14} className="text-yellow-600" />
-                          <p className="text-sm font-black italic uppercase tracking-tighter text-gray-900 leading-tight">
+                          <p className="text-sm font-black  uppercase tracking-tighter text-gray-900 leading-tight">
                             {req.pickup_location} <ArrowRight size={10} className="inline mx-1 text-red-600" /> {req.drop_location}
                           </p>
                         </div>
 
                         {/* Badges: Date & Weight */}
                         <div className="flex gap-2 mb-3">
-                          <div className="flex items-center gap-1.5 text-[8px] font-black text-gray-500 uppercase italic bg-gray-50 px-2 py-1 rounded-full border border-gray-100">
+                          <div className="flex items-center gap-1.5 text-[8px] font-black text-gray-500 uppercase  bg-gray-50 px-2 py-1 rounded-full border border-gray-100">
                             <Calendar size={10} className="text-yellow-600" /> {req.travel_date}
                           </div>
-                          <div className="flex items-center gap-1.5 text-[8px] font-black text-gray-500 uppercase italic bg-gray-50 px-2 py-1 rounded-full border border-gray-100">
+                          <div className="flex items-center gap-1.5 text-[8px] font-black text-gray-500 uppercase  bg-gray-50 px-2 py-1 rounded-full border border-gray-100">
                             <Weight size={10} className="text-yellow-600" /> {req.weight_kg || '0'} KG
                           </div>
                         </div>
@@ -264,10 +266,10 @@ export default function TransportPage() {
                       {/* Contact Section */}
                       <div className="relative rounded-2xl bg-gray-900 p-4 overflow-hidden mt-4">
                         <div className={`space-y-1 transition-all duration-500 ${!hasSubscription ? 'blur-sm select-none pointer-events-none opacity-20' : ''}`}>
-                          <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase italic">
+                          <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase ">
                             <UserIcon size={12} className="text-yellow-400" /> {req.name}
                           </div>
-                          <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase italic">
+                          <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase ">
                             <Phone size={12} className="text-yellow-400" /> {req.phone}
                           </div>
                         </div>
@@ -294,12 +296,12 @@ export default function TransportPage() {
       <div className="max-w-7xl mx-auto px-6 mt-20 mb-10">
         <div className="bg-white rounded-[3rem] p-10 md:p-16 relative overflow-hidden border border-yellow-100 shadow-xl">
           <div className="relative z-10 flex flex-col items-center mb-12">
-            <h2 className="text-3xl md:text-5xl font-black text-gray-900 italic uppercase tracking-tighter text-center leading-none">
+            <h2 className="text-3xl md:text-5xl font-black text-gray-900  uppercase tracking-tighter text-center leading-none">
               How to <span className="text-red-600">Dispatch</span>
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
+          <div className="grid text grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
             <Step number="01" icon={<Package size={24} />} color="bg-yellow-400" title="Upload" desc="Enter cargo details to start broadcasting." />
             <Step number="02" icon={<Truck size={24} />} color="bg-red-600" textColor="text-white" title="Feed" desc="Lead hits our live network for agencies." />
             <Step number="03" icon={<ShieldCheck size={24} />} color="bg-gray-900" textColor="text-yellow-400" title="Direct" desc="Agencies unlock and quote directly." />
@@ -317,10 +319,10 @@ function Step({ number, icon, color, title, desc, textColor = "text-black" }: an
         <div className={`w-14 h-14 rounded-2xl ${color} ${textColor} flex items-center justify-center shadow-lg relative z-10 transition-transform group-hover:scale-110`}>
           {icon}
         </div>
-        <span className="text-4xl font-black text-gray-100 italic select-none">{number}</span>
+        <span className="text-4xl font-black text-black select-none">{number}</span>
       </div>
       <div className="space-y-1">
-        <h4 className="text-gray-900 font-black italic uppercase tracking-widest text-base">{title}</h4>
+        <h4 className="text-gray-900 font-black uppercase tracking-widest text-base">{title}</h4>
         <p className="text-gray-400 text-[10px] font-bold leading-relaxed uppercase tracking-wider">{desc}</p>
       </div>
     </div>
@@ -330,17 +332,28 @@ function Step({ number, icon, color, title, desc, textColor = "text-black" }: an
 function Input({ label, value, onChange, type = "text", placeholder, error, min }: any) {
   return (
     <div className="space-y-2 w-full">
-      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-red-600 ml-2 italic">{label}</label>
+      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-red-600 ml-2">
+        {label}
+      </label>
       <div className="relative">
         <input
-          type={type} value={value} onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder} min={min}
-          className={`w-full p-4 bg-[#FEF3C7]/15 border rounded-2xl focus:border-yellow-400 focus:bg-white outline-none transition-all font-bold uppercase text-[11px] tracking-widest text-gray-700 placeholder:text-yellow-800/30 ${error ? 'border-red-500' : 'border-transparent'}`}
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          min={min}
+          className={`
+            w-full p-4 transition-all font-bold uppercase text-[11px] tracking-widest outline-none rounded-2xl border
+            bg-black/5 
+            ${error ? 'border-red-500' : 'border-black/10'} 
+            focus:border-black focus:bg-white 
+            text-black placeholder:text-black/30
+          `}
         />
         {error && (
           <div className="absolute -bottom-5 left-2 flex items-center gap-1">
             <AlertCircle size={8} className="text-red-500" />
-            <span className="text-[8px] text-red-500 font-black italic uppercase">{error}</span>
+            <span className="text-[8px] text-red-500 font-black  uppercase">{error}</span>
           </div>
         )}
       </div>

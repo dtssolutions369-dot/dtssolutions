@@ -80,10 +80,10 @@ export default function VendorEnquiryPage() {
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tighter text-gray-900 leading-tight uppercase mb-4"
+              className="text-5xl sm:text-5xl md:text-5xl font-black tracking-tighter text-gray-900 leading-tight uppercase mb-4"
             >
-              Admin <br />
-              <span className="text-red-600 italic">Connect</span>
+              Admin  
+              <span className="text-red-600 "> Connect</span>
             </motion.h1>
 
             <motion.p 

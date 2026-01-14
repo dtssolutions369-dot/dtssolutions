@@ -112,7 +112,7 @@ export default function AdminLoginPage() {
               </div>
 
               {error && (
-                <p className="text-red-500 text-[11px] font-bold text-center italic">{error}</p>
+                <p className="text-red-500 text-[11px] font-bold text-center ">{error}</p>
               )}
 
               <button

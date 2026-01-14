@@ -409,7 +409,7 @@ export default function VendorProfileDetail() {
                 className="text-3xl md:text-5xl lg:text-7xl font-black text-gray-900 tracking-tighter leading-[0.85] uppercase mb-6"
               >
                 {vendor.company_name.split(' ')[0]} <br />
-                <span className="text-red-600 italic">
+                <span className="text-red-600 ">
                   {vendor.company_name.split(' ').slice(1).join(' ') || "Enterprise"}
                 </span>
               </motion.h1>
@@ -486,7 +486,7 @@ export default function VendorProfileDetail() {
           <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-slate-100">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-3 bg-yellow-400 rounded-2xl"><Info size={20} /></div>
-              <h2 className="text-xl font-black uppercase italic">Executive Summary</h2>
+              <h2 className="text-xl font-black uppercase ">Executive Summary</h2>
             </div>
             <p className="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-8 whitespace-pre-line">{vendor.profile_info || "Premium business profile under review."}</p>
             {vendor.business_keywords && (
@@ -503,7 +503,7 @@ export default function VendorProfileDetail() {
             <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-slate-100">
               <div className="flex items-center gap-3 mb-8">
                 <div className="p-3 bg-black rounded-2xl text-yellow-400"><Video size={20} /></div>
-                <h2 className="text-xl font-black uppercase italic">Video Portfolio</h2>
+                <h2 className="text-xl font-black uppercase ">Video Portfolio</h2>
               </div>
               {/* Updated Video Showcase in Main Content */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -538,7 +538,7 @@ export default function VendorProfileDetail() {
           <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-slate-100">
             <div className="flex items-center gap-3 mb-8">
               <div className="p-3 bg-slate-100 rounded-2xl"><ImageIcon size={20} /></div>
-              <h2 className="text-xl font-black uppercase italic">Work Gallery</h2>
+              <h2 className="text-xl font-black uppercase ">Work Gallery</h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {vendor.media_files?.map((img: string, i: number) => (
@@ -570,7 +570,7 @@ export default function VendorProfileDetail() {
 
             <div className="pt-8 border-t border-white/5">
               <p className="text-[10px] font-black text-yellow-400/50 uppercase tracking-widest mb-4">Location Details</p>
-              <address className="not-italic text-sm font-bold text-white/80 leading-relaxed uppercase">
+              <address className="not- text-sm font-bold text-white/80 leading-relaxed uppercase">
                 {[vendor.flat_no, vendor.building].filter(Boolean).join(", ")}<br />
                 {[vendor.street, vendor.area].filter(Boolean).join(", ")}<br />
                 <span className="text-yellow-400 block mt-2 font-black text-lg">{vendor.city}, {vendor.state}</span>

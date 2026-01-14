@@ -51,7 +51,7 @@ export default function ProfilePage() {
               className="text-3xl md:text-5xl font-black tracking-tighter text-gray-900 leading-[0.9] uppercase mb-3"
             >
               User <br />
-              <span className="text-red-600 italic">Registry</span>
+              <span className="text-red-600 ">Registry</span>
             </motion.h1>
             <p className="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-[0.2em]">{user.email}</p>
           </div>
@@ -87,7 +87,7 @@ export default function ProfilePage() {
               <Fingerprint size={20} />
             </div>
             <div>
-              <h2 className="text-lg font-black uppercase italic leading-none">Account Credentials</h2>
+              <h2 className="text-lg font-black uppercase  leading-none">Account Credentials</h2>
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Verified Identity File</p>
             </div>
           </div>

@@ -91,7 +91,7 @@ export default function EnquiryPage() {
           >
             <div className="bg-gray-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 pointer-events-auto border border-white/10">
               <Zap className="text-yellow-400" size={16} fill="currentColor" />
-              <span className="font-black italic uppercase tracking-widest text-[10px]">Signal Live</span>
+              <span className="font-black  uppercase tracking-widest text-[10px]">Signal Live</span>
               <button onClick={() => setShowToast(false)} className="text-white/40 hover:text-white p-1"><X size={16} /></button>
             </div>
           </motion.div>
@@ -112,7 +112,7 @@ export default function EnquiryPage() {
               <span className="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-800">Global Pulse Stream</span>
             </div>
             <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-gray-900 leading-none uppercase">
-              ENQUIRY <span className="text-red-600 italic">FEED</span>
+              ENQUIRY <span className="text-red-600 ">FEED</span>
             </h1>
           </div>
           <div className="hidden lg:block bg-white p-6 rounded-[2.5rem] -rotate-3 shadow-xl border border-yellow-100">
@@ -128,7 +128,7 @@ export default function EnquiryPage() {
           <div className="lg:col-span-7">
             <div className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-xl border border-yellow-100">
               <div className="mb-8">
-                  <h3 className="text-xl font-black tracking-tighter uppercase italic text-gray-900">Post your Requirement</h3>
+                  <h3 className="text-xl font-black tracking-tighter uppercase  text-gray-900">Post your Requirement</h3>
                   <p className="text-gray-400 font-bold uppercase text-[9px] tracking-widest mt-1">Broadcast requirement to all verified vendors</p>
               </div>
 
@@ -150,19 +150,26 @@ export default function EnquiryPage() {
                 
                 <div className="space-y-2">
                   <div className="flex justify-between items-center px-2">
-<label className="text-[9px] font-black uppercase tracking-[0.2em] text-red-600 italic">Requirement</label>
+<label className="text-[9px] font-black uppercase tracking-[0.2em] text-red-600 ">Requirement</label>
                   </div>
                   <textarea 
-                    placeholder="WHAT ARE YOU LOOKING FOR?..."
-                    rows={3} value={formData.message} 
-                    onChange={(e) => setFormData({...formData, message: e.target.value})}
-                    className={`w-full p-4 bg-[#FEF3C7]/15 border rounded-2xl focus:border-yellow-400 focus:bg-white outline-none transition-all font-bold uppercase text-[11px] tracking-widest text-gray-700 placeholder:text-yellow-800/30 ${errors.message ? 'border-red-400' : 'border-transparent'}`}
-                  />
+  placeholder="WHAT ARE YOU LOOKING FOR?..."
+  rows={3} 
+  value={formData.message} 
+  onChange={(e) => setFormData({...formData, message: e.target.value})}
+  className={`
+    w-full p-4 rounded-2xl outline-none transition-all font-bold uppercase text-[11px] tracking-widest text-black
+    bg-black/5 border 
+    ${errors.message ? 'border-red-400' : 'border-black/10'} 
+    focus:border-black focus:bg-white 
+    placeholder:text-black/30
+  `}
+/>
                 </div>
 
                 <button 
                   type="submit" disabled={formLoading}
-                  className="w-full bg-gray-900 hover:bg-red-600 text-white py-5 rounded-2xl font-black text-lg italic uppercase tracking-tighter transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95 disabled:opacity-50"
+                  className="w-full bg-gray-900 hover:bg-red-600 text-white py-5 rounded-2xl font-black text-lg uppercase tracking-tighter transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95 disabled:opacity-50"
                 >
                   {formLoading ? <Loader className="animate-spin" size={20} /> : <>Enquiry Submit<Send size={18} /></>}
                 </button>
@@ -173,7 +180,7 @@ export default function EnquiryPage() {
           {/* --- RIGHT: LIVE PULSE FEED --- */}
           <div className="lg:col-span-5 space-y-6">
             <div className="flex items-center justify-between px-2">
-              <h2 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-2 text-gray-900">
+              <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-2 text-gray-900">
                 <Clock className="text-red-600" size={20} /> Live Leads
               </h2>
               <span className="bg-yellow-400 text-black text-[8px] font-black px-2 py-0.5 rounded uppercase">Recent</span>
@@ -184,7 +191,7 @@ export default function EnquiryPage() {
                 {enquiries.length === 0 ? (
                     <div className="bg-white p-10 rounded-[2rem] border border-dashed border-yellow-200 text-center shadow-inner">
                         <History className="mx-auto text-yellow-100 mb-2" size={30} />
-                        <p className="text-yellow-800/40 text-[9px] font-black uppercase italic tracking-widest">No Signals Detected</p>
+                        <p className="text-yellow-800/40 text-[9px] font-black uppercase tracking-widest">No Signals Detected</p>
                     </div>
                 ) : enquiries.map((enq) => (
                   <motion.div 
@@ -194,13 +201,13 @@ export default function EnquiryPage() {
                     <div className="flex justify-between items-center mb-4">
                       <div className="flex items-center gap-1.5">
                          <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></span>
-                         <span className="text-[8px] font-black text-red-600 uppercase tracking-widest italic">Live Signal</span>
+                         <span className="text-[8px] font-black text-red-600 uppercase tracking-widest ">Live Signal</span>
                       </div>
                       <span className="text-[8px] font-black text-gray-300">{new Date(enq.created_at).toLocaleDateString()}</span>
                     </div>
 
                     <div className="relative mb-4">
-                       <p className="text-[11px] font-bold text-gray-600 italic leading-relaxed uppercase tracking-tight relative z-10">
+                       <p className="text-[11px] font-bold text-gray-600 leading-relaxed uppercase tracking-tight relative z-10">
                          {enq.message}
                        </p>
                     </div>
@@ -209,16 +216,16 @@ export default function EnquiryPage() {
                       <div className="w-8 h-8 rounded-xl bg-gray-900 text-yellow-400 flex items-center justify-center font-black text-[10px] shadow-lg">
                         {enq.name?.charAt(0).toUpperCase()}
                       </div>
-                      <p className="text-[10px] font-black text-gray-900 uppercase italic tracking-tighter">{enq.name}</p>
+                      <p className="text-[10px] font-black text-gray-900 uppercase tracking-tighter">{enq.name}</p>
                     </div>
 
                     {/* PRIVATE DATA BOX */}
                     <div className="relative rounded-2xl bg-gray-900 p-4 overflow-hidden">
                       <div className={`space-y-1 transition-all duration-500 ${!hasSubscription ? 'blur-sm select-none pointer-events-none opacity-20' : ''}`}>
-                        <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase italic">
+                        <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase">
                           <Mail size={12} className="text-yellow-400" /> {enq.email}
                         </div>
-                        <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase italic">
+                        <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase ">
                           <Phone size={12} className="text-yellow-400" /> {enq.phone || "HIDDEN"}
                         </div>
                       </div>
@@ -244,7 +251,7 @@ export default function EnquiryPage() {
       <div className="max-w-7xl mx-auto px-6 mt-20 mb-10">
         <div className="bg-white rounded-[3rem] p-10 md:p-16 relative overflow-hidden border border-yellow-100 shadow-xl">
           <div className="relative z-10 flex flex-col items-center mb-12">
-            <h2 className="text-3xl md:text-5xl font-black text-gray-900 italic uppercase tracking-tighter text-center leading-none">
+            <h2 className="text-3xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter text-center leading-none">
               The <span className="text-red-600">Protocol</span>
             </h2>
           </div>
@@ -267,31 +274,43 @@ function FlowStep({ number, icon, color, title, desc, textColor = "text-black" }
         <div className={`w-12 h-12 rounded-xl ${color} ${textColor} flex items-center justify-center shadow-lg relative z-10 transition-transform group-hover:scale-110`}>
           {icon}
         </div>
-        <span className="text-3xl font-black text-gray-100 italic select-none">{number}</span>
+        <span className="text-3xl font-black text-black select-none">{number}</span>
       </div>
       <div className="space-y-1">
-        <h4 className="text-gray-900 font-black italic uppercase tracking-widest text-base">{title}</h4>
+        <h4 className="text-gray-900 font-black uppercase tracking-widest text-base">{title}</h4>
         <p className="text-gray-400 text-[10px] font-bold leading-relaxed uppercase tracking-wider">{desc}</p>
       </div>
     </div>
   );
 }
 
+
 function Input({ label, value, onChange, type = "text", placeholder, error }: any) {
   return (
     <div className="space-y-2 w-full">
-<label className="text-[9px] font-black uppercase tracking-[0.2em] text-red-600 ml-2 italic">{label}</label>
+      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-red-600 ml-2">
+        {label}
+      </label>
       <div className="relative">
-          <input
-            type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-            className={`w-full p-4 bg-[#FEF3C7]/15 border rounded-2xl focus:border-yellow-400 focus:bg-white outline-none transition-all font-bold uppercase text-[11px] tracking-widest text-gray-700 placeholder:text-yellow-800/30 ${error ? 'border-red-400 shadow-sm' : 'border-transparent'}`}
-          />
-          {error && (
-            <div className="absolute -bottom-5 left-2 flex items-center gap-1">
-               <AlertCircle size={8} className="text-red-500"/>
-               <span className="text-[8px] text-red-500 font-black italic uppercase">{error}</span>
-            </div>
-          )}
+        <input
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className={`
+            w-full p-4 rounded-2xl outline-none transition-all font-bold uppercase text-[11px] tracking-widest text-black 
+            bg-black/5 border 
+            ${error ? 'border-red-400 shadow-sm' : 'border-black/10'} 
+            focus:border-black focus:bg-white 
+            placeholder:text-black/30
+          `}
+        />
+        {error && (
+          <div className="absolute -bottom-5 left-2 flex items-center gap-1">
+            <AlertCircle size={8} className="text-red-500" />
+            <span className="text-[8px] text-red-500 font-black uppercase">{error}</span>
+          </div>
+        )}
       </div>
     </div>
   );

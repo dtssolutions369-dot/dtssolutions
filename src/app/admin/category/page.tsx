@@ -179,7 +179,7 @@ finalImageUrl = urlData.publicUrl;
                 <Layers className="text-[#e11d48]" size={20} />
                 <span className="text-red-900/60 text-[10px] font-black uppercase tracking-[0.3em]">Master Catalog</span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-black uppercase italic tracking-tighter">
+              <h1 className="text-4xl md:text-6xl font-black text-black uppercase  tracking-tighter">
                 Service <span className="text-[#e11d48]">Categories</span>
               </h1>
               <p className="text-red-900/80 text-xs mt-3 max-w-sm font-bold uppercase tracking-wide leading-relaxed">
@@ -246,7 +246,7 @@ className="w-full pl-14 pr-6 py-4 bg-slate-50 border-2 border-transparent rounde
                       <span className={`w-2.5 h-2.5 rounded-full ${cat.is_active ? 'bg-green-500' : 'bg-slate-300'}`} />
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{cat.is_active ? 'Live' : 'Draft'}</span>
                     </div>
-                    <h3 className="font-black text-slate-900 uppercase italic truncate text-xl tracking-tight leading-none">{cat.name}</h3>
+                    <h3 className="font-black text-slate-900 uppercase  truncate text-xl tracking-tight leading-none">{cat.name}</h3>
                     <div className="flex items-center gap-1.5 mt-2.5 text-[#e11d48] bg-red-50 w-fit px-3 py-1 rounded-full border border-red-100">
                       <Zap size={10} fill="currentColor" />
                       <span className="text-[10px] font-black uppercase tracking-tighter">{cat.service_count} Products</span>
@@ -274,7 +274,7 @@ className="w-full pl-14 pr-6 py-4 bg-slate-50 border-2 border-transparent rounde
             <div className="bg-yellow-300 px-10 py-7 flex items-center justify-between border-b border-yellow-400">
               <div>
                 <p className="text-red-900/60 text-[10px] font-black uppercase tracking-widest mb-1">Category Editor</p>
-                <h3 className="text-2xl font-black text-black uppercase italic tracking-tighter">{editing ? "Modify Entry" : "Add New Entry"}</h3>
+                <h3 className="text-2xl font-black text-black uppercase  tracking-tighter">{editing ? "Modify Entry" : "Add New Entry"}</h3>
               </div>
               <button onClick={() => setShowModal(false)} className="w-12 h-12 bg-black/10 hover:bg-black/20 rounded-full flex items-center justify-center transition-colors text-black"><X size={24} /></button>
             </div>
@@ -322,7 +322,7 @@ className="w-full pl-14 pr-6 py-4 bg-slate-50 border-2 border-transparent rounde
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md">
           <div className="bg-white w-full max-w-sm rounded-[3rem] p-10 text-center shadow-2xl animate-in fade-in zoom-in-95">
             <div className="w-20 h-20 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner"><Trash2 size={32} /></div>
-            <h3 className="text-2xl font-black text-slate-900 uppercase italic leading-none">Confirm Delete?</h3>
+            <h3 className="text-2xl font-black text-slate-900 uppercase  leading-none">Confirm Delete?</h3>
             <p className="text-slate-500 text-xs mt-3 font-bold uppercase tracking-tight leading-relaxed">This action is irreversible.</p>
             <div className="flex flex-col gap-3 mt-10">
               <button 

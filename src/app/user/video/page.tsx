@@ -157,7 +157,7 @@ export default function VideoPage() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-left">
             <h1 className="text-5xl md:text-6xl font-black tracking-tighter">
-              Video <span className="text-red-600 italic">Hub</span>
+              Video <span className="text-red-600 ">Hub</span>
             </h1>
           </div>
           <MonitorPlay size={50} className="text-yellow-600 hidden md:block opacity-40" />

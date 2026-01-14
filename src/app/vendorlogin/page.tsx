@@ -205,14 +205,14 @@ function VendorRegistrationForm({ onClose }: { onClose: () => void }) {
             <div className="flex-1 max-w-2xl mx-auto w-full">
               {step === 1 && (
                 <div className="space-y-6">
-                  <h2 className="text-3xl font-black text-slate-900 uppercase italic">01. Access <span className="text-yellow-500">Control</span></h2>
+                  <h2 className="text-3xl font-black text-slate-900 uppercase ">01. Access <span className="text-yellow-500">Control</span></h2>
                   <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} className={inputClass} />
                   <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className={inputClass} />
                 </div>
               )}
               {step === 2 && (
                 <div className="space-y-6">
-                  <h2 className="text-3xl font-black text-slate-900 uppercase italic">02. Identity</h2>
+                  <h2 className="text-3xl font-black text-slate-900 uppercase ">02. Identity</h2>
                   <input type="text" name="first_name" placeholder="First Name" value={formData.first_name} onChange={handleChange} className={inputClass} />
                   <input type="text" name="last_name" placeholder="Last Name" value={formData.last_name} onChange={handleChange} className={inputClass} />
                   <input type="tel" name="mobile_number" placeholder="Mobile" value={formData.mobile_number} onChange={handleChange} className={inputClass} maxLength={10} />
@@ -221,7 +221,7 @@ function VendorRegistrationForm({ onClose }: { onClose: () => void }) {
               {/* Note: Steps 3-6 follow the same pattern as your original code */}
               {step === 5 && (
                 <div className="space-y-6">
-                   <h2 className="text-3xl font-black text-slate-900 uppercase italic">05. Media</h2>
+                   <h2 className="text-3xl font-black text-slate-900 uppercase ">05. Media</h2>
                    <div className="grid grid-cols-4 gap-4">
                       {mediaPreviews.map((src, i) => (
                         <div key={i} className="relative aspect-square rounded-xl overflow-hidden">
@@ -236,7 +236,7 @@ function VendorRegistrationForm({ onClose }: { onClose: () => void }) {
               )}
               {step === 6 && (
                 <div className="space-y-6 py-8 text-center">
-                   <h2 className="text-2xl font-black italic">Final Step: Select Plan</h2>
+                   <h2 className="text-2xl font-black ">Final Step: Select Plan</h2>
                    <div className="space-y-2">
                     {plans.map(p => (
                       <div key={p.id} onClick={() => setFormData({...formData, subscription_plan: p.name})} className={`p-4 border rounded-2xl cursor-pointer ${formData.subscription_plan === p.name ? 'border-yellow-500 bg-yellow-50' : ''}`}>

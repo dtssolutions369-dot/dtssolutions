@@ -162,7 +162,7 @@ export default function DigitalBranding() {
               <ShieldCheck className="text-red-600" size={14} />
               <span className="text-black text-[9px] font-black uppercase tracking-widest">Brand Control Center</span>
             </div>
-            <h1 className="text-6xl font-black text-black uppercase italic tracking-tighter leading-[0.8]">
+            <h1 className="text-6xl font-black text-black uppercase  tracking-tighter leading-[0.8]">
               Motion <br /> <span className="text-red-600">Branding</span>
             </h1>
           </div>
@@ -201,7 +201,7 @@ export default function DigitalBranding() {
                   </div>
                 </div>
                 <div className="p-8">
-                  <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tighter truncate">{v.title}</h3>
+                  <h3 className="text-lg font-black text-slate-900 uppercase  tracking-tighter truncate">{v.title}</h3>
                   <div className="flex items-center gap-2 mt-4 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
                     <Calendar size={12} className="text-red-500" />
                     {new Date(v.created_at).toLocaleDateString()}
@@ -221,7 +221,7 @@ export default function DigitalBranding() {
             <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
               <TriangleAlert size={32} />
             </div>
-            <h4 className="text-2xl font-black uppercase italic tracking-tighter mb-2">Decommission Asset?</h4>
+            <h4 className="text-2xl font-black uppercase  tracking-tighter mb-2">Decommission Asset?</h4>
             <p className="text-slate-400 text-xs font-bold uppercase mb-8">This will permanently remove the video from the branding engine.</p>
             <div className="flex gap-4">
               <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-4 font-black uppercase text-[10px] text-slate-400">Cancel</button>
@@ -246,7 +246,7 @@ export default function DigitalBranding() {
             {/* Left Column: Input */}
             <div className="flex-1 p-12">
               <div className="flex items-center justify-between mb-10">
-                <h3 className="text-3xl font-black uppercase italic tracking-tighter">Asset <span className="text-red-600">Details</span></h3>
+                <h3 className="text-3xl font-black uppercase  tracking-tighter">Asset <span className="text-red-600">Details</span></h3>
                 <button onClick={() => setShowModal(false)} className="md:hidden"><X /></button>
               </div>
 
@@ -331,7 +331,7 @@ export default function DigitalBranding() {
             <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
               <TriangleAlert size={32} />
             </div>
-            <h4 className="text-2xl font-black uppercase italic tracking-tighter mb-2">Decommission Asset?</h4>
+            <h4 className="text-2xl font-black uppercase  tracking-tighter mb-2">Decommission Asset?</h4>
             <p className="text-slate-400 text-xs font-bold uppercase mb-8">This will permanently remove the video from the branding engine.</p>
             <div className="flex gap-4">
               <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-4 font-black uppercase text-[10px] text-slate-400">Cancel</button>
