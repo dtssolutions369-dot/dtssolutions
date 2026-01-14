@@ -79,7 +79,8 @@ export default function Home() {
     const router = useRouter();
     const [searchResults, setSearchResults] = useState<any[]>([]);
     const [certificates, setCertificates] = useState<Certificate[]>([]);
-
+    const bannerScrollRef = useRef<HTMLDivElement | null>(null);
+    const [isBannersPaused, setIsBannersPaused] = useState(false); // Distinct from branding video pause state
     const [cities, setCities] = useState<string[]>([]);
     const [businessTypes, setBusinessTypes] = useState<string[]>([]);
     const [showResults, setShowResults] = useState(false);
@@ -406,10 +407,27 @@ export default function Home() {
         });
     };
 
+    useEffect(() => {
+        const slider = bannerScrollRef.current;
+        if (!slider || isBannersPaused) return;
 
-    // Inside your export default function Home() ...
-    const bannerScrollRef = useRef<HTMLDivElement | null>(null);
+        const autoScrollBanners = setInterval(() => {
+            // Calculate the width of one banner card plus the gap (gap-6 = 24px)
+            const firstCard = slider.querySelector('div');
+            const cardWidth = firstCard ? firstCard.offsetWidth + 24 : 450;
+            const maxScroll = slider.scrollWidth - slider.clientWidth;
 
+            if (slider.scrollLeft >= maxScroll - 10) {
+                // Smoothly slide back to the beginning
+                slider.scrollTo({ left: 0, behavior: "smooth" });
+            } else {
+                // Move to the next banner
+                slider.scrollBy({ left: cardWidth, behavior: "smooth" });
+            }
+        }, 4000); // Banners move every 4 seconds
+
+        return () => clearInterval(autoScrollBanners);
+    }, [isBannersPaused, imageBanners]);
     // Add this specific scroll handler for banners
     const scrollBanners = (direction: "left" | "right") => {
         if (!bannerScrollRef.current) return;
@@ -421,6 +439,50 @@ export default function Home() {
             behavior: "smooth",
         });
     };
+
+    const [isPaused, setIsPaused] = useState(false);
+
+    const helpScrollRef = useRef<HTMLDivElement | null>(null);
+    const [isHelpPaused, setIsHelpPaused] = useState(false);
+    useEffect(() => {
+        const slider = helpScrollRef.current;
+        if (!slider || isHelpPaused) return;
+
+        const autoScrollHelp = setInterval(() => {
+            const firstCard = slider.querySelector('div');
+            const cardWidth = firstCard ? firstCard.offsetWidth + 20 : 200;
+            const maxScroll = slider.scrollWidth - slider.clientWidth;
+
+            if (slider.scrollLeft >= maxScroll - 10) {
+                slider.scrollTo({ left: 0, behavior: "smooth" });
+            } else {
+                slider.scrollBy({ left: cardWidth, behavior: "smooth" });
+            }
+        }, 5000);
+
+        return () => clearInterval(autoScrollHelp);
+    }, [isHelpPaused, helpAndEarn]);
+
+    const [isPodcastsPaused, setIsPodcastsPaused] = useState(false);
+    useEffect(() => {
+        const slider = podcastScrollRef.current;
+        if (!slider || isPodcastsPaused) return;
+
+        const autoScrollPodcasts = setInterval(() => {
+            const firstCard = slider.querySelector('div');
+            const cardWidth = firstCard ? firstCard.offsetWidth + 24 : 360;
+            const maxScroll = slider.scrollWidth - slider.clientWidth;
+
+            if (slider.scrollLeft >= maxScroll - 10) {
+                slider.scrollTo({ left: 0, behavior: "smooth" });
+            } else {
+                slider.scrollBy({ left: cardWidth, behavior: "smooth" });
+            }
+        }, 4500); // Scrolls every 4.5 seconds
+
+        return () => clearInterval(autoScrollPodcasts);
+    }, [isPodcastsPaused, podcasts]);
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-900 text-white">
             {/* HERO SECTION - Redesigned with yellow/red/black theme */}
@@ -582,36 +644,34 @@ export default function Home() {
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
 
-                    {/* Section Header */}
-                    <div className="text-center mb-14 sm:mb-20">
+                    {/* Section Header - REDUCED MARGIN BOTTOM HERE */}
+                    <div className="text-center mb-8 sm:mb-12">
                         <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900">
                             How <span className="text-yellow-500">QickTick</span> Works
                         </h2>
 
-                        <p className="mt-3 sm:mt-4 text-gray-600 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed">
+                        <p className="mt-2 sm:mt-3 text-gray-600 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed">
                             Find trusted local services in just a few simple steps — fast, reliable, and hassle-free.
                         </p>
 
-                        <div className="mx-auto mt-5 sm:mt-6 h-1.5 w-20 sm:w-28 rounded-full bg-gradient-to-r from-yellow-500 to-red-500" />
+                        <div className="mx-auto mt-4 sm:mt-5 h-1.5 w-20 sm:w-28 rounded-full bg-gradient-to-r from-yellow-500 to-red-500" />
                     </div>
 
-                    {/* Steps */}
-                    <div
-                        className="
-                        flex gap-4 overflow-x-auto pb-4
-                        sm:grid sm:grid-cols-2
-                        lg:grid-cols-5
-                        sm:gap-10
-                        snap-x snap-mandatory
-                        scrollbar-hide
-                    "
-                    >
+                    {/* Steps Grid */}
+                    <div className="
+            flex gap-4 overflow-x-auto pb-4
+            sm:grid sm:grid-cols-2
+            lg:grid-cols-5
+            sm:gap-6        {/* Reduced gap between cards */}
+            snap-x snap-mandatory
+            scrollbar-hide
+        ">
                         {[
                             {
                                 icon: Search,
                                 step: "01",
                                 title: "Search Your Need",
-                                desc: "Search for services like electricians, plumbers, transport, and more based on your requirement.",
+                                desc: "Search for services like electricians, plumbers, and more.",
                                 accent: "text-yellow-500",
                                 bg: "bg-yellow-50",
                             },
@@ -619,7 +679,7 @@ export default function Home() {
                                 icon: MapPin,
                                 step: "02",
                                 title: "Choose Location",
-                                desc: "Select your city to view verified professionals available near you for faster service.",
+                                desc: "Select your city to view verified professionals near you.",
                                 accent: "text-red-500",
                                 bg: "bg-red-50",
                             },
@@ -627,7 +687,7 @@ export default function Home() {
                                 icon: ListPlus,
                                 step: "03",
                                 title: "Compare Providers",
-                                desc: "Check prices, ratings, experience, and reviews to confidently shortlist the best provider.",
+                                desc: "Check prices, ratings, and reviews to shortlist the best.",
                                 accent: "text-yellow-500",
                                 bg: "bg-yellow-50",
                             },
@@ -635,7 +695,7 @@ export default function Home() {
                                 icon: Send,
                                 step: "04",
                                 title: "Connect Instantly",
-                                desc: "Contact service providers directly to discuss availability, pricing, and service details.",
+                                desc: "Contact providers directly to discuss details and pricing.",
                                 accent: "text-red-500",
                                 bg: "bg-red-50",
                             },
@@ -643,7 +703,7 @@ export default function Home() {
                                 icon: Award,
                                 step: "05",
                                 title: "Get It Done",
-                                desc: "Hire verified professionals, complete your job smoothly, and leave feedback.",
+                                desc: "Hire professionals, complete the job, and leave feedback.",
                                 accent: "text-yellow-500",
                                 bg: "bg-yellow-50",
                             },
@@ -651,40 +711,38 @@ export default function Home() {
                             <div
                                 key={i}
                                 className="
-                                    group relative bg-white border border-gray-200
-                                    rounded-2xl sm:rounded-3xl
-                                    p-6 sm:p-8
-                                    text-center shadow-sm hover:shadow-xl
-                                    transition-all duration-500
-                                    min-w-[260px] sm:min-w-0
-                                    snap-start
-                                    ">
-
-                                {/* Icon */}
+                        group relative bg-white border border-gray-100
+                        rounded-2xl 
+                        p-5 sm:p-6    {/* Reduced internal card padding */}
+                        text-center shadow-sm hover:shadow-lg
+                        transition-all duration-500
+                        min-w-[240px] sm:min-w-0
+                        snap-start
+                    "
+                            >
+                                {/* Icon - Slightly smaller margin */}
                                 <div
-                                    className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-5 sm:mb-6 rounded-2xl ${item.bg}
-            flex items-center justify-center group-hover:scale-110 transition-transform`}
+                                    className={`w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-2xl ${item.bg}
+                        flex items-center justify-center group-hover:scale-110 transition-transform`}
                                 >
-                                    <item.icon className={`w-7 h-7 sm:w-9 sm:h-9 ${item.accent}`} strokeWidth={2} />
+                                    <item.icon className={`w-6 h-6 sm:w-8 sm:h-8 ${item.accent}`} strokeWidth={2} />
                                 </div>
 
                                 {/* Content */}
-                                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">
+                                <h3 className="text-md sm:text-lg font-bold text-gray-900 mb-2">
                                     {item.title}
                                 </h3>
 
-                                <p className="text-gray-600 text-sm leading-relaxed">
+                                <p className="text-gray-500 text-xs sm:text-sm leading-snug">
                                     {item.desc}
                                 </p>
                             </div>
                         ))}
                     </div>
-
                 </div>
             </section>
 
             {/* POPULAR CATEGORIES GRID - MOBILE FRIENDLY */}
-
             <section className="py-8 md:py-10 bg-[#FFFBEB]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
@@ -700,65 +758,66 @@ export default function Home() {
 
                     {/* --- RESPONSIVE GRID --- */}
                     <div className="
-      grid 
-      grid-cols-3 
-      sm:grid-cols-4 
-      md:grid-cols-6 
-      lg:grid-cols-10 
-      gap-4 sm:gap-5 
-      justify-items-center
-    ">
+    grid 
+    grid-cols-4          {/* 4 columns on mobile */}
+    lg:grid-cols-10      {/* 10 columns on desktop */}
+    gap-4 
+    justify-items-center
+">
                         {loading ? (
-                            [...Array(20)].map((_, i) => (
+                            // Skeleton should match the 40 items
+                            [...Array(40)].map((_, i) => (
                                 <div key={i} className="flex flex-col items-center animate-pulse">
-                                    <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl bg-gray-200 mb-2" />
-                                    <div className="h-3 w-14 bg-gray-200 rounded" />
+                                    <div className="w-16 h-16 sm:w-20 rounded-xl bg-gray-200 mb-2" />
+                                    <div className="h-3 w-12 bg-gray-200 rounded" />
                                 </div>
                             ))
                         ) : (
-                            categories?.map((cat) => (
+                            // Limit to 40 items to ensure exactly 4 rows (desktop) or 10 rows (mobile)
+                            categories?.slice(0, 40).map((cat) => (
                                 <div
                                     key={cat.id}
-                                    className="flex flex-col items-center cursor-pointer active:scale-95 transition"
+                                    className="flex flex-col items-center cursor-pointer active:scale-95 transition group w-full"
                                     onClick={() => router.push(`/user/services/${cat.id}`)}
                                 >
+                                    {/* --- IMAGE BOX --- */}
                                     <div className="
-              w-14 h-14 
-              sm:w-16 sm:h-16 
-              md:w-20 md:h-20 
-              rounded-xl 
-              bg-gray-50 
-              border 
-              shadow-sm 
-              flex items-center justify-center
-              hover:shadow-md
-            ">
+                    relative 
+                    overflow-hidden
+                    w-16 h-16          {/* Fixed square size */}
+                    sm:w-20 sm:h-20 
+                    rounded-xl 
+                    bg-white 
+                    border border-gray-100 
+                    shadow-sm 
+                    group-hover:shadow-md
+                ">
                                         {cat.image_url ? (
                                             <Image
                                                 src={cat.image_url}
                                                 alt={cat.name}
-                                                width={40}
-                                                height={40}
-                                                className="object-contain"
+                                                fill // This makes the image fill the container
+                                                sizes="(max-width: 768px) 64px, 80px"
+                                                className="object-cover" // Ensures the photo fits perfectly into the box
                                             />
                                         ) : (
-                                            <span className="text-gray-400 font-bold text-lg">
+                                            <div className="flex items-center justify-center h-full text-gray-400 font-bold">
                                                 {cat.name.charAt(0)}
-                                            </span>
+                                            </div>
                                         )}
                                     </div>
 
+                                    {/* --- LABEL --- */}
                                     <p className="
-              mt-2 
-              text-[11px] 
-              sm:text-xs 
-              md:text-sm 
-              font-semibold 
-              text-gray-800 
-              text-center 
-              truncate 
-              w-16 sm:w-20 md:w-24
-            ">
+                    mt-1.5 
+                    text-[10px] 
+                    sm:text-xs 
+                    font-medium 
+                    text-gray-700 
+                    text-center 
+                    truncate 
+                    w-full
+                ">
                                         {cat.name}
                                     </p>
                                 </div>
@@ -790,7 +849,6 @@ export default function Home() {
 
                 </div>
             </section>
-
 
             {/* TRUST CTA - Redesigned & Compact with 3 Buttons */}
             <section className="py-16  bg-[#FEF3C7] relative overflow-hidden border-y border-yellow-200">
@@ -845,14 +903,11 @@ export default function Home() {
 
             {/* DIGITAL BRANDING - Compact Studio Slider */}
             <section className="py-16 bg-[#FCF9F1] overflow-hidden relative border-b border-gray-100">
-                {/* Decorative Background Text - Reduced Size */}
                 <div className="absolute top-6 left-6 text-6xl font-black text-black/[0.03] select-none pointer-events-none">
                     STUDIO
                 </div>
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
-                    {/* --- LARGE CENTERED HEADER & CONTROLS --- */}
-                    {/* --- BALANCED CENTERED HEADER --- */}
                     <div className="flex flex-col items-center text-center mb-10">
                         <div className="mb-6">
                             <span className="text-red-600 font-bold tracking-[0.2em] uppercase text-[10px] mb-2 block">
@@ -883,9 +938,7 @@ export default function Home() {
                                     <ChevronRight size={14} />
                                 </button>
                             </div>
-
                             <span className="h-4 w-px bg-gray-200"></span>
-
                             <Link
                                 href="/user/view-more?type=branding"
                                 className="text-[10px] font-black uppercase tracking-widest text-gray-900 hover:text-red-600 transition flex items-center gap-1"
@@ -894,10 +947,14 @@ export default function Home() {
                             </Link>
                         </div>
                     </div>
+
                     {/* --- VIDEO SLIDER --- */}
                     <div
-                        ref={scrollRef}
-                        className="flex gap-5 overflow-x-auto hide-scrollbar snap-x snap-mandatory pb-4"
+                        ref={scrollRef} // Ensure this matches your useEffect ref
+                        onMouseEnter={() => setIsPaused(true)}
+                        onMouseLeave={() => setIsPaused(false)}
+                        className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 
+                                scrollbar-none ms-overflow-style-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                     >
                         {brandingVideos.map((video) => (
                             <Link
@@ -908,20 +965,14 @@ export default function Home() {
                                 <div className="relative h-[200px] md:h-[240px] rounded-[2rem] overflow-hidden shadow-lg bg-gray-200 border-4 border-white transition-all duration-500 group-hover/card:border-yellow-400 group-hover/card:shadow-2xl">
                                     <video
                                         src={video.video_url}
-                                        autoPlay muted loop playsInline
+                                        autoPlay
+                                        muted
+                                        loop
+                                        playsInline
                                         className="w-full h-full object-cover"
                                     />
-
-                                    {/* Tint Overlay */}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60 group-hover/card:opacity-40 transition-opacity" />
 
-                                    {/* LIVE Indicator */}
-                                    <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-black/20 backdrop-blur-md px-2 py-1 rounded-md opacity-0 group-hover/card:opacity-100 transition-opacity">
-                                        <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-                                        <span className="text-[8px] font-bold text-white uppercase tracking-tighter">Live</span>
-                                    </div>
-
-                                    {/* Floating Label - Now acts as the primary Call to Action */}
                                     <div className="absolute bottom-5 left-5 right-5">
                                         <div className="bg-white/10 backdrop-blur-md border border-white/20 py-2.5 px-4 rounded-xl transform translate-y-2 group-hover/card:translate-y-0 transition-all duration-500 flex justify-between items-center">
                                             <p className="text-white font-bold tracking-wide uppercase text-[10px]">
@@ -993,18 +1044,20 @@ export default function Home() {
                     </div>
 
                     {/* ---------- SCROLLING SECTION ---------- */}
+                    {/* ---------- SCROLLING SECTION ---------- */}
                     <div className="relative -mx-4">
                         <div
-                            ref={bannerScrollRef} // Link to the new ref
+                            ref={bannerScrollRef}
+                            onMouseEnter={() => setIsBannersPaused(true)}  // STOP when mouse enters
+                            onMouseLeave={() => setIsBannersPaused(false)} // START when mouse leaves
                             className="
-                    flex gap-6 overflow-x-auto
-                    snap-x snap-mandatory
-                    scrollbar-hide
-                    px-4
-                "
+            flex gap-6 overflow-x-auto
+            snap-x snap-mandatory
+            px-4
+            /* This line hides the scrollbar completely */
+            scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
+        "
                             style={{
-                                msOverflowStyle: 'none',
-                                scrollbarWidth: 'none',
                                 paddingBottom: '30px',
                                 marginBottom: '-30px'
                             }}
@@ -1012,21 +1065,26 @@ export default function Home() {
                             {imageBanners.map((banner: any) => (
                                 <div
                                     key={banner.id}
+                                    onClick={() => router.push("/user/view-more?type=banners")}
                                     className="
-                            group relative aspect-video
-                            min-w-[280px] md:min-w-[400px] lg:min-w-[480px]
-                            rounded-3xl overflow-hidden
-                            border border-gray-100 shadow-sm
-                            hover:shadow-2xl hover:-translate-y-3
-                            transition-all duration-500
-                            snap-center
-                        "
+    group relative aspect-video
+    min-w-[280px] md:min-w-[400px] lg:min-w-[480px]
+    rounded-3xl overflow-hidden
+    border border-gray-100 shadow-sm
+    hover:shadow-2xl hover:-translate-y-3
+    transition-all duration-500
+    snap-center
+    cursor-pointer
+  "
                                 >
+
+
                                     <img
                                         src={banner.image_url}
                                         alt={banner.title || "Banner"}
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 pointer-events-none"
                                     />
+
 
                                     {/* Gradient Overlay */}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8 text-left">
@@ -1125,57 +1183,61 @@ export default function Home() {
                     </div>
 
                     {/* --- GRID CONTAINER --- */}
-                    <div
-                        className="
-                flex gap-4 overflow-x-auto pb-4
-                sm:grid sm:grid-cols-3
-                md:grid-cols-4
-                lg:grid-cols-5
-                snap-x snap-mandatory
-                hide-scrollbar
-            "
-                    >
-                        {helpAndEarn.length === 0 ? (
-                            <div className="col-span-full py-10 text-center border-2 border-dashed border-yellow-200 rounded-3xl bg-yellow-50/50 text-gray-400 italic text-sm">
-                                No community initiatives available.
-                            </div>
-                        ) : (
-                            helpAndEarn.slice(0, 5).map((item) => (
-                                <div
-                                    key={item.id}
-                                    onClick={() => router.push(`/user/help`)}
-                                    className="group relative flex flex-col items-center cursor-pointer min-w-[180px] sm:min-w-0 snap-start"
-                                >
-                                    {/* BOX FRAME */}
-                                    <div className="relative w-full aspect-square rounded-[2rem] overflow-hidden bg-white shadow-md border-4 border-white group-hover:shadow-xl group-hover:border-yellow-400/20 transition-all duration-500">
-                                        {item.image_url ? (
-                                            <Image
-                                                src={item.image_url}
-                                                alt={item.name}
-                                                fill
-                                                className="object-cover transition-transform duration-700 group-hover:scale-105"
-                                            />
-                                        ) : (
-                                            <div className="flex items-center justify-center h-full text-gray-300 bg-gray-50 text-[8px] uppercase font-bold">Design Pending</div>
-                                        )}
+                    {/* --- SCROLLING CONTAINER --- */}
+                    <div className="relative -mx-4">
+                        <div
+                            ref={helpScrollRef}
+                            onMouseEnter={() => setIsHelpPaused(true)}
+                            onMouseLeave={() => setIsHelpPaused(false)}
+                            className="
+            flex gap-6 overflow-x-auto
+            snap-x snap-mandatory
+            px-4
+            scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
+        "
+                        >
+                            {helpAndEarn.length === 0 ? (
+                                <div className="w-full py-10 text-center border-2 border-dashed border-yellow-200 rounded-3xl bg-yellow-50/50 text-gray-400 italic text-sm">
+                                    No community initiatives available.
+                                </div>
+                            ) : (
+                                helpAndEarn.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        onClick={() => router.push(`/user/help`)}
+                                        className="group relative flex flex-col items-center cursor-pointer min-w-[160px] md:min-w-[200px] snap-center"
+                                    >
+                                        {/* BOX FRAME */}
+                                        <div className="relative w-full aspect-square rounded-[2rem] overflow-hidden bg-white shadow-md border-4 border-white group-hover:shadow-xl group-hover:border-red-400/20 transition-all duration-500">
+                                            {item.image_url ? (
+                                                <Image
+                                                    src={item.image_url}
+                                                    alt={item.name}
+                                                    fill
+                                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                                />
+                                            ) : (
+                                                <div className="flex items-center justify-center h-full text-gray-300 bg-gray-50 text-[8px] uppercase font-bold">Design Pending</div>
+                                            )}
 
-                                        {/* JOIN OVERLAY */}
-                                        <div className="absolute inset-0 bg-red-600/80 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                                            <span className="text-white font-black text-[10px] uppercase tracking-widest bg-black/20 px-4 py-2 rounded-lg backdrop-blur-sm">
-                                                Join Now
-                                            </span>
+                                            {/* JOIN OVERLAY */}
+                                            <div className="absolute inset-0 bg-red-600/80 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                                                <span className="text-white font-black text-[10px] uppercase tracking-widest bg-black/20 px-4 py-2 rounded-lg backdrop-blur-sm">
+                                                    Join Now
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* NAME */}
+                                        <div className="mt-4 text-center">
+                                            <p className="text-gray-900 font-bold text-sm group-hover:text-red-600 transition-colors">
+                                                {item.name}
+                                            </p>
                                         </div>
                                     </div>
-
-                                    {/* NAME */}
-                                    <div className="mt-4 text-center">
-                                        <p className="text-gray-900 font-bold text-sm group-hover:text-red-600 transition-colors">
-                                            {item.name}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))
-                        )}
+                                ))
+                            )}
+                        </div>
                     </div>
 
                     {/* --- COMPACT VIEW MORE BUTTON --- */}
@@ -1226,23 +1288,30 @@ export default function Home() {
                         {certificates.slice(0, 4).map((item) => (
                             <div
                                 key={item.id}
+                                onClick={() => router.push("/user/view-more?type=certificates")}
                                 className="
-                        group bg-white p-3
-                        rounded-[2rem] shadow-lg
-                        hover:-translate-y-1.5 transition-all duration-500
-                        min-w-[220px] sm:min-w-0
-                        snap-start border border-yellow-100
-                    "
+    group bg-white p-3
+    rounded-[2rem] shadow-lg
+    hover:-translate-y-1.5 transition-all duration-500
+    min-w-[220px] sm:min-w-0
+    snap-start border border-yellow-100
+    cursor-pointer
+  "
                             >
+
                                 <div className="relative aspect-[4/5] rounded-[1.5rem] overflow-hidden bg-gray-50">
                                     <Image
                                         src={item.image_url}
                                         alt={item.name}
                                         fill
-                                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                        className="object-cover transition-transform duration-700 group-hover:scale-105 pointer-events-none"
                                     />
+
                                 </div>
-                                <h3 className="text-gray-900 font-bold text-sm mt-4 text-center px-2 line-clamp-1">
+                                <h3
+                                    onClick={() => router.push("/user/view-more?type=certificates")}
+                                    className="text-gray-900 font-bold text-sm mt-4 text-center px-2 line-clamp-1 cursor-pointer"
+                                >
                                     {item.name}
                                 </h3>
                             </div>
@@ -1282,7 +1351,7 @@ export default function Home() {
                     {/* --- ARROW & SLIDER WRAPPER --- */}
                     <div className="relative group/slider">
 
-                        {/* LEFT ARROW - Adjusted to fit compact size */}
+                        {/* LEFT ARROW */}
                         <button
                             onClick={() => scrollPodcasts("left")}
                             className="absolute -left-4 top-[100px] -translate-y-1/2 z-30 hidden md:flex items-center justify-center bg-white text-gray-900 w-10 h-10 rounded-full shadow-lg border border-gray-100 hover:bg-red-600 hover:text-white transition-all duration-300 opacity-0 group-hover/slider:opacity-100"
@@ -1293,28 +1362,53 @@ export default function Home() {
                         {/* SCROLLABLE CONTAINER */}
                         <div
                             ref={podcastScrollRef}
-                            className="flex gap-6 overflow-x-auto hide-scrollbar snap-x snap-mandatory pb-6 px-1 scroll-smooth"
+                            onMouseEnter={() => setIsPodcastsPaused(true)}
+                            onMouseLeave={() => setIsPodcastsPaused(false)}
+                            className="flex gap-6 overflow-x-auto hide-scrollbar snap-x snap-mandatory pb-6 px-1 scroll-smooth scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                         >
-                            {podcasts.slice(0, 6).map((podcast) => (
-                                <div key={podcast.id} className="min-w-[280px] md:min-w-[340px] snap-center group">
-                                    {/* Video Thumbnail Frame */}
-                                    <div className="h-[180px] md:h-[220px] rounded-[2rem] overflow-hidden shadow-md border-4 border-white relative group-hover:shadow-xl transition-all duration-500">
-                                        <video src={podcast.video_url} className="w-full h-full object-cover" />
+                            {podcasts.length > 0 ? (
+                                podcasts.slice(0, 6).map((podcast) => (
+                                    <div
+                                        key={podcast.id}
+                                        onClick={() => router.push("/user/view-more?type=podcasts")}
+                                        className="min-w-[280px] md:min-w-[340px] snap-center group cursor-pointer"
+                                    >
+                                        {/* Video Thumbnail Frame */}
+                                        <div className="h-[180px] md:h-[220px] rounded-[2rem] overflow-hidden shadow-md border-4 border-white relative group-hover:shadow-xl transition-all duration-500 bg-black">
+                                            <video
+                                                src={podcast.video_url}
+                                                autoPlay
+                                                muted
+                                                playsInline
+                                                loop
+                                                preload="metadata"
+                                                onMouseEnter={(e) => e.currentTarget.pause()}
+                                                onMouseLeave={(e) => e.currentTarget.play()}
+                                                className="w-full h-full object-cover pointer-events-none"
+                                            />
 
-                                        {/* Play Button Overlay */}
-                                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/40 transition-all">
-                                            <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40 group-hover:scale-110 transition-transform">
-                                                <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[12px] border-l-white border-b-[6px] border-b-transparent ml-1" />
+
+
+                                            {/* Play Button Overlay - Fades out on mouse over */}
+                                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:opacity-0 transition-all duration-300 pointer-events-none">
+                                                <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40 group-hover:scale-110 transition-transform">
+                                                    <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[12px] border-l-white border-b-[6px] border-b-transparent ml-1" />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    {/* Title */}
-                                    <h3 className="mt-4 text-base md:text-lg font-bold text-gray-900 text-center line-clamp-1 group-hover:text-red-600 transition-colors">
-                                        {podcast.title || podcast.name}
-                                    </h3>
-                                </div>
-                            ))}
+                                        {/* Title */}
+                                        <h3 className="mt-4 text-base md:text-lg font-bold text-gray-900 text-center line-clamp-1 group-hover:text-red-600 transition-colors">
+                                            {podcast.title || podcast.name || "Untitled Episode"}
+                                        </h3>
+                                    </div>
+                                ))
+                            ) : (
+                                /* Loading State Skeleton */
+                                [1, 2, 3].map((i) => (
+                                    <div key={i} className="min-w-[280px] md:min-w-[340px] h-[220px] bg-gray-200 animate-pulse rounded-[2rem]" />
+                                ))
+                            )}
                         </div>
 
                         {/* RIGHT ARROW */}
@@ -1326,7 +1420,7 @@ export default function Home() {
                         </button>
                     </div>
 
-                    {/* --- COMPACT VIEW MORE --- */}
+                    {/* --- VIEW MORE BUTTON --- */}
                     <div className="mt-8 flex justify-center">
                         <button
                             onClick={() => router.push('/user/view-more?type=podcasts')}
@@ -1375,8 +1469,10 @@ export default function Home() {
                                     .map((inf) => (
                                         <div
                                             key={inf.id}
-                                            className="group relative aspect-[4/5] rounded-[2rem] overflow-hidden border-4 border-white shadow-xl bg-white transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+                                            onClick={() => router.push("/user/view-more?type=influencers")}
+                                            className="group relative aspect-[4/5] rounded-[2rem] overflow-hidden border-4 border-white shadow-xl bg-white cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
                                         >
+
                                             <Image
                                                 src={inf.media_url}
                                                 alt={inf.name}
@@ -1409,16 +1505,19 @@ export default function Home() {
                                     .map((inf) => (
                                         <div
                                             key={inf.id}
-                                            className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-xl border-[6px] border-white bg-black transition-all duration-700 hover:shadow-red-500/20"
+                                            onClick={() => router.push("/user/view-more?type=influencers")}
+                                            className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-xl border-[6px] border-white bg-black cursor-pointer transition-all duration-700 hover:shadow-red-500/20"
                                         >
+
                                             <video
                                                 src={inf.media_url}
                                                 autoPlay
                                                 muted
                                                 loop
                                                 playsInline
-                                                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+                                                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                                             />
+
 
                                             {/* CONTENT OVERLAY */}
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent p-6 flex flex-col justify-end">

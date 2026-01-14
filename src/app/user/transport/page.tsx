@@ -5,8 +5,8 @@ import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Truck, Phone, Send, Loader, Lock, Clock, 
-  AlertCircle, CheckCircle2, X, MapPin, 
+  Truck, Phone, Send, Loader, Lock, Clock,
+  AlertCircle, CheckCircle2, X, MapPin,
   Calendar, Weight, User as UserIcon, ArrowRight,
   Package, Sparkles, ShieldCheck
 } from "lucide-react";
@@ -47,7 +47,7 @@ export default function TransportPage() {
 
     const { data: vendor } = await supabase.from("vendor_register").select("subscription_expiry").eq("user_id", user.id).maybeSingle();
     const isVendorActive = vendor?.subscription_expiry && new Date(vendor.subscription_expiry) > new Date();
-    
+
     const { data: sub } = await supabase.from("user_subscriptions").select("id").eq("user_id", user.id).eq("status", "active").maybeSingle();
     setHasSubscription(!!isVendorActive || !!sub);
   };
@@ -61,7 +61,7 @@ export default function TransportPage() {
     const { data, error } = await supabase
       .from("travel_requests")
       .select("*")
-      .gte('travel_date', dateLimit) 
+      .gte('travel_date', dateLimit)
       .order("travel_date", { ascending: false });
 
     if (!error && data) setRequests(data);
@@ -105,11 +105,11 @@ export default function TransportPage() {
 
   return (
     <div className="min-h-screen bg-[#FFFDF5] pb-10 font-sans selection:bg-yellow-200">
-      
+
       {/* --- SUCCESS TOAST --- */}
       <AnimatePresence>
         {showToast && (
-          <motion.div 
+          <motion.div
             initial={{ y: 50, opacity: 0 }} animate={{ y: -20, opacity: 1 }} exit={{ y: 50, opacity: 0 }}
             className="fixed bottom-0 inset-x-0 z-[9999] flex justify-center px-4 pointer-events-none"
           >
@@ -127,7 +127,7 @@ export default function TransportPage() {
       {/* --- HEADER (Reduced Size) --- */}
       <div className="bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-16 pb-32 px-6 relative overflow-hidden border-b border-yellow-200">
         <div className="absolute inset-0 opacity-40 bg-[radial-gradient(#F59E0B_0.5px,transparent_0.5px)] [background-size:24px_24px]" />
-        
+
         <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full mb-4 shadow-sm border border-yellow-300">
@@ -142,55 +142,55 @@ export default function TransportPage() {
             </h1>
           </div>
           <div className="hidden lg:block bg-white p-6 rounded-[2rem] rotate-3 shadow-xl border border-yellow-100 relative">
-             <div className="absolute -top-2 -left-2 bg-red-600 text-white p-2 rounded-xl animate-bounce">
-                <Truck size={20} />
-             </div>
-             <Package size={50} className="text-yellow-600" />
+            <div className="absolute -top-2 -left-2 bg-red-600 text-white p-2 rounded-xl animate-bounce">
+              <Truck size={20} />
+            </div>
+            <Package size={50} className="text-yellow-600" />
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 -mt-16 relative z-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* --- LEFT: BOOKING FORM --- */}
           <div className="lg:col-span-7">
             <div className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-xl border border-yellow-100">
               <div className="mb-8">
-                  <h3 className="text-xl font-black tracking-tighter uppercase italic text-gray-900">Post Cargo Slot</h3>
-                  <p className="text-gray-400 font-bold uppercase text-[9px] tracking-widest mt-1">Connect with verified partners</p>
+                <h3 className="text-xl font-black tracking-tighter uppercase italic text-gray-900">Post Cargo Slot</h3>
+                <p className="text-gray-400 font-bold uppercase text-[9px] tracking-widest mt-1">Connect with verified partners</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Input label="Owner Name" placeholder="NAME..." error={errors.name} value={formData.name} onChange={(v:any)=>setFormData({...formData, name:v})} />
-                  <Input label="Phone" placeholder="CONTACT..." error={errors.phone} value={formData.phone} onChange={(v:any)=>setFormData({...formData, phone:v})} />
+                  <Input label="Owner Name" placeholder="NAME..." error={errors.name} value={formData.name} onChange={(v: any) => setFormData({ ...formData, name: v })} />
+                  <Input label="Phone" placeholder="CONTACT..." error={errors.phone} value={formData.phone} onChange={(v: any) => setFormData({ ...formData, phone: v })} />
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-[#FEF3C7]/15 rounded-[2rem] border border-yellow-100 focus-within:border-yellow-300 transition-all">
-                  <Input label="Pickup" placeholder="ORIGIN..." error={errors.pickup} value={formData.pickup} onChange={(v:any)=>setFormData({...formData, pickup:v})} />
-                  <Input label="Drop" placeholder="DESTINATION..." error={errors.drop} value={formData.drop} onChange={(v:any)=>setFormData({...formData, drop:v})} />
+                  <Input label="Pickup" placeholder="ORIGIN..." error={errors.pickup} value={formData.pickup} onChange={(v: any) => setFormData({ ...formData, pickup: v })} />
+                  <Input label="Drop" placeholder="DESTINATION..." error={errors.drop} value={formData.drop} onChange={(v: any) => setFormData({ ...formData, drop: v })} />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Input label="Date" type="date" min={new Date().toISOString().split('T')[0]} error={errors.date} value={formData.date} onChange={(v:any)=>setFormData({...formData, date:v})} />
-                  <Input label="Weight (KG)" placeholder="TOTAL KG..." value={formData.weight} onChange={(v:any)=>setFormData({...formData, weight:v})} />
+                  <Input label="Date" type="date" min={new Date().toISOString().split('T')[0]} error={errors.date} value={formData.date} onChange={(v: any) => setFormData({ ...formData, date: v })} />
+                  <Input label="Weight (KG)" placeholder="TOTAL KG..." value={formData.weight} onChange={(v: any) => setFormData({ ...formData, weight: v })} />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-800/60 ml-2">Product Description</label>
-                  <textarea 
+                  <label className="text-[9px] font-black uppercase tracking-[0.2em] text-red-600 ml-2">Product Description</label>
+                  <textarea
                     placeholder="DESCRIBE YOUR GOODS..." rows={2}
                     className="w-full p-4 bg-[#FEF3C7]/20 border border-transparent rounded-2xl focus:border-yellow-400 focus:bg-white outline-none transition-all font-bold uppercase text-[11px] tracking-widest text-gray-700 placeholder:text-yellow-800/30"
-                    value={formData.goods} onChange={(e)=>setFormData({...formData, goods: e.target.value})}
+                    value={formData.goods} onChange={(e) => setFormData({ ...formData, goods: e.target.value })}
                   />
                 </div>
 
-                <button 
+                <button
                   type="submit" disabled={loading}
                   className="w-full bg-gray-900 hover:bg-red-600 text-white py-5 rounded-2xl font-black text-lg italic uppercase tracking-tighter transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95 disabled:bg-gray-200"
                 >
-                  {loading ? <Loader className="animate-spin" size={20} /> : <>Broadcast Lead <Send size={18}/></>}
+                  {loading ? <Loader className="animate-spin" size={20} /> : <>Broadcast Lead <Send size={18} /></>}
                 </button>
               </form>
             </div>
@@ -199,10 +199,10 @@ export default function TransportPage() {
           {/* --- RIGHT: LIVE FEED --- */}
           <div className="lg:col-span-5 space-y-6">
             <div className="flex items-center justify-between px-2">
-                <h2 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-2 text-gray-900">
-                  <Clock className="text-red-600" size={20} /> Active Leads
-                </h2>
-                <span className="bg-yellow-400 text-black text-[8px] font-black px-2 py-0.5 rounded uppercase">Recent</span>
+              <h2 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-2 text-gray-900">
+                <Clock className="text-red-600" size={20} /> Active Leads
+              </h2>
+              <span className="bg-yellow-400 text-black text-[8px] font-black px-2 py-0.5 rounded uppercase">Recent</span>
             </div>
 
             <div className="space-y-4 max-h-[700px] overflow-y-auto pr-1 custom-scrollbar">
@@ -215,17 +215,17 @@ export default function TransportPage() {
                 <div className="text-center p-10 bg-white rounded-[2rem] border border-dashed border-yellow-200 text-yellow-800/40 text-[9px] font-black uppercase tracking-widest">No Active Leads</div>
               ) : (
                 requests.map((req) => {
-                  const isPast = new Date(req.travel_date) < new Date(new Date().setHours(0,0,0,0));
-                  
+                  const isPast = new Date(req.travel_date) < new Date(new Date().setHours(0, 0, 0, 0));
+
                   return (
-                    <motion.div 
+                    <motion.div
                       key={req.id} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
                       className={`bg-white p-6 rounded-[2rem] border shadow-md relative group transition-all duration-300 ${isPast ? 'border-gray-100 grayscale opacity-60' : 'border-transparent hover:border-yellow-400'}`}
                     >
                       <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-2">
-                           <span className={`w-1.5 h-1.5 rounded-full ${isPast ? 'bg-gray-300' : 'bg-red-600 animate-pulse'}`}></span>
-                           <span className={`text-[8px] font-black uppercase tracking-widest ${isPast ? 'text-gray-400' : 'text-red-600'}`}>{isPast ? 'Archived' : 'Live Lead'}</span>
+                          <span className={`w-1.5 h-1.5 rounded-full ${isPast ? 'bg-gray-300' : 'bg-red-600 animate-pulse'}`}></span>
+                          <span className={`text-[8px] font-black uppercase tracking-widest ${isPast ? 'text-gray-400' : 'text-red-600'}`}>{isPast ? 'Archived' : 'Live Lead'}</span>
                         </div>
                         <span className="text-[8px] font-black text-gray-300">ID_{req.id}</span>
                       </div>
@@ -233,19 +233,19 @@ export default function TransportPage() {
                       <div className="mb-4">
                         {/* Locations */}
                         <div className="flex items-center gap-2 mb-2">
-                          <MapPin size={14} className="text-yellow-600"/>
+                          <MapPin size={14} className="text-yellow-600" />
                           <p className="text-sm font-black italic uppercase tracking-tighter text-gray-900 leading-tight">
-                            {req.pickup_location} <ArrowRight size={10} className="inline mx-1 text-red-600"/> {req.drop_location}
+                            {req.pickup_location} <ArrowRight size={10} className="inline mx-1 text-red-600" /> {req.drop_location}
                           </p>
                         </div>
-                        
+
                         {/* Badges: Date & Weight */}
                         <div className="flex gap-2 mb-3">
                           <div className="flex items-center gap-1.5 text-[8px] font-black text-gray-500 uppercase italic bg-gray-50 px-2 py-1 rounded-full border border-gray-100">
-                            <Calendar size={10} className="text-yellow-600"/> {req.travel_date}
+                            <Calendar size={10} className="text-yellow-600" /> {req.travel_date}
                           </div>
                           <div className="flex items-center gap-1.5 text-[8px] font-black text-gray-500 uppercase italic bg-gray-50 px-2 py-1 rounded-full border border-gray-100">
-                            <Weight size={10} className="text-yellow-600"/> {req.weight_kg || '0'} KG
+                            <Weight size={10} className="text-yellow-600" /> {req.weight_kg || '0'} KG
                           </div>
                         </div>
 
@@ -273,7 +273,7 @@ export default function TransportPage() {
                         </div>
 
                         {!hasSubscription && (
-                          <div 
+                          <div
                             onClick={() => router.push('/user/subscription-plans')}
                             className="absolute inset-0 z-10 flex items-center justify-center bg-gray-900/40 backdrop-blur-[2px] cursor-pointer"
                           >
@@ -300,9 +300,9 @@ export default function TransportPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
-            <Step number="01" icon={<Package size={24}/>} color="bg-yellow-400" title="Upload" desc="Enter cargo details to start broadcasting." />
-            <Step number="02" icon={<Truck size={24}/>} color="bg-red-600" textColor="text-white" title="Feed" desc="Lead hits our live network for agencies." />
-            <Step number="03" icon={<ShieldCheck size={24}/>} color="bg-gray-900" textColor="text-yellow-400" title="Direct" desc="Agencies unlock and quote directly." />
+            <Step number="01" icon={<Package size={24} />} color="bg-yellow-400" title="Upload" desc="Enter cargo details to start broadcasting." />
+            <Step number="02" icon={<Truck size={24} />} color="bg-red-600" textColor="text-white" title="Feed" desc="Lead hits our live network for agencies." />
+            <Step number="03" icon={<ShieldCheck size={24} />} color="bg-gray-900" textColor="text-yellow-400" title="Direct" desc="Agencies unlock and quote directly." />
           </div>
         </div>
       </div>
@@ -330,19 +330,19 @@ function Step({ number, icon, color, title, desc, textColor = "text-black" }: an
 function Input({ label, value, onChange, type = "text", placeholder, error, min }: any) {
   return (
     <div className="space-y-2 w-full">
-      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-800/60 ml-2 italic">{label}</label>
+      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-red-600 ml-2 italic">{label}</label>
       <div className="relative">
-          <input
-            type={type} value={value} onChange={(e) => onChange(e.target.value)} 
-            placeholder={placeholder} min={min}
-            className={`w-full p-4 bg-[#FEF3C7]/15 border rounded-2xl focus:border-yellow-400 focus:bg-white outline-none transition-all font-bold uppercase text-[11px] tracking-widest text-gray-700 placeholder:text-yellow-800/30 ${error ? 'border-red-500' : 'border-transparent'}`}
-          />
-          {error && (
-            <div className="absolute -bottom-5 left-2 flex items-center gap-1">
-               <AlertCircle size={8} className="text-red-500"/>
-               <span className="text-[8px] text-red-500 font-black italic uppercase">{error}</span>
-            </div>
-          )}
+        <input
+          type={type} value={value} onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder} min={min}
+          className={`w-full p-4 bg-[#FEF3C7]/15 border rounded-2xl focus:border-yellow-400 focus:bg-white outline-none transition-all font-bold uppercase text-[11px] tracking-widest text-gray-700 placeholder:text-yellow-800/30 ${error ? 'border-red-500' : 'border-transparent'}`}
+        />
+        {error && (
+          <div className="absolute -bottom-5 left-2 flex items-center gap-1">
+            <AlertCircle size={8} className="text-red-500" />
+            <span className="text-[8px] text-red-500 font-black italic uppercase">{error}</span>
+          </div>
+        )}
       </div>
     </div>
   );

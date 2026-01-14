@@ -128,7 +128,7 @@ export default function EnquiryPage() {
           <div className="lg:col-span-7">
             <div className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-xl border border-yellow-100">
               <div className="mb-8">
-                  <h3 className="text-xl font-black tracking-tighter uppercase italic text-gray-900">Transmit Message</h3>
+                  <h3 className="text-xl font-black tracking-tighter uppercase italic text-gray-900">Post your Requirement</h3>
                   <p className="text-gray-400 font-bold uppercase text-[9px] tracking-widest mt-1">Broadcast requirement to all verified vendors</p>
               </div>
 
@@ -150,7 +150,7 @@ export default function EnquiryPage() {
                 
                 <div className="space-y-2">
                   <div className="flex justify-between items-center px-2">
-                    <label className="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-800/60 italic">Requirement</label>
+<label className="text-[9px] font-black uppercase tracking-[0.2em] text-red-600 italic">Requirement</label>
                   </div>
                   <textarea 
                     placeholder="WHAT ARE YOU LOOKING FOR?..."
@@ -164,7 +164,7 @@ export default function EnquiryPage() {
                   type="submit" disabled={formLoading}
                   className="w-full bg-gray-900 hover:bg-red-600 text-white py-5 rounded-2xl font-black text-lg italic uppercase tracking-tighter transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95 disabled:opacity-50"
                 >
-                  {formLoading ? <Loader className="animate-spin" size={20} /> : <>Broadcast Signal <Send size={18} /></>}
+                  {formLoading ? <Loader className="animate-spin" size={20} /> : <>Enquiry Submit<Send size={18} /></>}
                 </button>
               </form>
             </div>
@@ -280,7 +280,7 @@ function FlowStep({ number, icon, color, title, desc, textColor = "text-black" }
 function Input({ label, value, onChange, type = "text", placeholder, error }: any) {
   return (
     <div className="space-y-2 w-full">
-      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-800/60 ml-2 italic">{label}</label>
+<label className="text-[9px] font-black uppercase tracking-[0.2em] text-red-600 ml-2 italic">{label}</label>
       <div className="relative">
           <input
             type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}

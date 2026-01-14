@@ -6,7 +6,7 @@ import { createClient } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster, toast } from "sonner";
 import {
-  Zap, ArrowRight, Loader2, HeartHandshake, 
+  Zap, ArrowRight, Loader2, HeartHandshake,
   Sparkles, CreditCard, Mail, Phone, ShieldCheck, Activity, Award
 } from "lucide-react";
 
@@ -49,7 +49,7 @@ export default function HelpAndEarn() {
     const { name, value } = e.target;
     setPaymentData(prev => ({ ...prev, [name]: value }));
     if (name === "amount") {
-        setPaymentData(prev => ({ ...prev, giveAmount: value, amount: value }));
+      setPaymentData(prev => ({ ...prev, giveAmount: value, amount: value }));
     }
   };
 
@@ -62,7 +62,7 @@ export default function HelpAndEarn() {
     e.preventDefault();
     if (!paymentData.amount || Number(paymentData.amount) <= 0) return toast.error("Enter a valid amount");
     if (!paymentData.phone || !paymentData.email) return toast.error("Phone and Email are required");
-    
+
     setPaymentLoading(true);
 
     const paymentPromise = new Promise(async (resolve, reject) => {
@@ -72,7 +72,7 @@ export default function HelpAndEarn() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ amount: Number(paymentData.amount) }),
         });
-        
+
         const order = await res.json();
         if (!order.id) throw new Error("Could not initialize payment.");
 
@@ -89,8 +89,8 @@ export default function HelpAndEarn() {
               name: paymentData.name,
               phone: paymentData.phone,
               email: paymentData.email,
-              referral_name: paymentData.referralName, 
-              referral_id: paymentData.referralId,     
+              referral_name: paymentData.referralName,
+              referral_id: paymentData.referralId,
               referral_number: paymentData.referralNumber,
               category: paymentData.category,
               give_amount: paymentData.giveAmount,
@@ -112,8 +112,8 @@ export default function HelpAndEarn() {
         };
         const rzp = new (window as any).Razorpay(options);
         rzp.open();
-      } catch (err: any) { 
-        reject(err.message || "Initialization failed"); 
+      } catch (err: any) {
+        reject(err.message || "Initialization failed");
       } finally {
         setPaymentLoading(false);
       }
@@ -134,7 +134,7 @@ export default function HelpAndEarn() {
       {/* --- HEADER (Reduced Height) --- */}
       <div className="bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-16 pb-32 px-6 relative overflow-hidden border-b border-yellow-100">
         <div className="absolute inset-0 opacity-40 bg-[radial-gradient(#F59E0B_0.5px,transparent_0.5px)] [background-size:24px_24px]" />
-        
+
         <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full mb-4 shadow-sm border border-yellow-300">
@@ -145,12 +145,12 @@ export default function HelpAndEarn() {
               <span className="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-800">Support Protocol v2.0</span>
             </div>
             <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-gray-900 leading-none">
-              GIVE <span className="text-red-600 italic">&</span> <br/>
+              GIVE <span className="text-red-600 italic">&</span> <br />
               <span className="underline decoration-yellow-400 decoration-4 underline-offset-4">EARN REWARDS</span>
             </h1>
           </div>
           <div className="hidden lg:block bg-white p-6 rounded-[2.5rem] -rotate-3 shadow-xl border border-yellow-100">
-             <HeartHandshake size={50} className="text-yellow-600" />
+            <HeartHandshake size={50} className="text-yellow-600" />
           </div>
         </div>
       </div>
@@ -213,11 +213,10 @@ export default function HelpAndEarn() {
                     type="button"
                     onClick={() => handleQuickAmt(amt)}
                     className={`py-3 rounded-xl font-black text-sm transition-all border
-                    ${
-                      paymentData.giveAmount === amt && !isOtherAmount
+                    ${paymentData.giveAmount === amt && !isOtherAmount
                         ? "bg-yellow-400 border-yellow-400 text-black shadow-md"
                         : "bg-white border-gray-200 text-gray-700 hover:border-yellow-400"
-                    }`}
+                      }`}
                   >
                     ₹{amt}
                   </button>
@@ -279,16 +278,16 @@ export default function HelpAndEarn() {
       <div className="max-w-7xl mx-auto px-6 mt-20 mb-10">
         <div className="bg-white rounded-[3rem] p-10 md:p-16 relative overflow-hidden border border-yellow-100 shadow-xl">
           <div className="relative z-10 flex flex-col items-center mb-12">
-             <div className="bg-gray-900 text-yellow-400 text-[8px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest mb-4">Protocol</div>
+            <div className="bg-gray-900 text-yellow-400 text-[8px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest mb-4">Protocol</div>
             <h2 className="text-3xl md:text-5xl font-black text-gray-900 italic uppercase tracking-tighter text-center">
               The <span className="text-red-600">Ecosystem</span>
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 relative z-10">
-            <StepCard num="01" icon={<HeartHandshake size={24}/>} title="Direct Support" desc="Contributions are mapped directly to community pools." />
-            <StepCard num="02" icon={<Activity size={24}/>} title="Impact Pulse" desc="Our engine verifies and unlocks tokens instantly." />
-            <StepCard num="03" icon={<Award size={24}/>} title="Claim Rewards" desc="Contributors receive priority network benefits." />
+            <StepCard num="01" icon={<HeartHandshake size={24} />} title="Direct Support" desc="Contributions are mapped directly to community pools." />
+            <StepCard num="02" icon={<Activity size={24} />} title="Impact Pulse" desc="Our engine verifies and unlocks tokens instantly." />
+            <StepCard num="03" icon={<Award size={24} />} title="Claim Rewards" desc="Contributors receive priority network benefits." />
           </div>
         </div>
       </div>
@@ -299,7 +298,7 @@ export default function HelpAndEarn() {
 function YellowInput({ label, name, value, onChange, type = "text", placeholder }: any) {
   return (
     <div className="space-y-1.5 w-full">
-      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-800/60 ml-1 italic">{label}</label>
+      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-red-600 ml-2 italic">{label}</label>
       <input
         type={type} name={name} value={value} onChange={onChange} placeholder={placeholder}
         className="w-full p-3.5 bg-[#FEF3C7]/15 border border-transparent rounded-xl focus:border-yellow-400 focus:bg-white outline-none transition-all font-bold uppercase text-[10px] tracking-widest text-gray-700 placeholder:text-yellow-800/20"

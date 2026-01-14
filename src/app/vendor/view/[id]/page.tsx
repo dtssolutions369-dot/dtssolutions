@@ -20,7 +20,7 @@ export default function VendorDetailPage() {
   const [openSection, setOpenSection] = useState<string | null>("media");
 
   // --- POPUP STATE ---
-  const [activeMedia, setActiveMedia] = useState<{ url: string; type: "image" | "video" } | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchVendorData = async () => {
@@ -42,50 +42,86 @@ export default function VendorDetailPage() {
     if (!vendor.video_files) return [];
     return Array.isArray(vendor.video_files) ? vendor.video_files : [];
   };
+  const mediaList = [
+    ...(vendor.media_files?.map((url: string) => ({ url, type: "image" })) || []),
+    ...getVideos().map((vid: any) => ({
+      url: typeof vid === "string" ? vid : vid.url,
+      type: "video"
+    }))
+  ];
 
   return (
     <div className="w-full bg-white font-sans selection:bg-yellow-100">
 
       {/* --- MEDIA LIGHTBOX (MODAL) --- */}
       <AnimatePresence>
-        {activeMedia && (
-          <motion.div 
+        {activeIndex !== null && (
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setActiveMedia(null)} 
-            className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer"
+            onClick={() => setActiveIndex(null)}
+            className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4"
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()} 
+              onClick={(e) => e.stopPropagation()}
               className="relative max-w-5xl w-full max-h-[85vh] bg-black rounded-3xl overflow-hidden shadow-2xl flex items-center justify-center"
             >
-              <button 
-                onClick={() => setActiveMedia(null)}
-                className="absolute top-6 right-6 z-[110] p-3 bg-white/10 hover:bg-red-600 text-white rounded-full transition-all backdrop-blur-md"
+              {/* CLOSE */}
+              <button
+                onClick={() => setActiveIndex(null)}
+                className="absolute top-6 right-6 z-[110] p-3 bg-white/10 hover:bg-red-600 text-white rounded-full"
               >
                 <X size={24} />
               </button>
 
-              {activeMedia.type === "image" ? (
-                <img src={activeMedia.url} className="w-full h-full object-contain mx-auto" />
+              {/* LEFT */}
+              <button
+                onClick={() =>
+                  setActiveIndex(
+                    (activeIndex - 1 + mediaList.length) % mediaList.length
+                  )
+                }
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-yellow-400 text-white p-3 rounded-full z-20"
+              >
+                ‹
+              </button>
+
+              {/* RIGHT */}
+              <button
+                onClick={() =>
+                  setActiveIndex((activeIndex + 1) % mediaList.length)
+                }
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-yellow-400 text-white p-3 rounded-full z-20"
+              >
+                ›
+              </button>
+
+              {/* MEDIA */}
+              {mediaList[activeIndex].type === "image" ? (
+                <motion.img
+                  src={mediaList[activeIndex].url}
+                  drag
+                  dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+                  className="w-screen h-screen object-contain cursor-grab active:cursor-grabbing"
+                />
+
               ) : (
-                <video 
-                  key={activeMedia.url} 
-                  src={activeMedia.url}
-                  className="max-w-full max-h-full"
-                  autoPlay 
+                <video
+                  src={mediaList[activeIndex].url}
+                  autoPlay
                   controls
-                  playsInline 
+                  className="max-w-full max-h-full"
                 />
               )}
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
 
       {/* --- HEADER --- */}
       <div className="bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-12 pb-32 px-6 border-b border-yellow-200">
@@ -107,8 +143,8 @@ export default function VendorDetailPage() {
                 {vendor.company_name}
               </h1>
               <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-4 text-gray-600 font-bold text-sm">
-                <div className="flex items-center gap-1"><MapPin size={16} className="text-yellow-600"/> {vendor.city}, {vendor.state}</div>
-                <div className="flex items-center gap-1"><ShieldCheck size={16} className="text-red-600"/> GST: {vendor.gst_number || 'N/A'}</div>
+                <div className="flex items-center gap-1"><MapPin size={16} className="text-yellow-600" /> {vendor.city}, {vendor.state}</div>
+                <div className="flex items-center gap-1"><ShieldCheck size={16} className="text-red-600" /> GST: {vendor.gst_number || 'N/A'}</div>
               </div>
             </div>
           </div>
@@ -118,12 +154,13 @@ export default function VendorDetailPage() {
       {/* --- CONTENT GRID --- */}
       <div className="max-w-7xl mx-auto px-6 -mt-12 pb-20 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-20">
         <div className="lg:col-span-8 space-y-6">
-          
+
           {/* GALLERY & MEDIA SECTION */}
-          <AccordionSection title="Gallery & Media" icon={<ImageIcon size={20}/>} isOpen={openSection === "media"} onToggle={() => setOpenSection("media")}>
+          <AccordionSection title="Gallery & Media" icon={<ImageIcon size={20} />} isOpen={openSection === "media"} onToggle={() => setOpenSection("media")}>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {vendor.media_files?.map((img: string, i: number) => (
-                <div key={i} onClick={() => setActiveMedia({url: img, type: 'image'})} className="aspect-square rounded-2xl overflow-hidden cursor-zoom-in group relative bg-slate-50 border border-slate-100 shadow-sm">
+                <div key={i} onClick={() => setActiveIndex(i)}
+                  className="aspect-square rounded-2xl overflow-hidden cursor-zoom-in group relative bg-slate-50 border border-slate-100 shadow-sm">
                   <img src={img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <Maximize2 className="text-white" />
@@ -134,19 +171,20 @@ export default function VendorDetailPage() {
               {getVideos().map((vid: any, i: number) => {
                 const url = typeof vid === 'string' ? vid : vid.url;
                 return (
-                  <div key={i} onClick={() => setActiveMedia({url: url, type: 'video'})} className="aspect-square rounded-2xl bg-black overflow-hidden cursor-pointer group relative border border-slate-200 shadow-sm">
-                    <video 
-                      src={url} 
-                      autoPlay 
-                      muted 
-                      loop 
-                      playsInline 
+                  <div key={i} onClick={() => setActiveIndex(vendor.media_files.length + i)}
+                    className="aspect-square rounded-2xl bg-black overflow-hidden cursor-pointer group relative border border-slate-200 shadow-sm">
+                    <video
+                      src={url}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
                       className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
                     />
                     <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                       <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl transform scale-75 group-hover:scale-100 transition-transform duration-300">
-                          <Play className="text-white ml-1" fill="white" size={30} />
-                       </div>
+                      <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                        <Play className="text-white ml-1" fill="white" size={30} />
+                      </div>
                     </div>
                   </div>
                 );
@@ -155,15 +193,15 @@ export default function VendorDetailPage() {
           </AccordionSection>
 
           {/* BUSINESS OVERVIEW */}
-          <AccordionSection title="Business Overview" icon={<Info size={20}/>} isOpen={openSection === "overview"} onToggle={() => setOpenSection("overview")}>
+          <AccordionSection title="Business Overview" icon={<Info size={20} />} isOpen={openSection === "overview"} onToggle={() => setOpenSection("overview")}>
             <div className="space-y-6">
               <p className="text-slate-700 text-lg leading-relaxed font-medium">{vendor.profile_info || "No description provided."}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-slate-100">
                 <div>
                   <h4 className="text-[10px] font-black uppercase text-slate-400 mb-3 tracking-widest">Office Address</h4>
                   <p className="text-sm font-bold text-slate-800 leading-relaxed bg-slate-50 p-4 rounded-2xl">
-                    {vendor.flat_no} {vendor.floor && `${vendor.floor} Floor,`} {vendor.building}<br/>
-                    {vendor.street}, {vendor.area}<br/>
+                    {vendor.flat_no} {vendor.floor && `${vendor.floor} Floor,`} {vendor.building}<br />
+                    {vendor.street}, {vendor.area}<br />
                     {vendor.city}, {vendor.state} - {vendor.pincode}
                   </p>
                 </div>
@@ -180,18 +218,27 @@ export default function VendorDetailPage() {
           </AccordionSection>
 
           {/* PRODUCT CATALOG (RESTORED) */}
-          <AccordionSection title="Product Catalog" icon={<ShoppingBag size={20}/>} isOpen={openSection === "products"} onToggle={() => setOpenSection("products")}>
+          <AccordionSection title="Product Catalog" icon={<ShoppingBag size={20} />} isOpen={openSection === "products"} onToggle={() => setOpenSection("products")}>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {products.length > 0 ? products.map(p => (
-                 <div key={p.id} className="bg-white border border-slate-100 rounded-2xl p-2 hover:shadow-xl hover:border-yellow-400 transition-all group">
-                    <div onClick={() => setActiveMedia({url: p.product_image, type: 'image'})} className="aspect-square bg-slate-50 rounded-xl mb-3 overflow-hidden cursor-zoom-in relative">
-                      <img src={p.product_image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={p.product_name} />
-                    </div>
-                    <div className="px-1 pb-1">
-                      <h5 className="text-xs font-black text-slate-900 truncate uppercase tracking-tight">{p.product_name}</h5>
-                      <p className="text-red-600 font-black text-sm mt-1">₹{p.price}</p>
-                    </div>
-                 </div>
+                <div key={p.id} className="bg-white border border-slate-100 rounded-2xl p-2 hover:shadow-xl hover:border-yellow-400 transition-all group">
+                  <div
+                    onClick={() => {
+                      const index = mediaList.findIndex(
+                        (m) => m.url === p.product_image
+                      );
+                      if (index !== -1) setActiveIndex(index);
+                    }}
+                    className="aspect-square bg-slate-50 rounded-xl mb-3 overflow-hidden cursor-zoom-in relative"
+                  >
+
+                    <img src={p.product_image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={p.product_name} />
+                  </div>
+                  <div className="px-1 pb-1">
+                    <h5 className="text-xs font-black text-slate-900 truncate uppercase tracking-tight">{p.product_name}</h5>
+                    <p className="text-red-600 font-black text-sm mt-1">₹{p.price}</p>
+                  </div>
+                </div>
               )) : (
                 <p className="text-slate-400 text-sm font-bold col-span-full py-10 text-center italic">No products listed by this vendor.</p>
               )}
@@ -203,17 +250,17 @@ export default function VendorDetailPage() {
         <div className="lg:col-span-4">
           <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white sticky top-8 shadow-2xl">
             <h3 className="text-xl font-black mb-8 flex items-center gap-3">
-              <div className="p-2 bg-yellow-400 rounded-xl text-black"><Briefcase size={20}/></div>
+              <div className="p-2 bg-yellow-400 rounded-xl text-black"><Briefcase size={20} /></div>
               Contact Info
             </h3>
             <div className="space-y-6">
-              <ContactRow label="Primary Contact" value={vendor.owner_name} icon={<User size={18}/>} />
-              <ContactRow label="Mobile Number" value={vendor.mobile_number} icon={<Smartphone size={18}/>} />
-              <ContactRow label="Official Email" value={vendor.email} icon={<Mail size={18}/>} />
+              <ContactRow label="Primary Contact" value={vendor.owner_name} icon={<User size={18} />} />
+              <ContactRow label="Mobile Number" value={vendor.mobile_number} icon={<Smartphone size={18} />} />
+              <ContactRow label="Official Email" value={vendor.email} icon={<Mail size={18} />} />
             </div>
             <div className="mt-10">
               <a href={`tel:${vendor.mobile_number}`} className="flex items-center justify-center gap-3 bg-yellow-400 text-black font-black py-5 rounded-2xl hover:bg-yellow-300 transition-all w-full shadow-lg shadow-yellow-400/20">
-                <Phone size={20}/> Call Vendor
+                <Phone size={20} /> Call Vendor
               </a>
             </div>
           </div>
@@ -247,9 +294,9 @@ function AccordionSection({ title, icon, children, isOpen, onToggle }: any) {
       </button>
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
-            initial={{ height: 0, opacity: 0 }} 
-            animate={{ height: "auto", opacity: 1 }} 
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.4, ease: "circOut" }}
           >

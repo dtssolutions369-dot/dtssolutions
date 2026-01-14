@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { 
-  Facebook, 
-  Instagram, 
-  Twitter, 
-  Mail, 
-  Phone, 
-  MapPin, 
+import {
+  Facebook,
+  Instagram,
+  Twitter,
+  Mail,
+  Phone,
+  MapPin,
   Globe
 } from "lucide-react";
 
@@ -17,20 +17,20 @@ export default function Footer() {
     <footer className="relative bg-[#05070a] text-slate-400 pt-8 pb-6 overflow-hidden border-t border-white/5">
       {/* Background Decorative Element */}
       <div className="absolute top-0 left-1/4 w-72 h-72 bg-amber-500/5 blur-[100px] rounded-full"></div>
-      
+
       <div className="max-w-7xl mx-auto px-5 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-x-8 gap-y-8 mb-8">
-          
+
           {/* Column 1: Brand Info */}
           <div className="lg:col-span-4 space-y-4">
             <Link href="/" className="inline-block">
-                <Image
-                  src="/logoBlacl.png" 
-                  alt="QickTick Logo"
-                  width={140}
-                  height={35}
-                  className="object-contain"
-                />
+              <Image
+                src="/logoBlacl.png"
+                alt="QickTick Logo"
+                width={140}
+                height={35}
+                className="object-contain"
+              />
             </Link>
             <p className="text-[13px] leading-relaxed text-slate-400 max-w-sm">
               Empowering local economies through digital discovery. We connect millions of users with verified local experts and businesses across India.
@@ -54,47 +54,47 @@ export default function Footer() {
 
           {/* Column 2 & 3 Wrapper for Mobile (Platform & Services) */}
           <div className="grid grid-cols-2 lg:grid-cols-5 lg:col-span-5 gap-4">
-              {/* Column 2: Platform */}
-              <div className="lg:col-span-2">
-                <h3 className="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4">
-                  Platform
-                </h3>
-                <ul className="space-y-2.5">
-                  {[
-                    { name: 'Home', href: '/' },
-                    { name: 'Plans', href: '/plans' },
-                    { name: 'Add Business', href: '/add-business' },
-                    { name: 'Transport', href: '/transport' }
-                  ].map((item) => (
-                    <li key={item.name}>
-                      <Link href={item.href} className="text-xs hover:text-amber-400 transition-colors">
-                        {item.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            {/* Column 2: Platform */}
+            <div className="lg:col-span-2">
+              <h3 className="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+                Platform
+              </h3>
+              <ul className="space-y-2.5">
+                {[
+                  { name: 'Home', href: '/' },
+                  { name: 'Plans', href: '/plans' },
+                  { name: 'Add Business', href: '/add-business' },
+                  { name: 'Transport', href: '/transport' }
+                ].map((item) => (
+                  <li key={item.name}>
+                    <Link href={item.href} className="text-xs hover:text-amber-400 transition-colors">
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-              {/* Column 3: Services */}
-              <div className="lg:col-span-3">
-                <h3 className="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4">
-                  Services
-                </h3>
-                <ul className="space-y-2.5">
-                  {[
-                    { name: 'Enquiry', href: '/enquiry' },
-                    { name: 'Listing', href: '/listing' },
-                    { name: 'Video Services', href: '/video' },
-                    { name: 'Help & Earn', href: '/help-earn' }
-                  ].map((item) => (
-                    <li key={item.name}>
-                      <Link href={item.href} className="text-xs hover:text-amber-400 transition-colors">
-                        {item.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            {/* Column 3: Services */}
+            <div className="lg:col-span-3">
+              <h3 className="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+                Services
+              </h3>
+              <ul className="space-y-2.5">
+                {[
+                  { name: 'Enquiry', href: '/enquiry' },
+                  { name: 'Listing', href: '/listing' },
+                  { name: 'Video Services', href: '/video' },
+                  { name: 'Help & Earn', href: '/help-earn' }
+                ].map((item) => (
+                  <li key={item.name}>
+                    <Link href={item.href} className="text-xs hover:text-amber-400 transition-colors">
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           {/* Column 4: Preferences */}
@@ -103,37 +103,38 @@ export default function Footer() {
               Preferences
             </h3>
             <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2 text-[11px] text-slate-300 bg-white/5 border border-white/10 p-2 rounded-lg">
-                    <Globe size={12} className="text-amber-500" />
-                    <span>English (IN)</span>
-                </div>
-                <div className="flex items-center gap-2 text-[11px] text-slate-300 bg-white/5 border border-white/10 p-2 rounded-lg">
-                    <span className="text-amber-500 font-bold ml-0.5 text-[10px]">₹</span>
-                    <span>INR (₹)</span>
-                </div>
+              <div className="flex items-center gap-2 text-[11px] text-slate-300 bg-white/5 border border-white/10 p-2 rounded-lg">
+                <Globe size={12} className="text-amber-500" />
+                <span>English (IN)</span>
+              </div>
+              <div className="flex items-center gap-2 text-[11px] text-slate-300 bg-white/5 border border-white/10 p-2 rounded-lg">
+                <span className="text-amber-500 font-bold ml-0.5 text-[10px]">₹</span>
+                <span>INR (₹)</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Contact Strip */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 py-5 border-y border-white/5">
-            {[
-                { icon: <Mail size={16} />, label: "Email Us", val: "support@qicktick.com", color: "text-amber-500", bg: "bg-amber-500/10" },
-                { icon: <Phone size={16} />, label: "Call Us", val: "+91 98765 43210", color: "text-blue-500", bg: "bg-blue-500/10" },
-                { icon: <MapPin size={16} />, label: "Visit Us", val: "Mumbai, India", color: "text-emerald-500", bg: "bg-emerald-500/10" }
-            ].map((item, idx) => (
-                <div key={idx} className="flex items-center gap-3 p-2.5 bg-white/[0.02] rounded-xl border border-white/5">
-                    <div className={`p-2 ${item.bg} rounded-lg ${item.color}`}>
-                        {item.icon}
-                    </div>
-                    <div>
-                        <p className="text-[8px] font-black uppercase tracking-widest text-slate-500">{item.label}</p>
-                        <p className="text-[13px] text-slate-200 font-semibold">{item.val}</p>
-                    </div>
-                </div>
-            ))}
+          {[
+            { icon: <Mail size={16} />, label: "Email Us", val: "qicktick2025@gmail.com", color: "text-amber-500", bg: "bg-amber-500/10" },
+            { icon: <Phone size={16} />, label: "Call Us", val: "+91 7892999063", color: "text-blue-500", bg: "bg-blue-500/10" },
+            { icon: <MapPin size={16} />, label: "Visit Us", val: "Vidyanagar kabbur, Haveri, Karnataka, 581110", color: "text-emerald-500", bg: "bg-emerald-500/10" }
+          ].map((item, idx) => (
+            <div key={idx} className="flex items-center gap-3 p-2.5 bg-white/[0.02] rounded-xl border border-white/5">
+              <div className={`p-2 ${item.bg} rounded-lg ${item.color}`}>
+                {item.icon}
+              </div>
+              <div>
+                <p className="text-[8px] font-black uppercase tracking-widest text-slate-500">{item.label}</p>
+                <p className="text-[13px] text-slate-200 font-semibold">{item.val}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
+        {/* Bottom Bar */}
         {/* Bottom Bar */}
         <div className="mt-5 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
           <div className="flex flex-col gap-1">
@@ -145,10 +146,17 @@ export default function Footer() {
             </p>
           </div>
 
-          <Link href="/terms" className="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-amber-500">
+          {/* Updated link to open PDF */}
+          <a
+            href="/terms.pdf"   // <-- Path to your PDF file in public folder
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-amber-500"
+          >
             Terms & Conditions
-          </Link>
+          </a>
         </div>
+
       </div>
     </footer>
   );

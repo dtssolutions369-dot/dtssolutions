@@ -390,12 +390,15 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
           {/* 3. Actions Section - Desktop */}
           <div className="hidden lg:flex items-center space-x-4">
             {/* Primary Action Button */}
-            <Link
-              href="/user/add-business"
-              className="flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white text-xs font-black uppercase tracking-widest rounded-full hover:bg-red-700 transition-all shadow-lg"
-            >
-              <PlusCircle size={16} /> Add Business
-            </Link>
+{!user && (
+  <button
+    onClick={() => setOpenVendor(true)}
+    className="px-6 py-3 border-2 border-red-500 text-white rounded-xl font-bold text-sm uppercase tracking-wide hover:bg-red-500/10 transition-all"
+  >
+   +  Add Business
+  </button>
+)}
+
 
             <div className="h-6 w-[1px] bg-gray-200" />
 
@@ -875,6 +878,8 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
           onSuccess={() => loadUserAndRole()} // Force reload after registration
         />
       )}
+
+
     </div>
   );
 }

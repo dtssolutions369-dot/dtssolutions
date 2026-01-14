@@ -93,9 +93,9 @@ export default function VendorProductsPage() {
             <span className="inline-flex items-center gap-2 px-3 py-1 mb-4 bg-white/80 backdrop-blur-md border border-yellow-300 text-yellow-800 text-[9px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm">
               <Zap size={10} fill="currentColor" /> Marketplace Inventory
             </span>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-900 leading-none">
-              VENDOR <br /> <span className="text-red-600 italic">INVENTORY</span>
-            </h1>
+            <h3 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-900 leading-none">
+              VENDOR <span className="text-red-600">INVENTORY</span>
+            </h3>
           </div>
           <div className="hidden lg:block bg-white p-8 rounded-[2.5rem] rotate-3 shadow-xl border border-yellow-100">
             <Package size={50} className="text-yellow-600" />

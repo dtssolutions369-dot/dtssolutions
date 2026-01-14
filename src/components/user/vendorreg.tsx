@@ -204,6 +204,70 @@ export default function VendorRegister({
     setMediaPreviews(filtered);
     setFormData({ ...formData, media_files: filtered });
   };
+const useMyLocation = async () => {
+  if (!navigator.geolocation) {
+    toast.error("Geolocation not supported");
+    return;
+  }
+
+  setLoading(true);
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      try {
+        const { latitude, longitude } = position.coords;
+
+       const res = await fetch(
+  `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
+  {
+    headers: {
+      "Accept": "application/json",
+      "User-Agent": "VendorPro/1.0 (contact@vendorpro.com)"
+    }
+  }
+);
+
+        const data = await res.json();
+
+        const address = data.address || {};
+
+        setFormData((prev) => ({
+          ...prev,
+          area:
+            address.suburb ||
+            address.neighbourhood ||
+            address.village ||
+            "",
+          city:
+            address.city ||
+            address.town ||
+            address.village ||
+            "",
+          state: address.state || "",
+          pincode: address.postcode || "",
+          landmark: address.road || "",
+          address: data.display_name || "",
+        }));
+
+        toast.success("Location detected successfully");
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to fetch location details");
+      } finally {
+        setLoading(false);
+      }
+    },
+    (error) => {
+      console.error(error);
+      toast.error("Permission denied or location unavailable");
+      setLoading(false);
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+    }
+  );
+};
 
   const validateStep = (currentStep: number) => {
     const mobileRegex = /^[0-9]{10}$/;
@@ -313,11 +377,24 @@ export default function VendorRegister({
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({
+      const { data, error } = await supabase.auth.verifyOtp({
         email: formData.email,
         token: otp,
         type: "email",
       });
+
+      if (error) throw error;
+
+      // ✅ FORCE SESSION REFRESH
+      await supabase.auth.refreshSession();
+
+      // ✅ OPTIONAL: store user id immediately
+      if (!data.session?.user) {
+        throw new Error("Authentication failed");
+      }
+
+      setStep(2);
+
       if (error) throw error;
       setStep(2);
       setError(null);
@@ -841,6 +918,15 @@ export default function VendorRegister({
                       ))}
                     </div>
                   </div>
+                                      <button
+  type="button"
+  onClick={useMyLocation}
+  disabled={loading}
+  className="flex items-center gap-2 mb-4 px-4 py-3 bg-gray-900 text-white rounded-xl text-sm font-semibold uppercase tracking-wide hover:bg-yellow-300 transition-all disabled:opacity-50"
+>
+  <Globe size={16} />
+  {loading ? "Detecting Location..." : "Use My Location"}
+</button>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className={labelClass}>Office / Shop No.</label>

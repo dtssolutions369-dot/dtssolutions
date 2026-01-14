@@ -2,9 +2,9 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { 
-  Eye, X, MapPin, Calendar, Phone, Package, 
-  ChevronRight, Search, RefreshCw, Loader2, 
+import {
+  Eye, X, MapPin, Calendar, Phone, Package,
+  ChevronRight, Search, RefreshCw, Loader2,Trash2 ,
   ArrowRightLeft, ShieldCheck, Truck, Weight,
   Navigation, Hash
 } from "lucide-react";
@@ -27,6 +27,31 @@ export default function TravelRequestsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<TravelRequest | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<TravelRequest | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const deleteRequest = async () => {
+    if (!deleteTarget) return;
+
+    setDeleting(true);
+
+    const { error } = await supabase
+      .from("travel_requests")
+      .delete()
+      .eq("id", deleteTarget.id);
+
+    if (error) {
+      console.error("Delete failed:", error);
+    } else {
+      setRequests((prev) =>
+        prev.filter((r) => r.id !== deleteTarget.id)
+      );
+      setSelectedRequest(null);
+      setDeleteTarget(null);
+    }
+
+    setDeleting(false);
+  };
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -34,7 +59,7 @@ export default function TravelRequestsPage() {
       .from("travel_requests")
       .select("*")
       .order("created_at", { ascending: false });
-    
+
     if (error) console.error(error);
     else setRequests(data || []);
     setLoading(false);
@@ -43,19 +68,19 @@ export default function TravelRequestsPage() {
   useEffect(() => { fetchRequests(); }, []);
 
   const filteredRequests = useMemo(() => {
-    return requests.filter(req => 
-      req.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    return requests.filter(req =>
+      req.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       req.phone.includes(searchQuery)
     );
   }, [requests, searchQuery]);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans text-slate-900 pb-20">
-      
+
       {/* --- MASTER YELLOW BANNER --- */}
       <div className="bg-yellow-300 pt-10 pb-28 px-6 md:px-10 rounded-b-[3rem] shadow-lg relative overflow-hidden">
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-yellow-300 rounded-full opacity-40 blur-3xl" />
-        
+
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
@@ -70,14 +95,14 @@ export default function TravelRequestsPage() {
                 Dispatch synchronization. Auditing active transit requests and cargo specifications.
               </p>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <div className="bg-white/40 backdrop-blur-md p-5 rounded-[2rem] border border-white/50 min-w-[140px] text-center shadow-sm">
                 <p className="text-red-900 text-[9px] font-black uppercase mb-1">Total Loads</p>
                 <p className="text-3xl font-black text-[#e11d48]">{requests.length}</p>
               </div>
-              <button 
-                onClick={fetchRequests} 
+              <button
+                onClick={fetchRequests}
                 className="bg-black hover:bg-red-600 text-white p-5 rounded-2xl transition-all shadow-2xl active:scale-95 group"
               >
                 <RefreshCw size={24} className={loading ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"} />
@@ -89,19 +114,19 @@ export default function TravelRequestsPage() {
 
       {/* MAIN CONTENT AREA */}
       <div className="max-w-7xl mx-auto px-6 md:px-10 -mt-12 relative z-30">
-        
+
         {/* SEARCH BAR */}
         <div className="mb-10">
-           <div className="relative group">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-red-600 transition-colors" size={20} />
-              <input 
-                type="text"
-                placeholder="SEARCH BY NAME, PHONE, OR ROUTE..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-16 pr-8 py-6 bg-white border-2 border-slate-100 rounded-[2rem] focus:border-red-600 outline-none shadow-xl shadow-slate-200/50 font-black text-xs uppercase tracking-[0.2em] transition-all"
-              />
-           </div>
+          <div className="relative group">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-red-600 transition-colors" size={20} />
+            <input
+              type="text"
+              placeholder="SEARCH BY NAME, PHONE, OR ROUTE..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-16 pr-8 py-6 bg-white border-2 border-slate-100 rounded-[2rem] focus:border-red-600 outline-none shadow-xl shadow-slate-200/50 font-black text-xs uppercase tracking-[0.2em] transition-all"
+            />
+          </div>
         </div>
 
         {/* DATA TABLE CONTAINER */}
@@ -144,13 +169,13 @@ export default function TravelRequestsPage() {
                     <td className="p-8">
                       <div className="flex items-center gap-3">
                         <div className="flex flex-col">
-                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Origin</span>
-                           <span className="text-xs font-black text-slate-700 uppercase italic truncate max-w-[120px]">{req.pickup_location || "N/A"}</span>
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Origin</span>
+                          <span className="text-xs font-black text-slate-700 uppercase italic truncate max-w-[120px]">{req.pickup_location || "N/A"}</span>
                         </div>
                         <ChevronRight size={16} className="text-red-600 animate-pulse" />
                         <div className="flex flex-col">
-                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Destination</span>
-                           <span className="text-xs font-black text-slate-900 uppercase italic truncate max-w-[120px]">{req.drop_location || "N/A"}</span>
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Destination</span>
+                          <span className="text-xs font-black text-slate-900 uppercase italic truncate max-w-[120px]">{req.drop_location || "N/A"}</span>
                         </div>
                       </div>
                     </td>
@@ -164,13 +189,28 @@ export default function TravelRequestsPage() {
                       </div>
                     </td>
                     <td className="p-8 text-right">
-                      <button 
-                        onClick={() => setSelectedRequest(req)}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-black text-[#facc15] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all shadow-xl active:scale-95"
-                      >
-                        <Eye size={14} /> Open Dossier
-                      </button>
+                      <div className="inline-flex items-center gap-3">
+
+                        {/* DELETE ICON BUTTON */}
+                        <button
+                          onClick={() => setDeleteTarget(req)}
+                          className="p-3 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-md active:scale-95"
+                          title="Delete Request"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+
+                        {/* OPEN DOSSIER BUTTON */}
+                        <button
+                          onClick={() => setSelectedRequest(req)}
+                          className="inline-flex items-center gap-2 px-6 py-3 bg-black text-[#facc15] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all shadow-xl active:scale-95"
+                        >
+                          <Eye size={14} /> Open Dossier
+                        </button>
+
+                      </div>
                     </td>
+
                   </tr>
                 ))}
               </tbody>
@@ -183,7 +223,7 @@ export default function TravelRequestsPage() {
       {selectedRequest && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center z-50 p-4">
           <div className="bg-white w-full max-w-4xl rounded-[3.5rem] overflow-hidden shadow-2xl relative animate-in zoom-in duration-300 flex flex-col md:flex-row h-[85vh]">
-            
+
             {/* SIDE PANEL: CARGO STATUS */}
             <div className="md:w-1/3 bg-yellow-300 p-10 flex flex-col border-r border-black/5">
               <div className="mb-10">
@@ -191,7 +231,7 @@ export default function TravelRequestsPage() {
                   <Hash size={14} /> ID-{selectedRequest.id}
                 </div>
                 <h2 className="text-4xl font-black text-black uppercase italic leading-[0.8] tracking-tighter mb-4">
-                  Request <br/><span className="text-[#e11d48]">Brief</span>
+                  Request <br /><span className="text-[#e11d48]">Brief</span>
                 </h2>
                 <div className="w-12 h-1.5 bg-black rounded-full" />
               </div>
@@ -202,7 +242,7 @@ export default function TravelRequestsPage() {
                   <p className="text-xl font-black text-black italic tracking-tighter">{selectedRequest.name}</p>
                   <p className="text-sm font-bold text-black/60">{selectedRequest.phone}</p>
                 </div>
-                
+
                 <div className="flex items-center gap-4 px-2">
                   <div className="w-12 h-12 rounded-2xl bg-black flex items-center justify-center text-[#facc15]">
                     <Weight size={24} />
@@ -217,7 +257,7 @@ export default function TravelRequestsPage() {
 
             {/* MAIN CONTENT: LOGISTICS */}
             <div className="flex-1 p-12 overflow-y-auto bg-white flex flex-col">
-              <button 
+              <button
                 className="absolute top-8 right-8 p-3 bg-slate-100 rounded-2xl hover:bg-red-600 hover:text-white transition-all z-10"
                 onClick={() => setSelectedRequest(null)}
               >
@@ -228,7 +268,7 @@ export default function TravelRequestsPage() {
                 <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 relative overflow-hidden">
                   <Navigation className="absolute -right-4 -bottom-4 text-slate-100 w-24 h-24 -rotate-12" />
                   <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-                    <Truck size={16} className="text-red-600"/> Transit Route
+                    <Truck size={16} className="text-red-600" /> Transit Route
                   </h4>
                   <div className="space-y-6 relative z-10">
                     <div className="flex items-start gap-4">
@@ -279,21 +319,72 @@ export default function TravelRequestsPage() {
               </div>
 
               <div className="flex gap-4">
-                <button 
-                   onClick={() => setSelectedRequest(null)}
-                   className="flex-1 py-5 bg-slate-100 text-slate-900 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] hover:bg-black hover:text-white transition-all italic active:scale-95"
+                <button
+                  onClick={() => setDeleteTarget(selectedRequest)}
+                  className="flex-1 py-5 bg-red-600 text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] hover:bg-red-700 transition-all italic active:scale-95"
+                >
+                  Delete Request
+                </button>
+
+                <button
+                  onClick={() => setSelectedRequest(null)}
+                  className="flex-1 py-5 bg-slate-100 text-slate-900 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] hover:bg-black hover:text-white transition-all italic active:scale-95"
                 >
                   Dismiss
                 </button>
+
                 <button className="flex-2 px-10 py-5 bg-black text-[#facc15] rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] hover:bg-red-600 hover:text-white transition-all shadow-2xl active:scale-95 flex items-center justify-center gap-3 italic">
-                   Initiate Dispatch <ArrowRightLeft size={16}/>
+                  Initiate Dispatch <ArrowRightLeft size={16} />
                 </button>
               </div>
+
             </div>
 
           </div>
         </div>
       )}
+
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <div className="bg-white max-w-md w-full rounded-[3rem] p-10 shadow-2xl animate-in zoom-in duration-200">
+
+            <h3 className="text-3xl font-black uppercase italic tracking-tighter mb-4 text-red-600">
+              Confirm Deletion
+            </h3>
+
+            <p className="text-sm font-bold text-slate-700 mb-8 leading-relaxed">
+              You are about to permanently delete the request from
+              <span className="font-black text-black"> {deleteTarget.name}</span>.
+              This action <span className="text-red-600 font-black">cannot be undone</span>.
+            </p>
+
+            <div className="flex gap-4">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="flex-1 py-4 bg-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={deleteRequest}
+                disabled={deleting}
+                className="flex-1 py-4 bg-red-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-all flex items-center justify-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="animate-spin" size={16} />
+                    Deleting
+                  </>
+                ) : (
+                  "Confirm Delete"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
