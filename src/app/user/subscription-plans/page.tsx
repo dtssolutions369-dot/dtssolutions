@@ -169,10 +169,7 @@ export default function SubscriptionPlanPage() {
               </div>
               <h2 className="text-xl font-black text-gray-900 mb-2 uppercase tracking-tighter">Identity Check</h2>
               <p className="text-gray-500 text-xs mb-6">Please login to access ecosystem pricing.</p>
-              <button onClick={() => router.push('/login')} className="w-full bg-gray-900 text-white py-3 rounded-xl font-bold text-sm">
-                Go to Login
-              </button>
-            </motion.div>
+                        </motion.div>
           </div>
         )}
       </AnimatePresence>

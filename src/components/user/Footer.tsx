@@ -3,9 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import {
-  Facebook,
   Instagram,
-  Twitter,
+  Youtube,
+  MessageCircle, // Using this for WhatsApp
   Mail,
   Phone,
   MapPin,
@@ -35,15 +35,31 @@ export default function Footer() {
             <p className="text-[13px] leading-relaxed text-slate-400 max-w-sm">
               Empowering local economies through digital discovery. We connect millions of users with verified local experts and businesses across India.
             </p>
+            
+            {/* Updated Social Links */}
             <div className="flex gap-3 pt-1">
               {[
-                { icon: <Instagram size={18} />, color: "hover:bg-pink-600" },
-                { icon: <Facebook size={18} />, color: "hover:bg-blue-600" },
-                { icon: <Twitter size={18} />, color: "hover:bg-sky-500" }
+                { 
+                    icon: <Instagram size={18} />, 
+                    color: "hover:bg-pink-600", 
+                    href: "https://www.instagram.com/qicktick4?igsh=MWF5NGxwcGFtM3pyag==" 
+                },
+                { 
+                    icon: <Youtube size={18} />, 
+                    color: "hover:bg-red-600", 
+                    href: "https://youtube.com/@qicktick-2045?si=g5xqkrG7P9TZyII2" 
+                },
+                { 
+                    icon: <MessageCircle size={18} />, 
+                    color: "hover:bg-green-600", 
+                    href: "https://WA.me/917892999063" 
+                }
               ].map((social, i) => (
                 <a
                   key={i}
-                  href="#"
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={`p-2 bg-white/5 rounded-full border border-white/10 text-slate-300 transition-all ${social.color} hover:text-white`}
                 >
                   {social.icon}
@@ -135,7 +151,6 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        {/* Bottom Bar */}
         <div className="mt-5 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
           <div className="flex flex-col gap-1">
             <p className="text-[10px] font-medium text-slate-500 tracking-wide">
@@ -146,9 +161,8 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Updated link to open PDF */}
           <a
-            href="/terms.pdf"   // <-- Path to your PDF file in public folder
+            href="/terms.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-amber-500"
