@@ -21,6 +21,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
+
 export default function UserFeed() {
   const pathname = usePathname();
   const router = useRouter();
@@ -92,48 +93,48 @@ export default function UserFeed() {
     return () => authListener.subscription.unsubscribe();
   }, []);
 
-  const loadUserAndRole = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+ const loadUserAndRole = async () => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    setUser(user);
 
-      if (!user) {
-        setUserRole(null);
-        setProfileColor("#FFD700");
-        setProfileMedal("");
-        return;
-      }
+    if (!user) {
+      setUserRole(null);
+      setProfileColor("#FFD700");
+      setProfileMedal("");
+      return;
+    }
 
-      // ✅ 1. READ ROLE FROM AUTH (THIS WAS MISSING)
-      const role = user.user_metadata?.role || "user";
-      setUserRole(role);
+    // ✅ 1. READ ROLE FROM AUTH (defaults to "user" if not set)
+    const role = user.user_metadata?.role || "user";
+    setUserRole(role);
 
-      // ✅ 2. ONLY IF VENDOR → LOAD EXTRA DETAILS
-      if (role === "vendor") {
-        const { data: vendor } = await supabase
-          .from("vendor_register")
-          .select("subscription_plan_id")
-          .eq("user_id", user.id)
+    // ✅ 2. ONLY IF VENDOR → LOAD EXTRA DETAILS
+    if (role === "vendor") {
+      const { data: vendor } = await supabase
+        .from("vendor_register")
+        .select("subscription_plan_id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (vendor?.subscription_plan_id) {
+        const { data: plan } = await supabase
+          .from("subscription_plans")
+          .select("color, medals")
+          .eq("id", vendor.subscription_plan_id)
           .maybeSingle();
 
-        if (vendor?.subscription_plan_id) {
-          const { data: plan } = await supabase
-            .from("subscription_plans")
-            .select("color, medals")
-            .eq("id", vendor.subscription_plan_id)
-            .maybeSingle();
-
-          setProfileColor(plan?.color || "#FFD700");
-          setProfileMedal(plan?.medals || "");
-        }
-      } else {
-        setProfileColor("#FFD700");
-        setProfileMedal("");
+        setProfileColor(plan?.color || "#FFD700");
+        setProfileMedal(plan?.medals || "");
       }
-    } catch (err) {
-      console.error("loadUserAndRole error:", err);
+    } else {
+      setProfileColor("#FFD700");
+      setProfileMedal("");
     }
-  };
+  } catch (err) {
+    console.error("loadUserAndRole error:", err);
+  }
+};
 
   const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
 
@@ -143,7 +144,6 @@ export default function UserFeed() {
       setMobileProfileOpen(false);
     }
   }, [isMobileMenuOpen]);
-
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -183,6 +183,13 @@ export default function UserFeed() {
         return;
       }
 
+      // ✅ CHECK IF EMAIL EXISTS
+      const exists = await checkEmailExists(loginData.email);
+      if (!exists) {
+        setLoginError("Email not registered. Please sign up first.");
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithOtp({
         email: loginData.email,
       });
@@ -190,21 +197,6 @@ export default function UserFeed() {
       if (error) throw error;
 
       setLoginSuccess("OTP sent! It is valid for 5 minutes.");
-
-      const expiryTime = Date.now() + 5 * 60 * 1000;
-      setOtpExpiry(expiryTime);
-
-      const timer = setInterval(() => {
-        const remaining = expiryTime - Date.now();
-        if (remaining <= 0) {
-          setOtpTimer("00:00");
-          clearInterval(timer);
-        } else {
-          const m = Math.floor(remaining / 60000);
-          const s = Math.floor((remaining % 60000) / 1000);
-          setOtpTimer(`${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`);
-        }
-      }, 1000);
     } catch (err: any) {
       setLoginError(err.message);
     } finally {
@@ -217,11 +209,6 @@ export default function UserFeed() {
     setLoginError(null);
 
     try {
-      if (otpExpiry && Date.now() > otpExpiry) {
-        setLoginError("OTP expired.");
-        return;
-      }
-
       const { error } = await supabase.auth.verifyOtp({
         email: loginData.email,
         token: loginData.otp,
@@ -230,49 +217,41 @@ export default function UserFeed() {
 
       if (error) throw error;
 
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Auth failed");
+
+      // ✅ CHECK PROFILE TABLES
+      const { data: userProfile } = await supabase
+        .from("users")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      const { data: vendorProfile } = await supabase
+        .from("vendor_register")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (!userProfile && !vendorProfile) {
+        await supabase.auth.signOut();
+        setLoginError("Account not registered. Please sign up.");
+        return;
+      }
+
       setShowLoginPopup(false);
       router.push("/user");
+
+      // ✅ CLEAR INPUTS AND STATES AFTER SUCCESS
+      setLoginData({ email: "", otp: "" });
+      setLoginError(null);
+      setLoginSuccess(null);
+      setOtpTimer(null);
+
     } catch (err: any) {
       setLoginError(err.message);
     } finally {
       setLoginLoading(false);
-    }
-  };
-
-  const handleRegisterChange = (e: any) => setRegisterData({ ...registerData, [e.target.name]: e.target.value });
-
-  // UPDATED: Add email existence check before sending OTP
-  const sendRegisterOtp = async () => {
-    if (!registerData.name || !registerData.email) {
-      setRegisterError("Fill all fields");
-      return;
-    }
-
-    setRegisterLoading(true);
-    setRegisterError(null);
-
-    try {
-      // Check if email already exists in users or vendor_register
-      const exists = await checkEmailExists(registerData.email);
-      if (exists) {
-        setRegisterError("This email is already registered. Please login.");
-        return;
-      }
-
-      // Proceed to send OTP
-      const { error } = await supabase.auth.signInWithOtp({
-        email: registerData.email,
-        options: { data: { name: registerData.name } },
-      });
-
-      if (error) throw error;
-
-      setRegisterStep("otp");
-      setRegisterSuccess("OTP sent!");
-    } catch (err: any) {
-      setRegisterError(err.message || "Unable to send OTP. Please try again.");
-    } finally {
-      setRegisterLoading(false);
     }
   };
 
@@ -310,9 +289,61 @@ export default function UserFeed() {
     } else {
       setRegisterSuccess("Registration successful!");
       setTimeout(() => setShowRegisterPopup(false), 1500);
+
+      // ✅ CLEAR INPUTS AND STATES AFTER SUCCESS
+      setRegisterData({ name: "", email: "", otp: "" });
+      setRegisterError(null);
+      setRegisterSuccess(null);
+      setRegisterStep("form");
+      setOtpTimer(null);
     }
     setRegisterLoading(false);
   };
+
+  const handleRegisterChange = (e: any) => setRegisterData({ ...registerData, [e.target.name]: e.target.value });
+
+  // UPDATED: Add email existence check before sending OTP
+ // UPDATED: Add email existence check before sending OTP
+const sendRegisterOtp = async () => {
+  if (!registerData.name || !registerData.email) {
+    setRegisterError("Fill all fields");
+    return;
+  }
+
+  setRegisterLoading(true);
+  setRegisterError(null);
+
+  try {
+    // Check if email already exists in users or vendor_register
+    const exists = await checkEmailExists(registerData.email);
+    if (exists) {
+      setRegisterError("This email is already registered. Please login.");
+      return;
+    }
+
+    // Proceed to send OTP with role set to "user"
+    const { error } = await supabase.auth.signInWithOtp({
+      email: registerData.email,
+      options: { 
+        data: { 
+          name: registerData.name,
+          role: "user"  // ✅ Explicitly set role to "user" for user registrations
+        } 
+      },
+    });
+
+    if (error) throw error;
+
+    setRegisterStep("otp");
+    setRegisterSuccess("OTP sent!");
+  } catch (err: any) {
+    setRegisterError(err.message || "Unable to send OTP. Please try again.");
+  } finally {
+    setRegisterLoading(false);
+  }
+};
+
+
 
   const navLinks = [
     { name: "Home", href: "/user" },
@@ -323,7 +354,6 @@ export default function UserFeed() {
     { name: "Enquiry", href: "/user/enquiry" },
     { name: "Help & Earn", href: "/user/help" },
   ];
-
 
   return (
     <div className="pt-16 bg-black">
@@ -390,15 +420,14 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
           {/* 3. Actions Section - Desktop */}
           <div className="hidden lg:flex items-center space-x-4">
             {/* Primary Action Button */}
-{!user && (
-  <button
-    onClick={() => setOpenVendor(true)}
-    className="px-6 py-3 border-2 border-red-500 text-white rounded-xl font-bold text-sm uppercase tracking-wide hover:bg-red-500/10 transition-all"
-  >
-   +  Add Business
-  </button>
-)}
-
+            {!user && (
+              <button
+                onClick={() => setOpenVendor(true)}
+                className="px-6 py-3 border-2 border-red-500 text-white rounded-xl font-bold text-sm uppercase tracking-wide hover:bg-red-500/10 transition-all"
+              >
+                +  Add Business
+              </button>
+            )}
 
             <div className="h-6 w-[1px] bg-gray-200" />
 
@@ -446,7 +475,6 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
                   </div>
                 </>
               ) : (
-                /* Profile Dropdown */
                 /* Profile Dropdown */
                 <div className="relative" ref={dropdownRef}>
                   <button
@@ -509,6 +537,7 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
                   </button>
 
                   {/* DROPDOWN MENU */}
+                  {/* DROPDOWN MENU */}
                   {openMenu === "profile" && (
                     <div className="absolute right-0 mt-3 bg-gradient-to-b from-yellow-50 to-yellow-100 border border-yellow-200 shadow-2xl rounded-2xl py-2 w-60 text-sm z-50 animate-in fade-in slide-in-from-top-2">
                       {/* Header */}
@@ -516,7 +545,7 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
                         <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Account</p>
                       </div>
 
-                      {/* Links */}
+                      {/* My Profile - Always shown */}
                       <Link
                         href={userRole === "vendor" ? "/user/vendor-profile" : "/user/profile"}
                         className="flex items-center px-4 py-2.5 hover:bg-yellow-200 hover:text-gray-900 font-medium text-gray-800 transition-colors duration-200"
@@ -541,7 +570,7 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
                         </>
                       )}
 
-                      {/* Logout */}
+                      {/* Logout - Always shown */}
                       <button
                         onClick={logout}
                         className="flex w-full px-4 py-2.5 hover:bg-red-100 text-left text-red-600 font-bold mt-1 rounded-b-2xl transition-colors duration-200"
@@ -636,6 +665,7 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
 
                 {mobileProfileOpen && (
                   <div className="mt-3 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+                    {/* My Profile - Always shown */}
                     <Link
                       href={userRole === "vendor" ? "/user/vendor-profile" : "/user/profile"}
                       className="block px-5 py-4 text-sm font-semibold"
@@ -655,6 +685,7 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
                       </>
                     )}
 
+                    {/* Logout - Always shown */}
                     <button
                       onClick={() => { logout(); setIsMobileMenuOpen(false); }}
                       className="w-full text-left px-5 py-4 text-sm font-bold text-red-600"

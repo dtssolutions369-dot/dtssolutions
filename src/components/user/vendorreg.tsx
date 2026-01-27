@@ -31,6 +31,8 @@ export default function VendorRegister({
   const [videoFilesList, setVideoFilesList] = useState<{ url: string, added_at: string }[]>([]);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
   const [showPlans, setShowPlans] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // OTP related states
   const [otpSent, setOtpSent] = useState(false);
@@ -65,7 +67,8 @@ export default function VendorRegister({
     profile_image: "",
     company_logo: "",
     media_files: [] as string[],
-    video_files: [] as any
+    video_files: [] as any,
+    categories: [] as string[], // Added for categories
   });
 
   useEffect(() => {
@@ -76,7 +79,17 @@ export default function VendorRegister({
         .order("base_price", { ascending: true });
       if (!error && data) setPlans(data);
     }
+
+    async function fetchCategories() {
+      const { data } = await supabase
+        .from("categories")
+        .select("id, name")
+        .order("name");
+      setCategories(data || []);
+    }
+
     fetchPlans();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -204,70 +217,71 @@ export default function VendorRegister({
     setMediaPreviews(filtered);
     setFormData({ ...formData, media_files: filtered });
   };
-const useMyLocation = async () => {
-  if (!navigator.geolocation) {
-    toast.error("Geolocation not supported");
-    return;
-  }
 
-  setLoading(true);
-
-  navigator.geolocation.getCurrentPosition(
-    async (position) => {
-      try {
-        const { latitude, longitude } = position.coords;
-
-       const res = await fetch(
-  `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
-  {
-    headers: {
-      "Accept": "application/json",
-      "User-Agent": "VendorPro/1.0 (contact@vendorpro.com)"
+  const useMyLocation = async () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation not supported");
+      return;
     }
-  }
-);
 
-        const data = await res.json();
+    setLoading(true);
 
-        const address = data.address || {};
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
 
-        setFormData((prev) => ({
-          ...prev,
-          area:
-            address.suburb ||
-            address.neighbourhood ||
-            address.village ||
-            "",
-          city:
-            address.city ||
-            address.town ||
-            address.village ||
-            "",
-          state: address.state || "",
-          pincode: address.postcode || "",
-          landmark: address.road || "",
-          address: data.display_name || "",
-        }));
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
+            {
+              headers: {
+                "Accept": "application/json",
+                "User-Agent": "VendorPro/1.0 (contact@vendorpro.com)"
+              }
+            }
+          );
 
-        toast.success("Location detected successfully");
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to fetch location details");
-      } finally {
+          const data = await res.json();
+
+          const address = data.address || {};
+
+          setFormData((prev) => ({
+            ...prev,
+            area:
+              address.suburb ||
+              address.neighbourhood ||
+              address.village ||
+              "",
+            city:
+              address.city ||
+              address.town ||
+              address.village ||
+              "",
+            state: address.state || "",
+            pincode: address.postcode || "",
+            landmark: address.road || "",
+            address: data.display_name || "",
+          }));
+
+          toast.success("Location detected successfully");
+        } catch (err) {
+          console.error(err);
+          toast.error("Failed to fetch location details");
+        } finally {
+          setLoading(false);
+        }
+      },
+      (error) => {
+        console.error(error);
+        toast.error("Permission denied or location unavailable");
         setLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
       }
-    },
-    (error) => {
-      console.error(error);
-      toast.error("Permission denied or location unavailable");
-      setLoading(false);
-    },
-    {
-      enableHighAccuracy: true,
-      timeout: 10000,
-    }
-  );
-};
+    );
+  };
 
   const validateStep = (currentStep: number) => {
     const mobileRegex = /^[0-9]{10}$/;
@@ -293,8 +307,10 @@ const useMyLocation = async () => {
         if (!formData.sector.trim()) return "Business sector is required";
         if (!formData.profile_info.trim()) return "Business description is required";
         return null;
-
       case 4:
+        // Categories step - no validation required, but can add if needed
+        return null;
+      case 5:
         if (!formData.building.trim()) return "Building/Project name is required";
         if (!formData.street.trim()) return "Street/Road is required";
         if (!formData.area.trim()) return "Area/Locality is required";
@@ -302,7 +318,7 @@ const useMyLocation = async () => {
         if (!formData.state.trim()) return "State is required";
         if (!formData.pincode.trim()) return "Pincode is required";
         return null;
-      case 5:
+      case 6:
         if (formData.media_files.length === 0) return "At least one image is required in Media Assets";
         return null;
       default:
@@ -417,7 +433,7 @@ const useMyLocation = async () => {
     }
     setError(null);
     setIsDirty(false);
-    setStep((s) => Math.min(s + 1, 6));
+    setStep((s) => Math.min(s + 1, 7));
   };
 
   const handleBack = () => {
@@ -426,126 +442,108 @@ const useMyLocation = async () => {
     setStep((s) => Math.max(s - 1, 1));
   };
 
-  const handlePayment = async () => {
-    if (!(window as any).Razorpay) {
-      toast.error("Payment gateway not loaded. Please refresh.");
-      return;
+  const saveVendorData = async (paymentId: string | null) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("User not authenticated");
+
+    const now = new Date();
+    const expiry = new Date();
+    expiry.setFullYear(now.getFullYear() + 1);
+
+    const submissionData = {
+      email: formData.email,
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      owner_name: formData.owner_name,
+      mobile_number: formData.mobile_number,
+      alternate_number: formData.alternate_number,
+      profile_info: formData.profile_info,
+      company_name: formData.company_name,
+      user_type: formData.user_type,
+      gst_number: formData.gst_number,
+      websites: formData.websites,
+      flat_no: formData.flat_no,
+      floor: formData.floor,
+      building: formData.building,
+      street: formData.street,
+      area: formData.area,
+      landmark: formData.landmark,
+      city: formData.city,
+      state: formData.state,
+      pincode: formData.pincode,
+      business_keywords: formData.business_keywords,
+      sector: formData.sector,
+      address: formData.address,
+      subscription_plan_id: formData.subscription_plan_id ? parseInt(formData.subscription_plan_id) : null,
+      company_logo: formData.company_logo,
+      media_files: formData.media_files,
+      video_files: videoFilesList,
+      payment_id: paymentId,
+      status: formData.subscription_plan_id ? 'active' : 'pending',
+      subscription_expiry: expiry.toISOString().split('T')[0],
+      user_id: user.id,
+      created_at: now.toISOString(),
+      updated_at: now.toISOString(),
+    };
+
+    // Check if vendor already exists
+    const { data: existingVendor } = await supabase
+      .from("vendor_register")
+      .select("id")
+      .eq("email", formData.email)
+      .single();
+
+    let vendorId;
+    if (existingVendor) {
+      // Update existing
+      const { error: updateError } = await supabase
+        .from("vendor_register")
+        .update(submissionData)
+        .eq("id", existingVendor.id);
+      if (updateError) throw updateError;
+      vendorId = existingVendor.id;
+
+      // Delete old categories
+      await supabase
+        .from("vendor_categories")
+        .delete()
+        .eq("vendor_id", vendorId);
+    } else {
+      // Insert new
+      const { data: vendor, error: insertError } = await supabase
+        .from("vendor_register")
+        .insert([submissionData])
+        .select("id")
+        .single();
+      if (insertError) throw insertError;
+      vendorId = vendor.id;
     }
 
-    // FIND THE PLAN
-    const selectedPlan = plans.find(p => p.id.toString() === formData.subscription_plan_id.toString());
-
-    // BUG FIX: Check if plan exists before accessing properties
-    if (!selectedPlan) {
-      toast.error("Please select a subscription plan first.");
-      setStep(6); // Redirect user to the plan selection step
-      return;
+    // Insert new categories
+    if (formData.categories.length > 0) {
+      const categoryRows = formData.categories.map((catId) => ({
+        vendor_id: vendorId,
+        category_id: catId,
+      }));
+      const { error: catError } = await supabase
+        .from("vendor_categories")
+        .insert(categoryRows);
+      if (catError) throw catError;
     }
 
-    try {
-      const basePrice = Number(selectedPlan.base_price) || 0;
-      const taxPercent = Number(selectedPlan.tax_percent) || 0;
-
-      // Calculate total: (Base + Tax) * 100 (for paise)
-      const amount = (basePrice + (basePrice * (taxPercent / 100))) * 100;
-
-      const options = {
-        key: "rzp_test_RpvE2nM5XUTYN7",
-        amount: Math.round(amount),
-        currency: "INR",
-        name: "VendorPro",
-        description: `Subscription for ${selectedPlan.name}`,
-        handler: function (response: any) {
-          finalizeRegistration(response.razorpay_payment_id);
-        },
-        prefill: {
-          name: formData.owner_name,
-          email: formData.email,
-          contact: formData.mobile_number,
-        },
-        theme: { color: "#EAB308" },
-      };
-
-      const rzp = new (window as any).Razorpay(options);
-      rzp.open();
-    } catch (err) {
-      console.error("Payment calculation error:", err);
-      toast.error("There was an error processing the plan details.");
-    }
+    return vendorId;
   };
 
   const finalizeRegistration = async (paymentId: string | null = null) => {
     setLoading(true);
     try {
-      // Get user from auth
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("User not authenticated");
-
-      const now = new Date();
-      const expiry = new Date();
-      expiry.setFullYear(now.getFullYear() + 1);
-
-      const submissionData = {
-        email: formData.email,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        owner_name: formData.owner_name,
-        mobile_number: formData.mobile_number,
-        alternate_number: formData.alternate_number,
-        profile_info: formData.profile_info,
-        company_name: formData.company_name,
-        user_type: formData.user_type,
-        gst_number: formData.gst_number,
-        websites: formData.websites,
-        flat_no: formData.flat_no,
-        floor: formData.floor,
-        building: formData.building,
-        street: formData.street,
-        area: formData.area,
-        landmark: formData.landmark,
-        city: formData.city,
-        state: formData.state,
-        pincode: formData.pincode,
-        business_keywords: formData.business_keywords,
-        sector: formData.sector,
-        address: formData.address,
-        subscription_plan_id: formData.subscription_plan_id ? parseInt(formData.subscription_plan_id) : null,
-        company_logo: formData.company_logo,
-        media_files: formData.media_files,
-        video_files: videoFilesList,
-        payment_id: paymentId,
-        status: formData.subscription_plan_id ? 'active' : 'pending',
-        subscription_expiry: expiry.toISOString().split('T')[0],
-        user_id: user.id,
-        created_at: now.toISOString(),
-        updated_at: now.toISOString(),
-      };
-
-      // Check if vendor already exists (additional check)
-      const { data: existingVendor } = await supabase
-        .from("vendor_register")
-        .select("id")
-        .eq("email", formData.email)
-        .single();
-
-      if (existingVendor) {
-        setError("This email is already registered. Please login.");
-        setIsDirty(true);
-        setLoading(false);
-        return;
-      }
-
-      const { error: dbError } = await supabase
-        .from("vendor_register")
-        .insert([submissionData]);
-
-      if (dbError) throw dbError;
+      await saveVendorData(paymentId);
 
       toast.success("Registration successful! Welcome onboard.");
 
       // ✅ SET ROLE IN SUPABASE AUTH (CRITICAL)
       await supabase.auth.updateUser({
-        data: {
+                data: {
           role: "vendor",
         },
       });
@@ -566,8 +564,72 @@ const useMyLocation = async () => {
     }
   };
 
+  const handlePayment = async () => {
+    if (!(window as any).Razorpay) {
+      toast.error("Payment gateway not loaded. Please refresh.");
+      return;
+    }
+
+    // FIND THE PLAN
+    const selectedPlan = plans.find(p => p.id.toString() === formData.subscription_plan_id.toString());
+
+    // BUG FIX: Check if plan exists before accessing properties
+    if (!selectedPlan) {
+      toast.error("Please select a subscription plan first.");
+      setStep(7); // Redirect user to the plan selection step
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error("User not authenticated.");
+      return;
+    }
+
+    try {
+      const basePrice = Number(selectedPlan.base_price) || 0;
+      const taxPercent = Number(selectedPlan.tax_percent) || 0;
+
+      // Calculate total: (Base + Tax) * 100 (for paise)
+      const amount = (basePrice + (basePrice * (taxPercent / 100))) * 100;
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_live_S4UlMPLi86BSmc", // Use env var, fallback to your live key
+        amount: Math.round(amount),
+        currency: "INR",
+        name: "VendorPro",
+        description: `Subscription for ${selectedPlan.name}`,
+        handler: async function (response: any) {
+          const paymentId = response.razorpay_payment_id;
+          // Save vendor data first, then update with payment
+          await saveVendorData(paymentId);
+
+          toast.success("Payment successful! Subscription activated.");
+          onSuccess();
+          onClose();
+          router.refresh();
+        },
+        prefill: {
+          name: formData.owner_name,
+          email: formData.email,
+          contact: formData.mobile_number,
+        },
+        theme: { color: "#EAB308" },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error("Payment calculation error:", err);
+      toast.error("There was an error processing the plan details.");
+    }
+  };
+
   const inputClass = "w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-800 text-sm font-medium";
   const labelClass = "block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide";
+const sortedCategories = [...categories].sort((a, b) =>
+  a.name.localeCompare(b.name)
+);
 
   return (
     <>
@@ -601,13 +663,13 @@ const useMyLocation = async () => {
             <div className="flex justify-between items-center mb-2">
               <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Setup Progress</span>
               <span className="text-xs font-semibold text-yellow-300 bg-blue-50 px-2 py-1 rounded-md">
-                Step {step} of 6
+                Step {step} of 7
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
                 className="bg-yellow-300 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${(step / 6) * 100}%` }}
+                style={{ width: `${(step / 7) * 100}%` }}
               ></div>
             </div>
           </div>
@@ -882,7 +944,58 @@ const useMyLocation = async () => {
                 </div>
               )}
 
-              {step === 4 && (
+{step === 4 && (
+  <div className="space-y-6 animate-fade-in">
+    <div className="text-center">
+      <h2 className="text-2xl font-bold text-gray-900">
+        Business Categories
+      </h2>
+      <p className="text-sm text-gray-600">
+        Select all that apply
+      </p>
+    </div>
+
+    <div>
+      <label className={labelClass}>
+        Business Categories (Alphabetical)
+      </label>
+
+      <div className="mt-3 border border-gray-300 rounded-xl bg-white max-h-72 overflow-y-auto">
+        {sortedCategories.map(cat => {
+          const selected = formData.categories.includes(cat.id);
+
+          return (
+            <label
+              key={cat.id}
+              className={`flex items-center gap-3 px-4 py-3 cursor-pointer border-b last:border-b-0
+                ${selected ? "bg-yellow-50" : "hover:bg-gray-50"}`}
+            >
+              <input
+                type="checkbox"
+                checked={selected}
+                onChange={() => {
+                  setFormData(prev => ({
+                    ...prev,
+                    categories: selected
+                      ? prev.categories.filter(c => c !== cat.id)
+                      : [...prev.categories, cat.id],
+                  }));
+                }}
+                className="h-4 w-4 accent-yellow-500"
+              />
+
+              <span className="text-sm text-gray-800">
+                {cat.name}
+              </span>
+            </label>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+)}
+
+              {step === 5 && (
                 <div className="space-y-6 animate-fade-in">
                   <div className="text-center">
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">Global Presence</h2>
@@ -918,15 +1031,15 @@ const useMyLocation = async () => {
                       ))}
                     </div>
                   </div>
-                                      <button
-  type="button"
-  onClick={useMyLocation}
-  disabled={loading}
-  className="flex items-center gap-2 mb-4 px-4 py-3 bg-gray-900 text-white rounded-xl text-sm font-semibold uppercase tracking-wide hover:bg-yellow-300 transition-all disabled:opacity-50"
->
-  <Globe size={16} />
-  {loading ? "Detecting Location..." : "Use My Location"}
-</button>
+                  <button
+                    type="button"
+                    onClick={useMyLocation}
+                    disabled={loading}
+                    className="flex items-center gap-2 mb-4 px-4 py-3 bg-gray-900 text-white rounded-xl text-sm font-semibold uppercase tracking-wide hover:bg-yellow-300 transition-all disabled:opacity-50"
+                  >
+                    <Globe size={16} />
+                    {loading ? "Detecting Location..." : "Use My Location"}
+                  </button>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className={labelClass}>Office / Shop No.</label>
@@ -1035,7 +1148,7 @@ const useMyLocation = async () => {
                 </div>
               )}
 
-              {step === 5 && (
+              {step === 6 && (
                 <div className="space-y-6 animate-fade-in">
                   <div className="text-center">
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">Media Showcase</h2>
@@ -1067,7 +1180,7 @@ const useMyLocation = async () => {
                   <div>
                     <label className={labelClass}>Video Experience</label>
                     <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-all group">
-                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-2 group-hover:bg-yellow-300  group-hover:text-white transition-colors">
+                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-2 group-hover:bg-yellow-300 group-hover:text-white transition-colors">
                         <Upload size={20} />
                       </div>
                       <span className="text-sm font-medium text-gray-600">Drop video file here</span>
@@ -1096,7 +1209,7 @@ const useMyLocation = async () => {
                 </div>
               )}
 
-              {step === 6 && (
+              {step === 7 && (
                 <div className="space-y-6 animate-fade-in">
                   {!showPlans && !formData.subscription_plan_id ? (
                     <div className="text-center py-12">
@@ -1105,7 +1218,7 @@ const useMyLocation = async () => {
                         className="group relative inline-flex items-center justify-center px-12 py-6 font-bold uppercase tracking-wide text-white bg-gray-900 rounded-2xl shadow-xl hover:bg-yellow-300 transition-all duration-300 active:scale-95"
                       >
                         <div className="flex flex-col items-center gap-2">
-                          <span className="text-lg  tracking-tight">VIP Membership <span className="text-blue-400 group-hover:text-white">Access</span></span>
+                          <span className="text-lg tracking-tight">VIP Membership <span className="text-blue-400 group-hover:text-white">Access</span></span>
                           <span className="text-xs tracking-widest opacity-70">Scale your business today</span>
                         </div>
                         <div className="absolute -top-3 -right-3 w-10 h-10 bg-yellow-300 rounded-full flex items-center justify-center border-4 border-white shadow-lg animate-bounce">
@@ -1153,7 +1266,7 @@ const useMyLocation = async () => {
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <p className={`text-2xl font-bold  tracking-tight ${isSelected ? "text-yellow-300" : "text-gray-900"}`}>₹{totalPrice.toLocaleString()}</p>
+                                  <p className={`text-2xl font-bold tracking-tight ${isSelected ? "text-yellow-300" : "text-gray-900"}`}>₹{totalPrice.toLocaleString()}</p>
                                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-1">Inclusive of GST</p>
                                 </div>
                               </div>
@@ -1185,7 +1298,7 @@ const useMyLocation = async () => {
                   <ChevronLeft size={16} /> Back
                 </button>
               ) : <div />}
-              {step < 6 ? (
+              {step < 7 ? (
                 <button
                   onClick={handleNext}
                   className="bg-gray-900 text-white px-8 py-3 rounded-xl font-semibold text-sm uppercase tracking-wide hover:bg-gray-800 transition-all active:scale-95 shadow-lg"
