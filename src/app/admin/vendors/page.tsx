@@ -72,11 +72,18 @@ const useVendors = () => {
         .in("vendor_id", vendorIds);
 
       // Create a map of vendor_id to categories
+      // Create a map of vendor_id to categories
       const catMap = new Map<string, { id: string; name: string }[]>();
+
       vendorCats?.forEach(vc => {
-        if (!catMap.has(vc.vendor_id)) catMap.set(vc.vendor_id, []);
-        catMap.get(vc.vendor_id)!.push(vc.categories);
+        if (!catMap.has(vc.vendor_id)) {
+          catMap.set(vc.vendor_id, []);
+        }
+
+        // ✅ FIX: spread the categories array
+        catMap.get(vc.vendor_id)!.push(...vc.categories);
       });
+
 
       // Attach categories to vendors
       const vendorsWithCats = vendorsData.map(v => ({
@@ -392,72 +399,70 @@ function AddVendorForm({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
             </div>
 
             {/* Subscription Plan Selection */}
-           <div>
-  <label className={labelClass}>Subscription Plan</label>
+            <div>
+              <label className={labelClass}>Subscription Plan</label>
 
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-4">
-    {subscriptionPlans.map((plan) => (
-      <label
-        key={plan.id}
-        className={`flex items-start gap-4 p-5 rounded-2xl border cursor-pointer transition
-        ${
-          selectedPlanId === plan.id
-            ? "border-yellow-500 bg-yellow-50 shadow-sm"
-            : "border-slate-200 hover:bg-slate-50"
-        }`}
-      >
-        <input
-          type="radio"
-          name="subscription_plan"
-          value={plan.id}
-          checked={selectedPlanId === plan.id}
-          onChange={() => setSelectedPlanId(plan.id)}
-          className="mt-1 accent-yellow-500"
-        />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-4">
+                {subscriptionPlans.map((plan) => (
+                  <label
+                    key={plan.id}
+                    className={`flex items-start gap-4 p-5 rounded-2xl border cursor-pointer transition
+        ${selectedPlanId === plan.id
+                        ? "border-yellow-500 bg-yellow-50 shadow-sm"
+                        : "border-slate-200 hover:bg-slate-50"
+                      }`}
+                  >
+                    <input
+                      type="radio"
+                      name="subscription_plan"
+                      value={plan.id}
+                      checked={selectedPlanId === plan.id}
+                      onChange={() => setSelectedPlanId(plan.id)}
+                      className="mt-1 accent-yellow-500"
+                    />
 
-        <div className="flex-1">
-          <h3 className="text-base font-extrabold text-slate-900 uppercase">
-            {plan.name}
-          </h3>
+                    <div className="flex-1">
+                      <h3 className="text-base font-extrabold text-slate-900 uppercase">
+                        {plan.name}
+                      </h3>
 
-          {plan.price && (
-            <p className="text-sm text-slate-600 mt-1">
-              ₹{plan.price} / month
-            </p>
-          )}
-        </div>
-      </label>
-    ))}
+                      {plan.price && (
+                        <p className="text-sm text-slate-600 mt-1">
+                          ₹{plan.price} / month
+                        </p>
+                      )}
+                    </div>
+                  </label>
+                ))}
 
-    {/* No Plan Option */}
-    <label
-      className={`flex items-start gap-4 p-5 rounded-2xl border cursor-pointer transition
-      ${
-        selectedPlanId === null
-          ? "border-yellow-500 bg-yellow-50 shadow-sm"
-          : "border-slate-200 hover:bg-slate-50"
-      }`}
-    >
-      <input
-        type="radio"
-        name="subscription_plan"
-        value=""
-        checked={selectedPlanId === null}
-        onChange={() => setSelectedPlanId(null)}
-        className="mt-1 accent-yellow-500"
-      />
+                {/* No Plan Option */}
+                <label
+                  className={`flex items-start gap-4 p-5 rounded-2xl border cursor-pointer transition
+      ${selectedPlanId === null
+                      ? "border-yellow-500 bg-yellow-50 shadow-sm"
+                      : "border-slate-200 hover:bg-slate-50"
+                    }`}
+                >
+                  <input
+                    type="radio"
+                    name="subscription_plan"
+                    value=""
+                    checked={selectedPlanId === null}
+                    onChange={() => setSelectedPlanId(null)}
+                    className="mt-1 accent-yellow-500"
+                  />
 
-      <div className="flex-1">
-        <h3 className="text-base font-extrabold text-slate-900 uppercase">
-          No Plan
-        </h3>
-        <p className="text-sm text-slate-600 mt-1">
-          Free tier or assign later
-        </p>
-      </div>
-    </label>
-  </div>
-</div>
+                  <div className="flex-1">
+                    <h3 className="text-base font-extrabold text-slate-900 uppercase">
+                      No Plan
+                    </h3>
+                    <p className="text-sm text-slate-600 mt-1">
+                      Free tier or assign later
+                    </p>
+                  </div>
+                </label>
+              </div>
+            </div>
 
             {/* Personal Identity */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -473,7 +478,7 @@ function AddVendorForm({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
                 <label className={labelClass}>Last Name</label>
                 <input type="text" name="last_name" value={formData.last_name} onChange={handleChange} className={inputClass} />
               </div>
-                           <div>
+              <div>
                 <label className={labelClass}>Legal Owner Name</label>
                 <input type="text" name="owner_name" value={formData.owner_name} onChange={handleChange} className={inputClass} />
               </div>
@@ -823,7 +828,7 @@ export default function VendorsPage() {
                   </div>
                 </div>
 
-                               <button
+                <button
                   onClick={() => setSelectedVendor(vendor)}
                   className="mt-auto w-full py-4 bg-slate-900 text-[#facc15] rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-600 hover:text-white transition-all shadow-xl active:scale-95"
                 >
