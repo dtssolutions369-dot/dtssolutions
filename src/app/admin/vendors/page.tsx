@@ -14,7 +14,7 @@ import {
 type Vendor = {
   id: string;
   email: string;
-    role?: string;
+  role?: string;
   first_name: string | null;
   last_name: string | null;
   location: string | null;
@@ -131,7 +131,7 @@ function AddVendorForm({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
     video_files: [] as any,
     status: "approved", // Default to approved for admin adds
     categories: [] as { id: string; name: string }[],  // Updated to array of objects
-     role: "admin",
+    role: "admin",
   });
 
   useEffect(() => {
@@ -315,7 +315,7 @@ function AddVendorForm({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
 
       const submissionData = {
         ...vendorData,
-         role: "admin",
+        role: "admin",
         created_at: now.toISOString(),
         updated_at: now.toISOString(),
         subscription_plan_id: selectedPlanId,
@@ -343,7 +343,7 @@ function AddVendorForm({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
   const inputClass = "w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 focus:bg-white outline-none transition-all text-slate-800 text-sm font-bold";
   const labelClass = "block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-[0.2em]";
 
-  
+
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-6xl h-[90vh] rounded-[3rem] overflow-hidden flex flex-col relative shadow-2xl">
@@ -802,7 +802,7 @@ export default function VendorsPage() {
                   </div>
                 </div>
 
-                              <h3 className="font-black text-slate-900 uppercase  tracking-tighter text-xl mb-1 truncate">
+                <h3 className="font-black text-slate-900 uppercase  tracking-tighter text-xl mb-1 truncate">
                   {vendor.company_name || "Unidentified Corp"}
                 </h3>
 
@@ -952,14 +952,13 @@ export default function VendorsPage() {
 
                 {/* STICKY ACTIONS */}
                 <div className="flex gap-4 sticky bottom-0 bg-white/90 backdrop-blur-sm pt-8 border-t border-slate-100">
-                  {selectedVendor.role === 'admin' && (
-                    <button
-                      onClick={() => { deleteVendor(selectedVendor.id); setSelectedVendor(null); }}
-                      className="flex-1 py-5 bg-red-600 text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-700 transition-all active:scale-95 "
-                    >
-                      Delete Vendor
-                    </button>
-                  )}
+                  <button
+                    onClick={() => { deleteVendor(selectedVendor.id); setSelectedVendor(null); }}
+                    className="flex-1 py-5 bg-red-600 text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-700 transition-all active:scale-95 "
+                  >
+                    Delete Vendor
+                  </button>
+
                   <button
                     onClick={() => { updateStatus(selectedVendor.id, 'rejected'); setSelectedVendor(null); }}
                     className="flex-1 py-5 bg-slate-100 text-slate-900 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 hover:text-red-600 transition-all active:scale-95 "
