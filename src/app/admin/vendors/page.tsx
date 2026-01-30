@@ -14,6 +14,7 @@ import {
 type Vendor = {
   id: string;
   email: string;
+    role?: string;
   first_name: string | null;
   last_name: string | null;
   location: string | null;
@@ -37,7 +38,7 @@ type Vendor = {
   pincode: string | null;
   company_logo: string | null;
   payment_id: string | null;
-  categories?: { id: string; name: string }[];  // NEW: Array of category objects
+  categories?: { id: string; name: string }[];  // Updated to array of objects
 };
 
 type SubscriptionPlan = {
@@ -64,30 +65,10 @@ const useVendors = () => {
       .order("created_at", { ascending: false });
 
     if (!error && vendorsData) {
-      // Fetch categories for all vendors
-      const vendorIds = vendorsData.map(v => v.id);
-      const { data: vendorCats } = await supabase
-        .from("vendor_categories")
-        .select("vendor_id, categories(id, name)")
-        .in("vendor_id", vendorIds);
-
-      // Create a map of vendor_id to categories
-      const catMap = new Map<string, { id: string; name: string }[]>();
-      vendorCats?.forEach(vc => {
-        if (!catMap.has(vc.vendor_id)) {
-          catMap.set(vc.vendor_id, []);
-        }
-
-        if (Array.isArray(vc.categories)) {
-          catMap.get(vc.vendor_id)!.push(...vc.categories);
-        }
-      });
-
-
-      // Attach categories to vendors
+      // Parse categories from JSON string
       const vendorsWithCats = vendorsData.map(v => ({
         ...v,
-        categories: catMap.get(v.id) || []
+        categories: v.categories ? JSON.parse(v.categories) : []
       }));
 
       setVendors(vendorsWithCats);
@@ -100,8 +81,13 @@ const useVendors = () => {
     if (!error) setVendors(prev => prev.map(v => v.id === id ? { ...v, status: newStatus } : v));
   };
 
+  const deleteVendor = async (id: string) => {
+    const { error } = await supabase.from("vendor_register").delete().eq("id", id);
+    if (!error) setVendors(prev => prev.filter(v => v.id !== id));
+  };
+
   useEffect(() => { fetchVendors(); }, [fetchVendors]);
-  return { vendors, loading, fetchVendors, updateStatus };
+  return { vendors, loading, fetchVendors, updateStatus, deleteVendor };
 };
 
 // --- Simplified Add Vendor Form Component ---
@@ -144,7 +130,8 @@ function AddVendorForm({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
     media_files: [] as string[],
     video_files: [] as any,
     status: "approved", // Default to approved for admin adds
-    categories: [] as string[],
+    categories: [] as { id: string; name: string }[],  // Updated to array of objects
+     role: "admin",
   });
 
   useEffect(() => {
@@ -328,10 +315,12 @@ function AddVendorForm({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
 
       const submissionData = {
         ...vendorData,
+         role: "admin",
         created_at: now.toISOString(),
         updated_at: now.toISOString(),
         subscription_plan_id: selectedPlanId,
-        subscription_expiry: subscriptionExpiry
+        subscription_expiry: subscriptionExpiry,
+        categories: JSON.stringify(formData.categories),  // Save as JSON string
       };
 
       const { data: vendor, error } = await supabase
@@ -342,16 +331,6 @@ function AddVendorForm({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
 
       if (error) throw error;
 
-      // ✅ save selected categories
-      if (formData.categories.length > 0) {
-        const rows = formData.categories.map((catId) => ({
-          vendor_id: vendor.id,
-          category_id: catId,
-        }));
-
-        await supabase.from("vendor_categories").insert(rows);
-      }
-      if (error) throw error;
       onAdd();
       onClose();
     } catch (err: any) {
@@ -364,6 +343,7 @@ function AddVendorForm({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
   const inputClass = "w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 focus:bg-white outline-none transition-all text-slate-800 text-sm font-bold";
   const labelClass = "block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-[0.2em]";
 
+  
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-6xl h-[90vh] rounded-[3rem] overflow-hidden flex flex-col relative shadow-2xl">
@@ -605,29 +585,25 @@ function AddVendorForm({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
                   {formData.categories.length === 0 ? (
                     <span className="text-slate-400 text-sm">Select categories...</span>
                   ) : (
-                    formData.categories.map(id => {
-                      const cat = categories.find(c => c.id === id);
-                      if (!cat) return null;
-                      return (
-                        <span
-                          key={id}
-                          className="bg-yellow-300 text-black px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"
-                        >
-                          {cat.name}
-                          <X
-                            size={12}
-                            className="cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setFormData(prev => ({
-                                ...prev,
-                                categories: prev.categories.filter(c => c !== id),
-                              }));
-                            }}
-                          />
-                        </span>
-                      );
-                    })
+                    formData.categories.map(cat => (
+                      <span
+                        key={cat.id}
+                        className="bg-yellow-300 text-black px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"
+                      >
+                        {cat.name}
+                        <X
+                          size={12}
+                          className="cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFormData(prev => ({
+                              ...prev,
+                              categories: prev.categories.filter(c => c.id !== cat.id),
+                            }));
+                          }}
+                        />
+                      </span>
+                    ))
                   )}
                 </div>
 
@@ -637,14 +613,14 @@ function AddVendorForm({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
                     {categories.map(cat => (
                       <div
                         key={cat.id}
-                        className={`p-3 cursor-pointer hover:bg-yellow-100 ${formData.categories.includes(cat.id) ? "bg-yellow-50" : ""
+                        className={`p-3 cursor-pointer hover:bg-yellow-100 ${formData.categories.some(c => c.id === cat.id) ? "bg-yellow-50" : ""
                           }`}
                         onClick={() => {
                           setFormData(prev => ({
                             ...prev,
-                            categories: prev.categories.includes(cat.id)
-                              ? prev.categories.filter(c => c !== cat.id)
-                              : [...prev.categories, cat.id],
+                            categories: prev.categories.some(c => c.id === cat.id)
+                              ? prev.categories.filter(c => c.id !== cat.id)
+                              : [...prev.categories, { id: cat.id, name: cat.name }],
                           }));
                         }}
                       >
@@ -717,14 +693,21 @@ function AddVendorForm({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
 }
 
 export default function VendorsPage() {
-  const { vendors, loading, fetchVendors, updateStatus } = useVendors();
+  const { vendors, loading, fetchVendors, updateStatus, deleteVendor } = useVendors();
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const [query, setQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
   const [showAddForm, setShowAddForm] = useState(false);
 
-  const filtered = useMemo(() => vendors.filter(v =>
-    `${v.company_name} ${v.email} ${v.gst_number} ${v.city}`.toLowerCase().includes(query.toLowerCase())
-  ), [vendors, query]);
+  const filtered = useMemo(() => {
+    let filteredVendors = vendors.filter(v =>
+      `${v.company_name} ${v.email} ${v.gst_number} ${v.city}`.toLowerCase().includes(query.toLowerCase())
+    );
+    if (roleFilter !== "all") {
+      filteredVendors = filteredVendors.filter(v => v.role === roleFilter);
+    }
+    return filteredVendors;
+  }, [vendors, query, roleFilter]);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans text-slate-900 pb-20">
@@ -773,9 +756,9 @@ export default function VendorsPage() {
       {/* MAIN CONTENT AREA */}
       <div className="max-w-7xl mx-auto px-6 md:px-10 -mt-12 relative z-30">
 
-        {/* SEARCH BAR */}
-        <div className="mb-10">
-          <div className="relative group">
+        {/* SEARCH BAR AND FILTER */}
+        <div className="mb-10 flex flex-col md:flex-row gap-4">
+          <div className="relative group flex-1">
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-red-600 transition-colors" size={20} />
             <input
               type="text"
@@ -783,6 +766,17 @@ export default function VendorsPage() {
               onChange={(e) => setQuery(e.target.value)}
               className="w-full pl-16 pr-8 py-6 bg-white border-2 border-slate-100 rounded-[2rem] focus:border-red-600 outline-none shadow-xl shadow-slate-200/50 font-black text-xs uppercase tracking-[0.2em] transition-all"
             />
+          </div>
+          <div className="relative">
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="px-6 py-6 bg-white border-2 border-slate-100 rounded-[2rem] focus:border-red-600 outline-none shadow-xl shadow-slate-200/50 font-black text-xs uppercase tracking-[0.2em] transition-all"
+            >
+              <option value="all">All Roles</option>
+              <option value="admin">Admin</option>
+              <option value="vendor">Vendor</option>
+            </select>
           </div>
         </div>
 
@@ -808,7 +802,7 @@ export default function VendorsPage() {
                   </div>
                 </div>
 
-                <h3 className="font-black text-slate-900 uppercase  tracking-tighter text-xl mb-1 truncate">
+                              <h3 className="font-black text-slate-900 uppercase  tracking-tighter text-xl mb-1 truncate">
                   {vendor.company_name || "Unidentified Corp"}
                 </h3>
 
@@ -958,6 +952,14 @@ export default function VendorsPage() {
 
                 {/* STICKY ACTIONS */}
                 <div className="flex gap-4 sticky bottom-0 bg-white/90 backdrop-blur-sm pt-8 border-t border-slate-100">
+                  {selectedVendor.role === 'admin' && (
+                    <button
+                      onClick={() => { deleteVendor(selectedVendor.id); setSelectedVendor(null); }}
+                      className="flex-1 py-5 bg-red-600 text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-700 transition-all active:scale-95 "
+                    >
+                      Delete Vendor
+                    </button>
+                  )}
                   <button
                     onClick={() => { updateStatus(selectedVendor.id, 'rejected'); setSelectedVendor(null); }}
                     className="flex-1 py-5 bg-slate-100 text-slate-900 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 hover:text-red-600 transition-all active:scale-95 "

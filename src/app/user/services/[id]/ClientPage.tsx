@@ -43,8 +43,9 @@ export default function ServiceCategoryPage() {
 
       if (cat?.name) setCategoryName(cat.name);
 
+      // Changed from "vendor_products" to "vendor_categories" to fetch all vendors under the category
       const { data } = await supabase
-        .from("vendor_products")
+        .from("vendor_categories")
         .select(`vendor_register:vendor_id (*)`)
         .eq("category_id", id);
 
