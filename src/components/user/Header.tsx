@@ -366,7 +366,7 @@ export default function UserFeed() {
     { name: "Video", href: "/user/video", icon: PlayCircle },
     { name: "Enquiry", href: "/user/enquiry", icon: MessageSquare },
     { name: "Products", href: "/user/listing", icon: Package },
-    ...(user ? [{ name: "Profile", href: userRole === "vendor" ? "/user/vendor-profile" : "/user/profile", icon: User }] : []),
+    ...(user ? [{ name: "Profile", href: userRole === "vendor" ? "/user/vendor-profile" : "/user/profile", icon: UserIcon  }] : []),
   ];
 
   return (
