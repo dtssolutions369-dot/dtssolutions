@@ -16,7 +16,6 @@ import {
   PlayCircle,
   MessageSquare,
   Package,
-  User,
   MoreHorizontal,
   X as CloseIcon,
 } from "lucide-react";
