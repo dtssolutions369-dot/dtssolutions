@@ -77,7 +77,7 @@ function ViewMoreContent() {
       <div className="min-h-screen bg-[#FFFDF5] pb-20">
 
         {/* ---------- HEADER ---------- */}
-        <header className="bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-16 pb-28 px-6 border-b border-yellow-200">
+        <header className="relative z-20 bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-16 pb-28 px-6 border-b border-yellow-200">
           <div className="max-w-7xl mx-auto">
 
             <button
@@ -85,7 +85,7 @@ function ViewMoreContent() {
               className="flex items-center gap-2 text-yellow-800 mb-10"
             >
               <ChevronLeft size={16} />
-              <span className="text-[10px] font-black tracking-widest uppercase">
+              <span className="text-[10px] text-black font-extraboldtracking-widest uppercase">
                 Back
               </span>
             </button>
@@ -95,19 +95,24 @@ function ViewMoreContent() {
               {/* TITLE + SEARCH */}
               <div className="flex-1">
 
-                <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full mb-6 border border-yellow-300">
-                  <Sparkles size={14} className="text-yellow-600" />
-                  <span className="text-[10px] font-black tracking-widest uppercase">
-                    Premium Directory
-                  </span>
+                <div className="relative z-10">
+                  <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full mb-6 border border-yellow-300">
+                    <Sparkles size={14} className="text-yellow-600" />
+                    <span className="text-[10px] text-black font-extrabold tracking-widest uppercase">
+                      Premium Directory
+                    </span>
+                  </div>
+
+                  <h1 className="text-5xl md:text-7xl text-black font-extrabold tracking-tight leading-tight">
+                    {pageTitle.split(" ")[0]} <br />
+                    <span className="text-red-600 text-black font-extrabold tracking-tighter">
+                      {pageTitle.split(" ").slice(1).join(" ")}
+                    </span>
+                  </h1>
+
                 </div>
 
-                <h1 className="text-5xl md:text-7xl font-black uppercase leading-none">
-                  {pageTitle.split(" ")[0]} <br />
-                  <span className="text-red-600">
-                    {pageTitle.split(" ").slice(1).join(" ")}
-                  </span>
-                </h1>
+
 
                 {/* 🔍 SEARCH BAR */}
                 <div className="mt-8 max-w-md relative">
@@ -119,7 +124,7 @@ function ViewMoreContent() {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Search here..."
-                    className="w-full pl-12 pr-4 py-3 rounded-full bg-white/80 border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm font-semibold"
+                    className="w-full text-black pl-12 pr-4 py-3 rounded-full bg-white/80 border border-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm font-semibold"
                   />
                 </div>
               </div>
@@ -134,7 +139,7 @@ function ViewMoreContent() {
         </header>
 
         {/* ---------- GRID ---------- */}
-        <main className="max-w-7xl mx-auto px-6 -mt-10">
+        <main className="max-w-7xl mx-auto px-6">
           {loading ? (
             <div className="flex justify-center py-40">
               <Loader2 className="animate-spin text-yellow-600" size={40} />
@@ -160,7 +165,12 @@ function ViewMoreContent() {
                             src={mediaUrl}
                             className="w-full h-full object-cover"
                             muted
+                            autoPlay
+                            loop
+                            playsInline
+                            preload="metadata"
                           />
+
                           <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                             <PlayCircle size={40} className="text-white" />
                           </div>
@@ -180,7 +190,7 @@ function ViewMoreContent() {
                       )}
                     </div>
 
-                    <h3 className="mt-4 text-lg font-black uppercase">
+                    <h3 className="mt-4 text-lg font-extrabold text-black uppercase">
                       {item.name || item.title}
                     </h3>
 
@@ -204,12 +214,37 @@ function ViewMoreContent() {
       <AnimatePresence>
         {activeVideo && (
           <motion.div
-            className="fixed inset-0 bg-black/90 z-[999] flex items-center justify-center"
+            className="fixed inset-0 z-[999] bg-black/80 flex items-center justify-center"
             onClick={() => setActiveVideo(null)}
           >
-            <video src={activeVideo} controls autoPlay className="w-[90vw] max-w-4xl rounded-2xl" />
+            <motion.div
+              className="relative bg-black rounded-3xl p-4 w-full max-w-3xl aspect-video mx-4"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              {/* CLOSE BUTTON */}
+              <button
+                onClick={() => setActiveVideo(null)}
+                className="absolute -top-4 -right-4 w-10 h-10 bg-white text-black rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 hover:text-white"
+              >
+                <X size={18} />
+              </button>
+
+              {/* VIDEO */}
+              <video
+                src={activeVideo}
+                autoPlay
+                controls
+                playsInline
+                className="w-full h-full object-contain rounded-2xl"
+              />
+
+            </motion.div>
           </motion.div>
         )}
+
       </AnimatePresence>
 
       <AnimatePresence>

@@ -11,7 +11,14 @@ import {
   User as UserIcon,
   Briefcase,
   Menu,
-  X
+  X,
+  Home,
+  PlayCircle,
+  MessageSquare,
+  Package,
+  User,
+  MoreHorizontal,
+  X as CloseIcon,
 } from "lucide-react";
 import VendorRegister from "@/components/user/vendorreg";
 import { createClient, type User } from "@supabase/supabase-js"; // REMOVED: Unused import causing confusion
@@ -32,6 +39,7 @@ export default function UserFeed() {
   // UI states
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false); // New state for "More" menu
 
   // Auth
   const [user, setUser] = useState<User | null>(null);
@@ -93,48 +101,48 @@ export default function UserFeed() {
     return () => authListener.subscription.unsubscribe();
   }, []);
 
- const loadUserAndRole = async () => {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    setUser(user);
+  const loadUserAndRole = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
 
-    if (!user) {
-      setUserRole(null);
-      setProfileColor("#FFD700");
-      setProfileMedal("");
-      return;
-    }
+      if (!user) {
+        setUserRole(null);
+        setProfileColor("#FFD700");
+        setProfileMedal("");
+        return;
+      }
 
-    // ✅ 1. READ ROLE FROM AUTH (defaults to "user" if not set)
-    const role = user.user_metadata?.role || "user";
-    setUserRole(role);
+      // ✅ 1. READ ROLE FROM AUTH (defaults to "user" if not set)
+      const role = user.user_metadata?.role || "user";
+      setUserRole(role);
 
-    // ✅ 2. ONLY IF VENDOR → LOAD EXTRA DETAILS
-    if (role === "vendor") {
-      const { data: vendor } = await supabase
-        .from("vendor_register")
-        .select("subscription_plan_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (vendor?.subscription_plan_id) {
-        const { data: plan } = await supabase
-          .from("subscription_plans")
-          .select("color, medals")
-          .eq("id", vendor.subscription_plan_id)
+      // ✅ 2. ONLY IF VENDOR → LOAD EXTRA DETAILS
+      if (role === "vendor") {
+        const { data: vendor } = await supabase
+          .from("vendor_register")
+          .select("subscription_plan_id")
+          .eq("user_id", user.id)
           .maybeSingle();
 
-        setProfileColor(plan?.color || "#FFD700");
-        setProfileMedal(plan?.medals || "");
+        if (vendor?.subscription_plan_id) {
+          const { data: plan } = await supabase
+            .from("subscription_plans")
+            .select("color, medals")
+            .eq("id", vendor.subscription_plan_id)
+            .maybeSingle();
+
+          setProfileColor(plan?.color || "#FFD700");
+          setProfileMedal(plan?.medals || "");
+        }
+      } else {
+        setProfileColor("#FFD700");
+        setProfileMedal("");
       }
-    } else {
-      setProfileColor("#FFD700");
-      setProfileMedal("");
+    } catch (err) {
+      console.error("loadUserAndRole error:", err);
     }
-  } catch (err) {
-    console.error("loadUserAndRole error:", err);
-  }
-};
+  };
 
   const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
 
@@ -303,47 +311,45 @@ export default function UserFeed() {
   const handleRegisterChange = (e: any) => setRegisterData({ ...registerData, [e.target.name]: e.target.value });
 
   // UPDATED: Add email existence check before sending OTP
- // UPDATED: Add email existence check before sending OTP
-const sendRegisterOtp = async () => {
-  if (!registerData.name || !registerData.email) {
-    setRegisterError("Fill all fields");
-    return;
-  }
-
-  setRegisterLoading(true);
-  setRegisterError(null);
-
-  try {
-    // Check if email already exists in users or vendor_register
-    const exists = await checkEmailExists(registerData.email);
-    if (exists) {
-      setRegisterError("This email is already registered. Please login.");
+  // UPDATED: Add email existence check before sending OTP
+  const sendRegisterOtp = async () => {
+    if (!registerData.name || !registerData.email) {
+      setRegisterError("Fill all fields");
       return;
     }
 
-    // Proceed to send OTP with role set to "user"
-    const { error } = await supabase.auth.signInWithOtp({
-      email: registerData.email,
-      options: { 
-        data: { 
-          name: registerData.name,
-          role: "user"  // ✅ Explicitly set role to "user" for user registrations
-        } 
-      },
-    });
+    setRegisterLoading(true);
+    setRegisterError(null);
 
-    if (error) throw error;
+    try {
+      // Check if email already exists in users or vendor_register
+      const exists = await checkEmailExists(registerData.email);
+      if (exists) {
+        setRegisterError("This email is already registered. Please login.");
+        return;
+      }
 
-    setRegisterStep("otp");
-    setRegisterSuccess("OTP sent!");
-  } catch (err: any) {
-    setRegisterError(err.message || "Unable to send OTP. Please try again.");
-  } finally {
-    setRegisterLoading(false);
-  }
-};
+      // Proceed to send OTP with role set to "user"
+      const { error } = await supabase.auth.signInWithOtp({
+        email: registerData.email,
+        options: {
+          data: {
+            name: registerData.name,
+            role: "user"  // ✅ Explicitly set role to "user" for user registrations
+          }
+        },
+      });
 
+      if (error) throw error;
 
+      setRegisterStep("otp");
+      setRegisterSuccess("OTP sent!");
+    } catch (err: any) {
+      setRegisterError(err.message || "Unable to send OTP. Please try again.");
+    } finally {
+      setRegisterLoading(false);
+    }
+  };
 
   const navLinks = [
     { name: "Home", href: "/user" },
@@ -355,6 +361,15 @@ const sendRegisterOtp = async () => {
     { name: "Help & Earn", href: "/user/help" },
   ];
 
+  // Bottom nav items (subset of navLinks + Profile conditionally)
+  const bottomNavItems = [
+    { name: "Home", href: "/user", icon: Home },
+    { name: "Video", href: "/user/video", icon: PlayCircle },
+    { name: "Enquiry", href: "/user/enquiry", icon: MessageSquare },
+    { name: "Products", href: "/user/listing", icon: Package },
+    ...(user ? [{ name: "Profile", href: userRole === "vendor" ? "/user/vendor-profile" : "/user/profile", icon: User }] : []),
+  ];
+
   return (
     <div className="pt-16 bg-black">
       {/* ---------------- HEADER ---------------- */}
@@ -364,7 +379,6 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
   `}
       >
         <div className="max-w-7xl mx-auto h-full flex items-center justify-between px-4 sm:px-6">
-
           {/* 1. Logo Section: Optimized sizing */}
           <Link href="/user" className="flex-shrink-0 transition-transform hover:scale-105">
             <Image
@@ -376,6 +390,36 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
               priority
             />
           </Link>
+{/* MOBILE ACTIONS (NO HAMBURGER) */}
+<div className="flex lg:hidden items-center gap-2">
+  {!user && (
+    <>
+      <button
+        onClick={() => setOpenVendor(true)}
+        className="px-3 py-2 text-xs font-bold border border-yellow-400 text-yellow-400 rounded-lg"
+      >
+        + Add Business
+      </button>
+
+      <button
+        onClick={() => setShowLoginPopup(true)}
+        className="px-3 py-2 text-xs font-bold bg-yellow-400 text-black rounded-lg"
+      >
+        Login
+      </button>
+    </>
+  )}
+
+  {user && (
+    <button
+      onClick={() => setShowMoreMenu(true)}
+      className="w-10 h-10 rounded-full flex items-center justify-center"
+      style={{ backgroundColor: profileColor }}
+    >
+      <UserCircle size={22} className="text-white" />
+    </button>
+  )}
+</div>
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center space-x-2 font-semibold text-sm">
@@ -409,13 +453,7 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
             })}
           </nav>
 
-          {/* Mobile Menu Button - Three Lines (Hamburger) */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-md text-white hover:bg-white/10 transition"
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+ 
 
           {/* 3. Actions Section - Desktop */}
           <div className="hidden lg:flex items-center space-x-4">
@@ -445,12 +483,11 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
                   <div className="relative">
                     <button
                       onClick={() => setOpenRegisterMenu((prev) => !prev)}
-                      className="px-5 py-2.5 bg-[#FFD700] text-black text-sm rounded-full font-bold shadow-sm hover:bg-[#f2cc00] transition-all flex items-center"
+                      className="px-5 py-2.5 bg-yellow-400 text-black text-sm rounded-full font-bold shadow-sm hover:bg-yellow-500 transition-all flex items-center"
                     >
                       Register
                       <ChevronDown size={14} className={`ml-1 transition-transform ${openRegisterMenu ? 'rotate-180' : ''}`} />
                     </button>
-
                     {openRegisterMenu && (
                       <div className="absolute right-0 mt-3 w-56 bg-yellow-100 text-black border border-gray-100 shadow-2xl rounded-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
                         <button
@@ -490,7 +527,7 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
                      animate-in zoom-in duration-500
                      hover:scale-110 transition-transform
                      px-3 py-2 min-w-[2.5rem] max-w-[5rem]"
-                          style={{
+                                                 style={{
                             backgroundColor: '#000000', // black background for medal
                             boxShadow: `0 0 15px ${profileColor}60`,
                           }}
@@ -536,7 +573,6 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
                     </div>
                   </button>
 
-                  {/* DROPDOWN MENU */}
                   {/* DROPDOWN MENU */}
                   {openMenu === "profile" && (
                     <div className="absolute right-0 mt-3 bg-gradient-to-b from-yellow-50 to-yellow-100 border border-yellow-200 shadow-2xl rounded-2xl py-2 w-60 text-sm z-50 animate-in fade-in slide-in-from-top-2">
@@ -587,8 +623,8 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
         </div>
 
         {/* Mobile Menu Overlay - Full Screen */}
-
       </header>
+
       {/* MOBILE MENU OVERLAY */}
       {isMobileMenuOpen && (
         <div
@@ -699,6 +735,128 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
           </div>
         </div>
       )}
+
+      {/* -------------------- BOTTOM NAVIGATION (Mobile Only) -------------------- */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-[9999] bg-black border-t border-gray-700 shadow-lg">
+        <div className="flex items-center justify-around py-2">
+          {bottomNavItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all duration-200 ${isActive ? "bg-yellow-500 text-black" : "text-white hover:bg-gray-800"
+                  }`}
+              >
+                <item.icon size={20} className="mb-1" />
+                <span className="text-xs font-medium">{item.name}</span>
+              </Link>
+            );
+          })}
+          {/* More Button */}
+          <button
+            onClick={() => setShowMoreMenu(true)}
+            className="flex flex-col items-center justify-center py-2 px-3 rounded-lg text-white hover:bg-gray-800 transition-all duration-200"
+          >
+            <MoreHorizontal size={20} className="mb-1" />
+            <span className="text-xs font-medium">More</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* -------------------- MORE MENU OVERLAY (Mobile Only) -------------------- */}
+      {showMoreMenu && (
+        <div className="lg:hidden fixed inset-0 z-[10000] flex items-end justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300"
+            onClick={() => setShowMoreMenu(false)}
+          />
+          {/* Menu */}
+          <div className="relative bg-white w-full max-w-sm rounded-t-3xl shadow-2xl animate-in slide-in-from-bottom duration-300 max-h-[60vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h3 className="text-lg font-bold text-gray-900">More Options</h3>
+              <button
+                onClick={() => setShowMoreMenu(false)}
+                className="p-2 rounded-full hover:bg-gray-100"
+              >
+                <CloseIcon size={20} />
+              </button>
+            </div>
+          <div className="p-4 space-y-4">
+
+  {/* PROFILE OPTIONS */}
+  {user && (
+    <div className="border rounded-xl p-3">
+      <p className="text-xs font-bold text-gray-500 uppercase mb-2">
+        Account
+      </p>
+
+      <Link
+        href={userRole === "vendor" ? "/user/vendor-profile" : "/user/profile"}
+        onClick={() => setShowMoreMenu(false)}
+        className="block py-2 px-3 rounded-lg hover:bg-gray-100 font-semibold"
+      >
+        My Profile
+      </Link>
+
+      {userRole === "vendor" && (
+        <>
+          <Link
+            href="/vendor/products"
+            onClick={() => setShowMoreMenu(false)}
+            className="block py-2 px-3 rounded-lg hover:bg-gray-100 font-semibold"
+          >
+            Products
+          </Link>
+
+          <Link
+            href="/vendor/enquiry"
+            onClick={() => setShowMoreMenu(false)}
+            className="block py-2 px-3 rounded-lg hover:bg-gray-100 font-semibold"
+          >
+            Enquiries
+          </Link>
+        </>
+      )}
+
+      <button
+        onClick={() => {
+          logout();
+          setShowMoreMenu(false);
+        }}
+        className="w-full text-left py-2 px-3 rounded-lg text-red-600 font-bold hover:bg-red-50 mt-2"
+      >
+        Logout
+      </button>
+    </div>
+  )}
+
+  {/* REMAINING NAV LINKS */}
+  <div>
+    <p className="text-xs font-bold text-gray-500 uppercase mb-2 px-1">
+      Navigation
+    </p>
+
+    {navLinks
+      .filter((link) => !bottomNavItems.some((item) => item.href === link.href))
+      .map((link) => (
+        <Link
+          key={link.name}
+          href={link.href}
+          onClick={() => setShowMoreMenu(false)}
+          className="block py-3 px-4 text-gray-800 font-medium hover:bg-gray-100 rounded-lg"
+        >
+          {link.name}
+        </Link>
+      ))}
+  </div>
+</div>
+
+          </div>
+        </div>
+      )}
+
       {/* -------------------- LOGIN POPUP (Mobile-Friendly) ------------------------ */}
       {showLoginPopup && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
@@ -848,7 +1006,7 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
                       />
                     </div>
 
-                    <button
+                                      <button
                       onClick={sendRegisterOtp}
                       disabled={registerLoading}
                       className="w-full py-3 bg-slate-900 text-yellow-500 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg transition-all hover:bg-black hover:scale-105 active:scale-95 mt-4 disabled:opacity-50"
@@ -909,7 +1067,6 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
           onSuccess={() => loadUserAndRole()} // Force reload after registration
         />
       )}
-
 
     </div>
   );

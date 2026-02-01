@@ -398,21 +398,21 @@ export default function Home() {
         });
     };
     const scrollBranding = (direction: "left" | "right") => {
-    if (!brandingScrollRef.current) return;
+        if (!brandingScrollRef.current) return;
 
-    const container = brandingScrollRef.current;
-    const firstCard = container.querySelector("a") as HTMLElement;
-    const gap = 20;
+        const container = brandingScrollRef.current;
+        const firstCard = container.querySelector("a") as HTMLElement;
+        const gap = 20;
 
-    const scrollAmount = firstCard
-        ? firstCard.offsetWidth + gap
-        : 360;
+        const scrollAmount = firstCard
+            ? firstCard.offsetWidth + gap
+            : 360;
 
-    container.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-    });
-};
+        container.scrollBy({
+            left: direction === "left" ? -scrollAmount : scrollAmount,
+            behavior: "smooth",
+        });
+    };
 
 
     const podcastScrollRef = useRef<HTMLDivElement | null>(null);
@@ -504,6 +504,8 @@ export default function Home() {
     }, [isHelpPaused, helpAndEarn]);
 
     const [isPodcastsPaused, setIsPodcastsPaused] = useState(false);
+    const certificatesScrollRef = useRef<HTMLDivElement | null>(null);
+    const [isCertificatesPaused, setIsCertificatesPaused] = useState(false);
     useEffect(() => {
         const slider = podcastScrollRef.current;
         if (!slider || isPodcastsPaused) return;
@@ -522,7 +524,24 @@ export default function Home() {
 
         return () => clearInterval(autoScrollPodcasts);
     }, [isPodcastsPaused, podcasts]);
+    useEffect(() => {
+        const slider = certificatesScrollRef.current;
+        if (!slider || isCertificatesPaused) return;
 
+        const autoScrollCertificates = setInterval(() => {
+            const firstCard = slider.querySelector('div');
+            const cardWidth = firstCard ? firstCard.offsetWidth + 20 : 220; // Approximate card width + gap (adjust if needed)
+            const maxScroll = slider.scrollWidth - slider.clientWidth;
+
+            if (slider.scrollLeft >= maxScroll - 10) {
+                slider.scrollTo({ left: 0, behavior: "smooth" });
+            } else {
+                slider.scrollBy({ left: cardWidth, behavior: "smooth" });
+            }
+        }, 2000); // Scrolls every 3 seconds
+
+        return () => clearInterval(autoScrollCertificates);
+    }, [isCertificatesPaused, certificates]);
     return (
         <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-900 text-white">
             {/* HERO SECTION - Redesigned with yellow/red/black theme */}
@@ -1306,13 +1325,10 @@ export default function Home() {
 
                     {/* --- COMPACT GRID --- */}
                     <div
-                        className="
-                flex gap-5 overflow-x-auto pb-6
-                sm:grid sm:grid-cols-2
-                lg:grid-cols-4
-                snap-x snap-mandatory
-                hide-scrollbar
-            "
+                        ref={certificatesScrollRef}
+                        onMouseEnter={() => setIsCertificatesPaused(true)}
+                        onMouseLeave={() => setIsCertificatesPaused(false)}
+                        className="flex gap-5 overflow-x-auto pb-6 sm:grid sm:grid-cols-2 lg:grid-cols-4 snap-x snap-mandatory hide-scrollbar"
                     >
                         {certificates.slice(0, 4).map((item) => (
                             <div

@@ -265,7 +265,14 @@ export default function AdminVideosPage() {
             {videos.map((v) => (
               <div key={v.id} className="group bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden hover:shadow-2xl transition-all duration-500">
                 <div className="relative h-56 bg-black overflow-hidden flex items-center justify-center">
-                  <video src={v.video_url} className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" />
+<video
+  src={v.video_url}
+  preload="metadata"
+  controls={false}
+  muted
+  playsInline
+  className="w-full h-full object-cover"
+/>
                   
                   {/* SOURCE BADGE */}
                   <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border backdrop-blur-md ${
