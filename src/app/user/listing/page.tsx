@@ -4,24 +4,26 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link"; // Import Link for navigation
+import Link from "next/link";
 import {
   Search, MapPin, Loader2, ExternalLink,
-  ArrowUpDown, Warehouse, Zap, Box, Hash
+  ArrowUpDown, Zap, Box, Hash
 } from "lucide-react";
 
+// ✅ Force dynamic rendering to avoid build-time prerender errors
+export const dynamic = "force-dynamic";
+
 export default function VendorProductsPage() {
-  const searchParams = useSearchParams();
+  // ✅ Safe fallback for build-time
+  const searchParams = typeof window !== "undefined" ? useSearchParams() : new URLSearchParams();
   const router = useRouter();
 
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Filters State
   const [findInput, setFindInput] = useState(searchParams.get("q") || "");
   const [cityInput, setCityInput] = useState(searchParams.get("city") || "");
   const [pincodeInput, setPincodeInput] = useState(searchParams.get("pincode") || "");
-  const [typeInput, setTypeInput] = useState(searchParams.get("type") || "");
   const [sortOrder, setSortOrder] = useState("newest");
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,7 +40,6 @@ export default function VendorProductsPage() {
         `)
         .eq("is_active", true);
 
-      // Partial search for flexible matching (typing "12" finds "123456")
       if (findInput.trim()) query = query.ilike("product_name", `%${findInput.trim()}%`);
       if (cityInput.trim()) query = query.ilike("city", `%${cityInput.trim()}%`);
       if (pincodeInput.trim()) query = query.ilike("pincode", `%${pincodeInput.trim()}%`);
@@ -56,7 +57,7 @@ export default function VendorProductsPage() {
           const firstPath = p.product_image.split("|||")[0];
           displayImage = firstPath.startsWith("http")
             ? firstPath
-            : supabase.storage.from("products").getPublicUrl(firstPath).data.publicUrl;
+            : supabase.storage.from("products").getPublicUrl(firstPath)?.data?.publicUrl || "/placeholder-img.png";
         }
         return { ...p, displayImage };
       });
@@ -167,7 +168,6 @@ function FilterInput({ label, icon, value, onChange, placeholder }: any) {
   );
 }
 
-
 function ProductCard({ product }: { product: any }) {
   return (
     <motion.div 
@@ -190,8 +190,6 @@ function ProductCard({ product }: { product: any }) {
         <h3 className="text-xs font-black text-slate-900 uppercase line-clamp-2 mb-4">{product.product_name}</h3>
         <div className="mt-auto flex justify-between items-center">
           <span className="text-sm font-black text-[#F26522]">₹{product.price}</span>
-          
-          {/* Updated link */}
           <Link href={`/vendor/view/${product.vendor_id}`} className="bg-slate-100 p-2 rounded-full group-hover:bg-[#00AEEF] group-hover:text-white transition-colors">
             <ExternalLink size={14} />
           </Link>
