@@ -33,16 +33,16 @@ const TermsAndConditions = () => {
           <h2 className="text-2xl font-black text-gray-900 mb-6 tracking-tight uppercase">Agreement to our Legal Terms</h2>
           <div className="space-y-4 text-sm leading-relaxed text-gray-700">
             <p>
-              We are <strong>QICKTICK</strong>, doing business as <strong>QT</strong> (&quot;Company,&quot; &quot;we,&quot; &quot;us,&quot; &quot;our&quot;), a company registered in India at Vidyanagar, KABBUR, Haveri, Karnataka 581110.
+              We are <strong>Dtssolutions</strong>, doing business as <strong>QT</strong> (&quot;Company,&quot; &quot;we,&quot; &quot;us,&quot; &quot;our&quot;), a company registered in India at Vidyanagar, KABBUR, Haveri, Karnataka 581110.
             </p>
             <p>
-              We operate the website <a href="http://www.qicktick.com" className="text-red-600 underline font-bold">http://www.qicktick.com</a> (the &quot;Site&quot;), the mobile application QICKTICK (the &quot;App&quot;), as well as any other related products and services that refer or link to these legal terms (the &quot;Legal Terms&quot;) (collectively, the &quot;Services&quot;).
+              We operate the website <a href="http://www.Dtssolutions.com" className="text-red-600 underline font-bold">http://www.Dtssolutions.com</a> (the &quot;Site&quot;), the mobile application Dtssolutions (the &quot;App&quot;), as well as any other related products and services that refer or link to these legal terms (the &quot;Legal Terms&quot;) (collectively, the &quot;Services&quot;).
             </p>
             <p className=" bg-white p-4 rounded-lg border border-gray-200">
               This is commonly based on a subscription-based company for giving leads or customers to the register shop vendors and business owners. We have also included transportation benefits for customers and all; also, it&apos;s mainly helpful to B2B and B2C sectors. We will give big business to those categories. We will promote business categories and give the business from our side. This is brief information about our company.
             </p>
             <p>
-              You can contact us by phone at <strong>7892999063</strong>, email at <strong>qicktick2025@gmail.com</strong>, or by mail to Vidyanagar, kabbur, Haveri, Karnataka 581110, India.
+              You can contact us by phone at <strong>7892999063</strong>, email at <strong>Dtssolutions2025@gmail.com</strong>, or by mail to Vidyanagar, kabbur, Haveri, Karnataka 581110, India.
             </p>
             <p className="font-black text-gray-900 p-4 bg-red-50 rounded-lg border-l-4 border-red-600">
               IF YOU DO NOT AGREE WITH ALL OF THESE LEGAL TERMS, THEN YOU ARE EXPRESSLY PROHIBITED FROM USING THE SERVICES AND YOU MUST DISCONTINUE USE IMMEDIATELY.
@@ -131,7 +131,7 @@ const TermsAndConditions = () => {
           {/* 20 & 21. LAW & DISPUTE RESOLUTION */}
           <section id="s20">
             <h3 className="text-lg font-black text-gray-900 mb-4 uppercase  tracking-tighter">20. Governing Law</h3>
-            <p>These Legal Terms shall be governed by and defined following the laws of <strong>India</strong>. QICKTICK and yourself irrevocably consent that the courts of India shall have exclusive jurisdiction.</p>
+            <p>These Legal Terms shall be governed by and defined following the laws of <strong>India</strong>. Dtssolutions and yourself irrevocably consent that the courts of India shall have exclusive jurisdiction.</p>
             <h3 className="text-lg font-black text-gray-900 mt-8 mb-4 uppercase  tracking-tighter">21. Dispute Resolution</h3>
             <p><strong>Informal Negotiations:</strong> To expedite resolution, the Parties agree to first attempt to negotiate any Dispute informally for at least seven (7) days before initiating arbitration. <strong>Binding Arbitration:</strong> Any dispute shall be referred to and finally resolved by the International Commercial Arbitration Court under the European Arbitration Chamber (Belgium, Brussels) with the seat of arbitration in India.</p>
           </section>
@@ -168,12 +168,12 @@ const TermsAndConditions = () => {
                 <p className="text-gray-600 mb-8 font-medium">In order to resolve a complaint regarding the Services or to receive further information, please contact us at:</p>
                 <div className="bg-white border-2 border-black p-8 rounded-2xl shadow-[10px_10px_0px_0px_rgba(220,38,38,1)]">
                   <div className="space-y-1 font-bold text-gray-900 uppercase tracking-tight">
-                    <p className="text-red-600 text-xl font-black  mb-2 tracking-tighter">QICKTICK (QT)</p>
+                    <p className="text-red-600 text-xl font-black  mb-2 tracking-tighter">Dtssolutions (QT)</p>
                     <p>Vidyanagar, kabbur</p>
                     <p>Haveri, Karnataka 581110, India</p>
                     <div className="pt-4 space-y-1">
                       <p>Phone: <span className="text-red-600">7892999063</span></p>
-                      <p>Email: <span className="text-red-600 underline">qicktick2025@gmail.com</span></p>
+                      <p>Email: <span className="text-red-600 underline">Dtssolutions2025@gmail.com</span></p>
                     </div>
                   </div>
                 </div>

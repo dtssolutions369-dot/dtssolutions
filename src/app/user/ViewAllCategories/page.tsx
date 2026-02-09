@@ -4,8 +4,8 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Sparkles, ShieldCheck, Layers } from "lucide-react";
-import { motion } from "framer-motion";
+import { ChevronLeft, Sparkles, ShieldCheck, Layers, Search } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Category {
   id: string;
@@ -51,117 +51,159 @@ export default function ViewAllCategories() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFFBEB] text-gray-900 pb-12">
-      {/* ---------- HEADER ---------- */}
-     <header className="bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-12 pb-16 px-6 relative overflow-hidden border-b border-yellow-200">
- <div className="absolute inset-0 opacity-40 bg-[radial-gradient(#F59E0B_0.5px,transparent_0.5px)] [background-size:24px_24px]" />
+    <div className="min-h-screen bg-[#FAFAFA] text-slate-900 pb-24 font-sans selection:bg-[#74cb01]/30">
+      
+      {/* --- PREMIUM CENTERED HEADER --- */}
+      <header className="relative pt-24 pb-44 overflow-hidden">
+        {/* Ambient background effect */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10">
+            <div className="absolute top-[-10%] right-[10%] w-[500px] h-[500px] bg-[#00AEEF]/10 rounded-full blur-[120px]" />
+            <div className="absolute bottom-[0%] left-[5%] w-[400px] h-[400px] bg-[#74cb01]/10 rounded-full blur-[100px]" />
+        </div>
 
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-12">
-            <div className="flex-1">
-              {/* Back Button */}
-              <button
-                onClick={() => router.back()}
-                className="flex items-center gap-2 text-yellow-800 hover:text-black transition-all mb-4 group w-fit"
-              >
-                <div className="p-2 rounded-full border border-yellow-300 bg-white/50 backdrop-blur-md group-hover:border-yellow-500 transition-colors">
-                  <ChevronLeft size={16} />
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-[0.3em]">
-                  Back to Hub
-                </span>
-              </button>
-
-              {/* Premium Badge */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 py-1.5 rounded-full mb-4 shadow-sm border border-yellow-300"
-              >
-                <Sparkles size={14} className="text-yellow-600" />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-800">
-                  Premium Directory
-                </span>
-              </motion.div>
-
-              {/* Page Title */}
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter text-gray-900 uppercase leading-tight">
-                All <span className="text-red-600">Categories</span>
-              </h1>
-
-              {/* Search Input */}
-              <div className="mt-6 w-full max-w-md">
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search categories..."
-                  className="w-full px-4 py-2 rounded-full border border-yellow-300 shadow-sm focus:ring-2 focus:ring-yellow-400 focus:outline-none text-sm"
-                />
-              </div>
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center text-center"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-slate-100 mb-8">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00AEEF] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00AEEF]"></span>
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Premium Directory</span>
             </div>
-
-            {/* Right Image/Badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, rotate: 5 }}
-              animate={{ opacity: 1, scale: 1, rotate: -3 }}
-              transition={{ type: "spring", stiffness: 100 }}
-              className="hidden lg:block bg-white p-10 rounded-[3.5rem] shadow-2xl border-2 border-yellow-100 relative"
-            >
-              <div className="absolute -top-3 -right-3 bg-red-600 text-white p-3 rounded-2xl animate-bounce shadow-xl">
-                <ShieldCheck size={28} strokeWidth={2.5} />
-              </div>
-              <div className="bg-yellow-50 p-6 rounded-[2rem]">
-                <Layers size={80} className="text-yellow-600" strokeWidth={1.5} />
-              </div>
-              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[7px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full whitespace-nowrap">
-                VERIFIED ASSETS
-              </div>
-            </motion.div>
-          </div>
+            
+            <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-6 leading-[0.9]">
+              All <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00AEEF] to-[#74cb01]">Categories.</span>
+            </h1>
+            <p className="max-w-2xl text-slate-500 text-lg md:text-xl font-medium leading-relaxed">
+              Explore our comprehensive collection of verified service categories to find exactly what you need.
+            </p>
+          </motion.div>
         </div>
       </header>
 
-      {/* ---------- CATEGORIES GRID ---------- */}
-{/* ---------- CATEGORIES GRID ---------- */}
-<div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
-  <div className="grid grid-cols-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-6 justify-items-center">
-    {loading
-      ? [...Array(20)].map((_, i) => (
-          <div key={i} className="flex flex-col items-center animate-pulse">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gray-200 mb-2" />
-            <div className="h-3 w-12 bg-gray-200 rounded" />
-          </div>
-        ))
-      : filteredCategories.map((cat) => (
-          <div
-            key={cat.id}
-            className="flex flex-col items-center cursor-pointer active:scale-95 transition group w-full"
-            onClick={() => router.push(`/user/services/${cat.id}`)}
-          >
-            <div className="relative overflow-hidden w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-white border border-gray-100 shadow-sm group-hover:shadow-md">
-              {cat.image_url ? (
-                <Image
-                  src={cat.image_url}
-                  alt={cat.name}
-                  fill
-                  sizes="(max-width: 768px) 64px, 80px"
-                  className="object-cover"
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full text-gray-400 font-bold">
-                  {cat.name.charAt(0)}
-                </div>
-              )}
-            </div>
-            <p className="mt-1.5 text-[10px] sm:text-xs font-medium text-gray-700 text-center truncate w-full">
-              {cat.name}
-            </p>
-          </div>
-        ))}
-  </div>
-</div>
+      {/* --- DARK COMMAND CENTER FILTER BAR --- */}
+      <div className="max-w-7xl mx-auto px-6 -mt-24 relative z-30">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-slate-950 rounded-[3rem] p-3 shadow-[0_40px_100px_-15px_rgba(0,0,0,0.3)] border border-white/10"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            
+            {/* Back Button */}
+            <button 
+              onClick={() => router.back()}
+              className="flex items-center gap-4 px-6 py-4 bg-white/5 rounded-[2rem] border border-white/5 hover:border-[#00AEEF]/40 transition-all"
+            >
+              <ChevronLeft size={20} className="text-[#00AEEF]" />
+              <div className="flex flex-col flex-1">
+                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Navigation</label>
+                <span className="bg-transparent border-none outline-none text-white font-bold text-xs">Back to Hub</span>
+              </div>
+            </button>
 
+            {/* Search Input */}
+            <div className="flex items-center gap-4 px-6 py-4 bg-white/5 rounded-[2rem] border border-white/5 focus-within:border-[#F26522]/40 transition-all">
+              <Search size={20} className="text-[#F26522]" />
+              <div className="flex flex-col flex-1">
+                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Search</label>
+                <input 
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search categories..."
+                  className="bg-transparent border-none outline-none text-white font-bold text-xs placeholder:text-slate-600 w-full mt-0.5"
+                />
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* --- MAIN GRID CONTENT --- */}
+      <main className="max-w-[1400px] mx-auto px-6 py-24">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-8">
+          <AnimatePresence mode="popLayout">
+            {loading ? (
+              [...Array(24)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="group bg-white border border-slate-100 rounded-[3rem] overflow-hidden shadow-sm flex flex-col animate-pulse"
+                >
+                  <div className="relative aspect-square bg-slate-100"></div>
+                  <div className="p-6">
+                    <div className="h-4 bg-slate-100 rounded mb-4"></div>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              filteredCategories.map((cat, i) => (
+                <motion.div
+                  key={cat.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  whileHover={{ y: -12 }}
+                  className="group bg-white border border-slate-100 rounded-[3rem] overflow-hidden hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.08)] transition-all duration-500 flex flex-col cursor-pointer"
+                  onClick={() => router.push(`/user/services/${cat.id}`)}
+                >
+                  <div className="relative aspect-square bg-slate-100 overflow-hidden">
+                    {cat.image_url ? (
+                      <Image 
+                        src={cat.image_url} 
+                        alt={cat.name}
+                        fill
+                        className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-200">
+                        <Layers size={40} strokeWidth={1} />
+                      </div>
+                    )}
+                    
+                    {/* Badges */}
+                    <div className="absolute top-4 left-4 flex flex-col gap-2">
+                      <div className="bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/50 shadow-sm flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-[#74cb01] animate-pulse" />
+                          <span className="text-[8px] font-black uppercase text-slate-800 tracking-wider">Active</span>
+                      </div>
+                    </div>
+                    
+                    <div className="absolute bottom-4 right-4 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                      <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center text-slate-900 shadow-xl">
+                        <Sparkles size={16} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Info Section */}
+                  <div className="p-6 flex-1 flex flex-col">
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-tighter line-clamp-2 group-hover:text-[#00AEEF] transition-colors leading-[1.1] mb-4">
+                      {cat.name}
+                    </h3>
+                    
+                    <div className="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between">
+                      <div>
+                          <p className="text-[7px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Category</p>
+                          <p className="text-xs font-black text-[#F26522] tracking-tighter">Service</p>
+                      </div>
+                      <div className="h-8 w-8 bg-slate-50 group-hover:bg-[#74cb01] group-hover:text-white rounded-lg flex items-center justify-center text-slate-300 transition-all duration-300">
+                        <ShieldCheck size={12} />
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            )}
+          </AnimatePresence>
+        </div>
+      </main>
     </div>
   );
 }

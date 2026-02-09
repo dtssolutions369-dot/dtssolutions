@@ -13,10 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "QickTick",
-  description: "QickTick – Smart & Fast Service Booking Platform",
+  title: "Dtssolutions",
+  description: "Dtssolutions – Smart & Fast Service Booking Platform",
   icons: {
-    icon: "/icon.png",
+    icon: "/whitelogo.jpeg",
   },
 };
 

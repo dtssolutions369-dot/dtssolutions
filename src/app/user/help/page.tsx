@@ -80,7 +80,7 @@ export default function HelpAndEarn() {
           key: RAZORPAY_KEY_ID,
           amount: order.amount,
           currency: "INR",
-          name: "QickTick India",
+          name: "Dtssolutions India",
           description: `Contribution: ${paymentData.category}`,
           order_id: order.id,
           handler: async (response: any) => {

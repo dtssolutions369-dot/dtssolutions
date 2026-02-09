@@ -8,7 +8,8 @@ import {
   Film, Edit3, X, Save, Plus, Trash2,
   Image as ImageIcon, Briefcase, CreditCard,
   Calendar, Activity, Tag, Smartphone, ExternalLink, Zap,
-  Play, Video, Link as LinkIcon, Navigation, Store
+  Play, Video, Link as LinkIcon, Navigation, Store,
+  ArrowLeft
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -27,6 +28,9 @@ export default function VendorProfileDetail() {
     { label: "Manufacturer", value: "manufacturer" },
     { label: "Industrial", value: "industrial" },
     { label: "Distributor", value: "distributor" },
+     { label: "Wholesaler", value: "wholesaler" },
+    { label: "Dealer", value: "dealer" },
+    { label: "Sub-Dealer", value: "sub-dealer" },
     { label: "Retailer", value: "retailer" },
     { label: "Service Provider", value: "service" },
   ];
@@ -164,11 +168,299 @@ export default function VendorProfileDetail() {
     return url;
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white"><Loader2 className="animate-spin text-yellow-500" size={40} /></div>;
-  if (error) return <div className="min-h-screen flex items-center justify-center text-red-600 font-bold"><AlertCircle className="mr-2" /> {error}</div>;
+  if (loading) return <LoadingSkeleton />;
+  if (error) return <EmptyState />;
 
   return (
-    <div className="min-h-screen bg-white font-sans selection:bg-yellow-100 text-slate-900">
+    <div className="min-h-screen bg-[#FAFAFA] text-slate-900 pb-24 font-sans selection:bg-[#74cb01]/30">
+      
+      {/* --- PREMIUM CENTERED HEADER --- */}
+      <header className="relative pt-24 pb-44 overflow-hidden">
+        {/* Ambient background effect */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10">
+            <div className="absolute top-[-10%] right-[10%] w-[500px] h-[500px] bg-[#00AEEF]/10 rounded-full blur-[120px]" />
+            <div className="absolute bottom-[0%] left-[5%] w-[400px] h-[400px] bg-[#74cb01]/10 rounded-full blur-[100px]" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center text-center"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-slate-100 mb-8">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00AEEF] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00AEEF]"></span>
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Vendor Profile</span>
+            </div>
+            
+            <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-6 leading-[0.9]">
+              {vendor.company_name} <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00AEEF] to-[#74cb01]">Profile.</span>
+            </h1>
+            <p className="max-w-2xl text-slate-500 text-lg md:text-xl font-medium leading-relaxed">
+              Comprehensive business profile with verified credentials and portfolio showcase.
+            </p>
+          </motion.div>
+        </div>
+      </header>
+
+      {/* --- DARK COMMAND CENTER FILTER BAR --- */}
+      <div className="max-w-7xl mx-auto px-6 -mt-24 relative z-30">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-slate-950 rounded-[3rem] p-3 shadow-[0_40px_100px_-15px_rgba(0,0,0,0.3)] border border-white/10"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            
+            {/* Back Button */}
+            <button 
+              onClick={() => window.history.back()}
+              className="flex items-center gap-4 px-6 py-4 bg-white/5 rounded-[2rem] border border-white/5 hover:border-[#00AEEF]/40 transition-all"
+            >
+              <ArrowLeft size={20} className="text-[#00AEEF]" />
+              <div className="flex flex-col flex-1">
+                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Navigation</label>
+                <span className="bg-transparent border-none outline-none text-white font-bold text-xs">Back to Dashboard</span>
+              </div>
+            </button>
+
+            {/* Edit Button */}
+            <button 
+              onClick={() => setIsEditing(true)}
+              className="flex items-center gap-4 px-6 py-4 bg-white/5 rounded-[2rem] border border-white/5 hover:border-[#F26522]/40 transition-all"
+            >
+              <Edit3 size={20} className="text-[#F26522]" />
+              <div className="flex flex-col flex-1">
+                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Action</label>
+                <span className="bg-transparent border-none outline-none text-white font-bold text-xs">Edit Profile</span>
+              </div>
+            </button>
+
+            {/* Status Display */}
+            <div className="flex items-center gap-4 px-6 py-4 bg-white/5 rounded-[2rem] border border-white/5">
+              <ShieldCheck size={20} className="text-[#74cb01]" />
+              <div className="flex flex-col flex-1">
+                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Status</label>
+                <span className="bg-transparent border-none outline-none text-white font-bold text-xs">{vendor.status}</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* --- MAIN CONTENT --- */}
+      <main className="max-w-[1400px] mx-auto px-6 py-24">
+        <div className="grid lg:grid-cols-12 gap-10">
+          
+          {/* MAIN CONTENT */}
+          <div className="lg:col-span-8 space-y-10">
+            
+            {/* Quick Metrics */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <StatCard 
+                label="Sector" 
+                value={vendor.sector} 
+                icon={<Zap size={18} className="text-[#00AEEF]" />} 
+              />
+              <StatCard
+                label="Account Type"
+                value={
+                  Array.isArray(vendor.user_type) && vendor.user_type.length > 0 ? (
+                    <div className="flex flex-col">
+                      {vendor.user_type.map((type: string, i: number) => (
+                        <span key={i} className="text-sm font-semibold">{type}</span>
+                      ))}
+                    </div>
+                  ) : "Standard"
+                }
+                icon={<User size={18} className="text-[#F26522]" />}
+              />
+              <StatCard 
+                label="Established" 
+                value={new Date(vendor.created_at).getFullYear()} 
+                icon={<Calendar size={18} className="text-[#74cb01]" />} 
+              />
+              <StatCard 
+                label="Status" 
+                value={vendor.status} 
+                icon={<Activity size={18} className={vendor.status === 'active' ? 'text-[#74cb01]' : 'text-slate-400'} />} 
+                className={vendor.status === 'active' ? 'border-[#74cb01]/20 bg-[#74cb01]/5' : ''}
+              />
+            </div>
+
+            {/* Executive Summary */}
+            <section className="bg-white rounded-[3rem] p-8 md:p-10 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="p-4 bg-[#00AEEF]/10 rounded-2xl text-[#00AEEF]">
+                  <Info size={24} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900 leading-none">Executive Summary</h2>
+                  <p className="text-slate-400 text-sm mt-1">Company overview and expertise</p>
+                </div>
+              </div>
+              
+              <p className="text-slate-600 text-lg leading-relaxed mb-10 font-medium">
+                {vendor.profile_info || "Premium business profile under review."}
+              </p>
+
+              {vendor.business_keywords && (
+                <div className="flex flex-wrap gap-2 pt-6 border-t border-slate-50">
+                  {vendor.business_keywords.split(',').map((tag: string, i: number) => (
+                    <span 
+                      key={i} 
+                      className="bg-slate-100 text-slate-500 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-[#74cb01] hover:text-white transition-colors cursor-default"
+                    >
+                      #{tag.trim()}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* VIDEO SHOWCASE */}
+            {vendor.video_files && vendor.video_files.length > 0 && (
+              <section className="bg-white rounded-[3rem] p-8 md:p-10 shadow-sm border border-slate-100">
+                <div className="flex items-center gap-4 mb-10">
+                  <div className="p-4 bg-slate-100 rounded-2xl text-slate-600 text-white">
+                      <Video size={24} strokeWidth={2.5} />
+                  </div>
+                  <h2 className="text-2xl font-bold text-slate-900">Video Portfolio</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {vendor.video_files.map((video: any, i: number) => {
+                    const videoUrl = video.url || video;
+                    const isUploaded = videoUrl.includes('supabase.co');
+
+                    return (
+                      <div key={i} className="group relative rounded-[2rem] overflow-hidden bg-slate-900 aspect-video shadow-xl">
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10 pointer-events-none" />
+                        {isUploaded ? (
+                          <video src={videoUrl} controls className="w-full h-full object-cover" />
+                        ) : (
+                          <iframe
+                            className="w-full h-full"
+                            src={getEmbedUrl(videoUrl)}
+                            title={`Video ${i}`}
+                            allowFullScreen
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
+            {/* IMAGE SHOWCASE */}
+            <section className="bg-white rounded-[3rem] p-8 md:p-10 shadow-sm border border-slate-100">
+              <div className="flex items-center justify-between mb-10">
+                <div className="flex items-center gap-4">
+                  <div className="p-4 bg-slate-100 rounded-2xl text-slate-600">
+                    <ImageIcon size={24} strokeWidth={2.5} />
+                  </div>
+                  <h2 className="text-2xl font-bold text-slate-900">Work Gallery</h2>
+                </div>
+                <span className="text-slate-400 font-medium text-sm">
+                  {vendor.media_files?.length || 0} Photos
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
+                {vendor.media_files?.map((img: string, i: number) => (
+                  <div 
+                    key={i} 
+                    className="group relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-slate-100 shadow-sm cursor-zoom-in"
+                  >
+                    <img 
+                      src={img} 
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" 
+                      alt={`Work instance ${i}`}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                      <p className="text-white text-sm font-medium">View Project</p>
+                                          </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+
+          {/* SIDEBAR */}
+          <div className="lg:col-span-4">
+            <div className="sticky top-28 space-y-6">
+              
+              {/* PRIMARY CONTACT CARD */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-slate-950 text-white rounded-[3rem] p-8 shadow-2xl border border-white/5"
+              >
+                <h3 className="text-xl font-bold mb-8">Direct Contact</h3>
+
+                <div className="space-y-6">
+                  <ContactItem icon={<Phone size={20} />} label="Call Support" value={vendor.mobile_number} isLink={`tel:${vendor.mobile_number}`} />
+                  <ContactItem icon={<User size={20} />} label="Decision Maker" value={vendor.owner_name} />
+                  {vendor.websites?.map((url: string, idx: number) => (
+                    <ContactItem
+                      key={idx}
+                      icon={<Globe size={20} />}
+                      label="Website"
+                      value={url.replace(/(^\w+:|^)\/\//, '')}
+                      isLink={url.startsWith('http') ? url : `https://${url}`}
+                    />
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => window.open(`tel:${vendor.mobile_number}`)}
+                  className="w-full mt-10 bg-[#00AEEF] hover:bg-[#0099CC] text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-[#00AEEF]/20 transition-all active:scale-[0.98] hover:shadow-xl"
+                >
+                  Contact Now
+                </button>
+              </motion.div>
+
+              {/* HEADQUARTERS CARD */}
+              <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm hover:shadow-md transition-shadow">
+                <h3 className="font-bold text-slate-900 mb-4">Headquarters</h3>
+                <div className="flex gap-3 text-slate-600">
+                  <MapPin size={20} className="text-slate-400 shrink-0 mt-1" />
+                  <p className="text-sm leading-relaxed">
+                    <span className="font-semibold text-slate-800">{vendor.building}</span><br />
+                    {vendor.flat_no}, {vendor.street}<br />
+                    {vendor.area}, {vendor.city}<br />
+                    <span className="uppercase">{vendor.state} - {vendor.pincode}</span>
+                  </p>
+                </div>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${vendor.company_name} ${vendor.city}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#74cb01] hover:translate-x-1 transition-transform"
+                >
+                  <Navigation size={16} /> Get Directions
+                </a>
+              </div>
+
+              {/* TRUST VERIFICATION CARD */}
+              <div className="bg-slate-50 border border-slate-100 rounded-[2rem] p-8 shadow-sm">
+                <h3 className="font-bold text-slate-900 mb-6 flex items-center gap-2">
+                  <ShieldCheck size={18} className="text-[#74cb01]" /> Trust Verification
+                </h3>
+                <div className="space-y-4">
+                  <AccountRow label="Verification" value={vendor.status} color={vendor.status === 'active' ? 'text-[#74cb01] font-bold' : 'text-[#F26522] font-bold'} />
+                  <AccountRow label="Plan" value={vendor.subscription_plans?.name || "Free"} />
+                  <AccountRow label="Renewal" value={vendor.subscription_expiry || "—"} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
 
       {/* ================= EDIT MODAL (COMMAND CENTER) ================= */}
       <AnimatePresence>
@@ -181,12 +473,12 @@ export default function VendorProfileDetail() {
               initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
               className="bg-white w-full max-w-6xl rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-black/10"
             >
-              <div className="p-6 bg-yellow-400 text-black flex justify-between items-center">
+              <div className="p-6 bg-[#00AEEF] text-white flex justify-between items-center">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-black rounded-xl text-yellow-400"><Edit3 size={20} /></div>
+                  <div className="p-2 bg-white rounded-xl text-[#00AEEF]"><Edit3 size={20} /></div>
                   <h2 className="text-xl font-black uppercase tracking-tighter">Command Center</h2>
                 </div>
-                <button onClick={() => setIsEditing(false)} className="bg-black text-white p-2 rounded-xl hover:scale-105 transition-all"><X size={20} /></button>
+                <button onClick={() => setIsEditing(false)} className="bg-white text-[#00AEEF] p-2 rounded-xl hover:scale-105 transition-all"><X size={20} /></button>
               </div>
 
               <div className="p-8 overflow-y-auto bg-slate-50 grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -203,7 +495,6 @@ export default function VendorProfileDetail() {
                   <InputField label="GST Number" value={editForm.gst_number} onChange={(v: any) => setEditForm({ ...editForm, gst_number: v })} />
 
                   {/* Sector Multi-Select */}
-                  {/* Sector Checkboxes */}
                   <div className="w-full">
                     <label className="text-[10px] font-black uppercase text-slate-500 mb-2 block ml-1">
                       Sector
@@ -222,8 +513,8 @@ export default function VendorProfileDetail() {
                             key={option.value}
                             className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all
             ${isChecked
-                                ? "bg-yellow-100 border-yellow-400"
-                                : "bg-white border-slate-200 hover:border-yellow-300"
+                                ? "bg-[#74cb01] border-[#74cb01]"
+                                : "bg-white border-slate-200 hover:border-[#00AEEF]"
                               }`}
                           >
                             <input
@@ -243,7 +534,7 @@ export default function VendorProfileDetail() {
                                   sector: updated.join(","),
                                 });
                               }}
-                              className="accent-yellow-500"
+                              className="accent-[#74cb01]"
                             />
                             <span className="text-xs font-bold uppercase">
                               {option.label}
@@ -254,9 +545,8 @@ export default function VendorProfileDetail() {
                     </div>
                   </div>
 
-
                   <div className="pt-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 flex justify-between mb-2">Websites <button onClick={() => setEditForm({ ...editForm, websites: [...(editForm.websites || []), ""] })} className="text-yellow-600"><Plus size={14} /></button></label>
+                    <label className="text-[10px] font-black uppercase text-slate-400 flex justify-between mb-2">Websites <button onClick={() => setEditForm({ ...editForm, websites: [...(editForm.websites || []), ""] })} className="text-[#00AEEF]"><Plus size={14} /></button></label>
                     <div className="space-y-2">
                       {editForm.websites?.map((site: string, i: number) => (
                         <div key={i} className="flex gap-2">
@@ -292,7 +582,7 @@ export default function VendorProfileDetail() {
 
                   {/* Image Upload */}
                   <div>
-                    <label className="text-[10px] font-black uppercase text-slate-400 flex justify-between items-center mb-3">Portfolio Images <label className="bg-yellow-400 p-1.5 rounded-lg cursor-pointer"><Plus size={14} /><input type="file" hidden onChange={handleFileUpload} accept="image/*" /></label></label>
+                    <label className="text-[10px] font-black uppercase text-slate-400 flex justify-between items-center mb-3">Portfolio Images <label className="bg-[#74cb01] p-1.5 rounded-lg cursor-pointer"><Plus size={14} /><input type="file" hidden onChange={handleFileUpload} accept="image/*" /></label></label>
                     <div className="grid grid-cols-4 gap-2">
                       {editForm.media_files?.map((img: string, i: number) => (
                         <div key={i} className="relative aspect-square rounded-lg overflow-hidden border group">
@@ -307,7 +597,7 @@ export default function VendorProfileDetail() {
                   <div className="pt-4 border-t border-slate-200">
                     <label className="text-[10px] font-black uppercase text-slate-400 flex justify-between items-center mb-3">
                       Video Portfolio
-                      <label className="bg-black text-yellow-400 p-1.5 rounded-lg cursor-pointer hover:scale-105 transition-transform flex items-center justify-center">
+                      <label className="bg-black text-[#00AEEF] p-1.5 rounded-lg cursor-pointer hover:scale-105 transition-transform flex items-center justify-center">
                         {uploading ? <Loader2 size={14} className="animate-spin" /> : <Video size={14} />}
                         <input
                           type="file"
@@ -330,7 +620,7 @@ export default function VendorProfileDetail() {
                           </button>
                         </div>
                       ))}
-                      {uploading && <p className="text-[9px] text-yellow-600 animate-pulse font-bold uppercase">Uploading high-quality media...</p>}
+                      {uploading && <p className="text-[9px] text-[#74cb01] animate-pulse font-bold uppercase">Uploading high-quality media...</p>}
                     </div>
                   </div>
 
@@ -354,7 +644,7 @@ export default function VendorProfileDetail() {
               </div>
 
               <div className="p-6 bg-white border-t flex gap-3">
-                <button onClick={handleUpdate} disabled={isSaving} className="flex-1 bg-black text-yellow-400 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2">
+                <button onClick={handleUpdate} disabled={isSaving} className="flex-1 bg-[#00AEEF] hover:bg-[#0099CC] text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2">
                   {isSaving ? <Loader2 className="animate-spin" /> : <Save size={16} />} Update Profile
                 </button>
               </div>
@@ -362,244 +652,6 @@ export default function VendorProfileDetail() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* --- VENDOR PROFILE HEADER (Registry Style) --- */}
-      <div className="bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-16 pb-32 px-6 relative overflow-hidden border-b border-yellow-200">
-        {/* Dot Grid Pattern Overlay */}
-        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(#F59E0B_0.5px,transparent_0.5px)] [background-size:24px_24px]" />
-
-        <div className="max-w-7xl mx-auto relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
-
-          <div className="flex flex-col lg:flex-row gap-10 items-center lg:items-end flex-1">
-            {/* 1. Tilted Logo Card (Left Side) */}
-            <motion.div
-              initial={{ opacity: 0, rotate: -3, scale: 0.9 }}
-              animate={{ opacity: 1, rotate: -2, scale: 1 }}
-              className="relative group flex-shrink-0"
-            >
-              <div className="w-32 h-32 md:w-48 md:h-48 bg-white rounded-[2.5rem] p-4 md:p-6 shadow-2xl border-2 border-yellow-100 flex items-center justify-center overflow-hidden transition-transform group-hover:rotate-0 duration-500">
-                {vendor.company_logo ? (
-                  <img src={vendor.company_logo} alt="Logo" className="w-full h-full object-contain" />
-                ) : (
-                  <Building2 size={50} className="text-yellow-100 md:size-70" />
-                )}
-              </div>
-              <div className="absolute -bottom-2 -right-2 bg-red-600 text-white p-2 rounded-xl shadow-lg border-4 border-[#FEF3C7]">
-                <ShieldCheck size={20} fill="currentColor" />
-              </div>
-            </motion.div>
-
-            {/* 2. Vendor Info Section */}
-            <div className="text-center lg:text-left">
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-6">
-                <span className="bg-yellow-800 text-[#FFD700] text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.2em] shadow-sm">
-                  {vendor.status || "Verified Vendor"}
-                </span>
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="bg-white/50 backdrop-blur-md border border-yellow-300 hover:border-yellow-500 hover:bg-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-2 transition-all active:scale-95"
-                >
-                  <Edit3 size={14} className="text-red-600" /> Edit Profile
-                </button>
-              </div>
-
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-3xl md:text-5xl lg:text-7xl font-black text-gray-900 tracking-tighter leading-[0.85] uppercase mb-6"
-              >
-                {vendor.company_name.split(' ')[0]} <br />
-                <span className="text-red-600 ">
-                  {vendor.company_name.split(' ').slice(1).join(' ') || "Enterprise"}
-                </span>
-              </motion.h1>
-
-              <div className="flex flex-wrap justify-center lg:justify-start gap-4">
-                <div className="flex items-center gap-2 bg-white/40 px-4 py-2 rounded-2xl border border-yellow-200/50">
-                  <MapPin size={16} className="text-yellow-700" />
-                  <span className="text-xs font-bold text-gray-700 uppercase tracking-tight">
-                    {vendor.city}, {vendor.state}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/40 px-4 py-2 rounded-2xl border border-yellow-200/50">
-                  <Zap size={16} className="text-red-600" fill="currentColor" />
-                  <span className="text-xs font-bold text-gray-700 uppercase tracking-tight">
-                    GST: {vendor.gst_number || "Verified"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* --- 3. THE RIGHT SIDE ICON CARD --- */}
-          <motion.div
-            initial={{ opacity: 0, rotate: 0, scale: 0.9 }}
-            animate={{ opacity: 1, rotate: 5, scale: 1 }}
-            className="hidden lg:block bg-white p-10 rounded-[3rem] shadow-2xl border-2 border-yellow-100 relative"
-          >
-            {/* Decorative Badge on Right Icon */}
-            <div className="absolute -top-3 -right-3 bg-yellow-400 text-yellow-900 px-4 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">
-              Official Store
-            </div>
-
-            <div className="text-yellow-600">
-              <Store size={80} strokeWidth={1.5} />
-            </div>
-
-            {/* Subtle bottom text for the card */}
-            <div className="mt-4 text-center">
-              <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">Partner ID: {vendor.id?.slice(0, 8) || "Q-VENDOR"}</p>
-            </div>
-          </motion.div>
-
-        </div>
-      </div>
-
-      {/* ================= MAIN CONTENT ================= */}
-      <div className="max-w-7xl mx-auto px-6 -mt-16 pb-20 relative z-20 grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-        {/* LEFT SIDE */}
-        <div className="lg:col-span-8 space-y-8">
-          {/* Quick Metrics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard label="Sector" value={vendor.sector} icon={<Zap size={16} />} />
-            <StatCard
-              label="Account Type"
-              value={
-                Array.isArray(vendor.user_type) && vendor.user_type.length > 0 ? (
-                  <div className="flex flex-col">
-                    {vendor.user_type.map((type: string, i: number) => (
-                      <span key={i}>{type}</span>
-                    ))}
-                  </div>
-                ) : (
-                  "Standard"
-                )
-              }
-              icon={<User size={16} />}
-            />
-            <StatCard label="Established" value={new Date(vendor.created_at).getFullYear()} icon={<Calendar size={16} />} />
-            <StatCard label="Status" value={vendor.status} icon={<Activity size={16} />} />
-          </div>
-
-          {/* Overview */}
-          <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-slate-100">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-yellow-400 rounded-2xl"><Info size={20} /></div>
-              <h2 className="text-xl font-black uppercase ">Executive Summary</h2>
-            </div>
-            <p className="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-8 whitespace-pre-line">{vendor.profile_info || "Premium business profile under review."}</p>
-            {vendor.business_keywords && (
-              <div className="flex flex-wrap gap-2 border-t pt-8">
-                {vendor.business_keywords.split(',').map((tag: string, i: number) => (
-                  <span key={i} className="bg-slate-50 text-slate-400 px-4 py-1.5 rounded-xl text-[10px] font-black border uppercase tracking-widest">#{tag.trim()}</span>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* VIDEO SHOWCASE */}
-          {vendor.video_files && vendor.video_files.length > 0 && (
-            <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-slate-100">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="p-3 bg-black rounded-2xl text-yellow-400"><Video size={20} /></div>
-                <h2 className="text-xl font-black uppercase ">Video Portfolio</h2>
-              </div>
-              {/* Updated Video Showcase in Main Content */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {vendor.video_files.map((video: any, i: number) => {
-                  const videoUrl = video.url || video;
-                  const isUploaded = videoUrl.includes('supabase.co'); // Simple check if it's your storage
-
-                  return (
-                    <div key={i} className="rounded-3xl overflow-hidden bg-black aspect-video shadow-lg border border-slate-100">
-                      {isUploaded ? (
-                        <video
-                          src={videoUrl}
-                          controls
-                          className="w-full h-full"
-                        />
-                      ) : (
-                        <iframe
-                          className="w-full h-full"
-                          src={getEmbedUrl(videoUrl)}
-                          title={`Video ${i}`}
-                          allowFullScreen
-                        />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* IMAGE SHOWCASE */}
-          <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-slate-100">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 bg-slate-100 rounded-2xl"><ImageIcon size={20} /></div>
-              <h2 className="text-xl font-black uppercase ">Work Gallery</h2>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {vendor.media_files?.map((img: string, i: number) => (
-                <div key={i} className="group relative aspect-square overflow-hidden rounded-3xl border border-slate-100 shadow-sm">
-                  <img src={img} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* RIGHT SIDE */}
-        <div className="lg:col-span-4 space-y-6">
-          <div className="bg-slate-900 rounded-[3rem] p-6 md:p-8 text-white shadow-2xl space-y-8 border-t-[8px] border-yellow-400">
-            <SidebarItem icon={<User size={20} />} label="Decision Maker" value={vendor.owner_name} />
-            <SidebarItem icon={<Smartphone size={20} />} label="Contact Line" value={vendor.mobile_number} />
-
-            {vendor.websites && vendor.websites.length > 0 && (
-              <div className="space-y-3">
-                <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">Digital Presence</p>
-                {vendor.websites.map((url: string, idx: number) => (
-                  <a key={idx} href={url.startsWith('http') ? url : `https://${url}`} target="_blank" className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl hover:bg-yellow-400 hover:text-black transition-all group overflow-hidden">
-                    <Globe size={18} className="text-yellow-400 group-hover:text-black" />
-                    <span className="text-xs font-black truncate">{url.replace(/(^\w+:|^)\/\//, '')}</span>
-                  </a>
-                ))}
-              </div>
-            )}
-
-            <div className="pt-8 border-t border-white/5">
-              <p className="text-[10px] font-black text-yellow-400/50 uppercase tracking-widest mb-4">Location Details</p>
-              <address className="not- text-sm font-bold text-white/80 leading-relaxed uppercase">
-                {[vendor.flat_no, vendor.building].filter(Boolean).join(", ")}<br />
-                {[vendor.street, vendor.area].filter(Boolean).join(", ")}<br />
-                <span className="text-yellow-400 block mt-2 font-black text-lg">{vendor.city}, {vendor.state}</span>
-                <span className="text-white/30 block tracking-widest">{vendor.pincode}</span>
-              </address>
-              <a href={`http://maps.google.com/?q=${encodeURIComponent(`${vendor.company_name} ${vendor.city}`)}`} target="_blank" className="mt-4 inline-flex items-center gap-2 text-[10px] font-black text-yellow-400 uppercase tracking-widest">
-                <Navigation size={14} /> Get Directions
-              </a>
-            </div>
-
-            <a href={`tel:${vendor.mobile_number}`} className="flex w-full bg-yellow-400 text-black py-5 rounded-2xl items-center justify-center gap-3 font-black uppercase text-[10px] tracking-widest hover:bg-white transition-all shadow-xl">
-              <Phone size={18} /> Call Now
-            </a>
-          </div>
-
-          <div className="bg-white rounded-[2.5rem] p-6 md:p-8 border border-slate-100 shadow-lg space-y-4">
-            <h3 className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2"><ShieldCheck size={16} className="text-yellow-500" /> Trust Verification</h3>
-            <AccountRow label="Verification" value={vendor.status} color={vendor.status === 'active' ? 'text-emerald-500' : 'text-orange-500'} />
-            <AccountRow
-              label="Plan"
-              value={vendor.subscription_plans?.name || "Free"}
-            />
-            <AccountRow
-              label="Renewal"
-              value={vendor.subscription_expiry || "—"}
-            />
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
@@ -607,7 +659,7 @@ export default function VendorProfileDetail() {
 // --- HELPER COMPONENTS ---
 function SectionTitle({ icon, title }: any) {
   return (
-    <h3 className="text-black font-black text-[10px] uppercase tracking-widest flex items-center gap-2 border-b-2 border-yellow-400 pb-2">
+    <h3 className="text-black font-black text-[10px] uppercase tracking-widest flex items-center gap-2 border-b-2 border-[#00AEEF] pb-2">
       {icon} {title}
     </h3>
   );
@@ -616,7 +668,7 @@ function SectionTitle({ icon, title }: any) {
 function StatCard({ label, value, icon }: any) {
   return (
     <div className="bg-white p-4 md:p-5 rounded-3xl border border-slate-100 shadow-sm text-center md:text-left">
-      <div className="text-yellow-500 mb-2 flex justify-center md:justify-start">
+      <div className="text-[#00AEEF] mb-2 flex justify-center md:justify-start">
         {icon}
       </div>
 
@@ -624,7 +676,6 @@ function StatCard({ label, value, icon }: any) {
         {label}
       </p>
 
-      {/* MUST be div, not p */}
       <div className="text-xs font-black text-black uppercase">
         {value || "---"}
       </div>
@@ -632,13 +683,18 @@ function StatCard({ label, value, icon }: any) {
   );
 }
 
-function SidebarItem({ icon, label, value }: any) {
+function ContactItem({ icon, label, value, isLink }: any) {
+  if (!value) return null;
   return (
-    <div className="flex items-start gap-4">
-      <div className="p-3 bg-white/5 rounded-xl text-yellow-400 shrink-0">{icon}</div>
-      <div className="overflow-hidden">
-        <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">{label}</p>
-        <p className="text-xs font-black truncate">{value || "Confidential"}</p>
+    <div className="group flex items-start gap-4 cursor-pointer" onClick={() => isLink && window.open(isLink)}>
+      <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-[#00AEEF] group-hover:bg-[#00AEEF] group-hover:text-white transition-all">
+        {icon}
+      </div>
+      <div className="flex-1 border-b border-white/5 pb-4">
+        <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">{label}</p>
+        <p className="text-sm font-medium text-white flex items-center gap-1">
+          {value} {isLink && <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />}
+        </p>
       </div>
     </div>
   );
@@ -653,11 +709,49 @@ function AccountRow({ label, value, color = "text-black" }: any) {
   );
 }
 
+function Badge({ icon, label }: any) {
+  return (
+    <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-full border border-slate-100 text-slate-600 font-medium text-sm">
+      <span className="text-[#74cb01]">{icon}</span>
+      {label}
+    </div>
+  );
+}
+
 function InputField({ label, value, onChange }: any) {
   return (
     <div className="w-full">
       <label className="text-[10px] font-black uppercase text-slate-500 mb-1.5 block ml-1">{label}</label>
-      <input type="text" value={value || ""} onChange={(e) => onChange(e.target.value)} className="w-full bg-white border border-slate-200 p-3 rounded-xl font-bold text-xs focus:ring-2 focus:ring-yellow-400 outline-none transition-all" />
+      <input type="text" value={value || ""} onChange={(e) => onChange(e.target.value)} className="w-full bg-white border border-slate-200 p-3 rounded-xl font-bold text-xs focus:ring-2 focus:ring-[#00AEEF] outline-none transition-all" />
+    </div>
+  );
+}
+
+function LoadingSkeleton() {
+  return (
+    <div className="min-h-screen bg-[#FAFAFA] animate-pulse">
+      <div className="h-64 bg-slate-100 w-full" />
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="h-40 bg-white shadow-lg rounded-3xl -mt-20 border p-8">
+          <div className="flex gap-6">
+            <div className="w-32 h-32 bg-slate-200 rounded-2xl" />
+            <div className="flex-1 space-y-4 pt-4">
+              <div className="h-8 bg-slate-200 w-1/3 rounded" />
+              <div className="h-4 bg-slate-100 w-2/3 rounded" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="h-screen flex flex-col items-center justify-center text-slate-400 bg-[#FAFAFA]">
+      <Building2 size={64} className="mb-4 opacity-20 text-[#00AEEF]" />
+      <h3 className="text-xl font-bold text-slate-900">Profile Not Found</h3>
+      <p>The profile you are looking for does not exist.</p>
     </div>
   );
 }

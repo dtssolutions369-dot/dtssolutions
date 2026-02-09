@@ -5,6 +5,24 @@
   --foreground: #171717;
 }
 
+:root {
+  --color-brand: #74cb01;
+  --color-brand-transparent: rgba(116, 203, 1, 0.1);
+}
+
+.brand-bg {
+  background-color: var(--color-brand);
+  color: white;
+}
+
+.brand-text {
+  color: var(--color-brand);
+}
+
+.brand-border {
+  border-color: var(--color-brand);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

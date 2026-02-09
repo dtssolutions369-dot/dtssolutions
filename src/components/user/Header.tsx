@@ -352,12 +352,12 @@ export default function UserFeed() {
 
   const navLinks = [
     { name: "Home", href: "/user" },
-    { name: "Plans", href: "/user/subscription-plans" },
+    //{ name: "Plans", href: "/user/subscription-plans" },
     { name: "Products", href: "/user/listing" },
     { name: "Video", href: "/user/video" },
-    { name: "Transport", href: "/user/transport" },
+    //{ name: "Transport", href: "/user/transport" },
     { name: "Enquiry", href: "/user/enquiry" },
-    { name: "Help & Earn", href: "/user/help" },
+    // { name: "Help & Earn", href: "/user/help" },
   ];
 
   // Bottom nav items (subset of navLinks + Profile conditionally)
@@ -366,115 +366,72 @@ export default function UserFeed() {
     { name: "Video", href: "/user/video", icon: PlayCircle },
     { name: "Enquiry", href: "/user/enquiry", icon: MessageSquare },
     { name: "Products", href: "/user/listing", icon: Package },
-    ...(user ? [{ name: "Profile", href: userRole === "vendor" ? "/user/vendor-profile" : "/user/profile", icon: UserIcon  }] : []),
+    ...(user ? [{ name: "Profile", href: userRole === "vendor" ? "/user/vendor-profile" : "/user/profile", icon: UserIcon }] : []),
   ];
 
   return (
     <div className="pt-16 bg-black">
       {/* ---------------- HEADER ---------------- */}
+      {/* ---------------- HEADER ---------------- */}
       <header
-        className={`fixed top-0 left-0 right-0 z-[9999] h-16 bg-black/80 backdrop-blur-sm border-b border-red-50 shadow-sm transition-all duration-300
-${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
-  `}
+        className={`fixed top-0 left-0 right-0 z-[9999] h-20 bg-zinc-950/90 backdrop-blur-md border-b border-white/10 transition-all duration-300 ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"
+          }`}
       >
-        <div className="max-w-7xl mx-auto h-full flex items-center justify-between px-4 sm:px-6">
-          {/* 1. Logo Section: Optimized sizing */}
-          <Link href="/user" className="flex-shrink-0 transition-transform hover:scale-105">
+        <div className="max-w-7xl mx-auto h-full flex items-center justify-between px-4 sm:px-8">
+
+          {/* 1. Logo Section */}
+          <Link href="/user" className="flex-shrink-0 transition-all active:scale-95">
             <Image
-              src="/navbar_logo.png"
-              alt="QickTick"
-              width={120}
-              height={60}
-              className="object-contain h-10 w-auto sm:h-12"
+              src="/logoversion2.png"
+              alt="Dtssolutions"
+              width={140}
+              height={70}
+              className="object-contain h-10 w-auto sm:h-12 drop-shadow-md"
               priority
             />
           </Link>
-{/* MOBILE ACTIONS (NO HAMBURGER) */}
-<div className="flex lg:hidden items-center gap-2">
-  {!user && (
-    <>
-      <button
-        onClick={() => setOpenVendor(true)}
-        className="px-3 py-2 text-xs font-bold border border-yellow-400 text-yellow-400 rounded-lg"
-      >
-        + Add Business
-      </button>
 
-      <button
-        onClick={() => setShowLoginPopup(true)}
-        className="px-3 py-2 text-xs font-bold bg-yellow-400 text-black rounded-lg"
-      >
-        Login
-      </button>
-    </>
-  )}
-
-  {user && (
-    <button
-      onClick={() => setShowMoreMenu(true)}
-      className="w-10 h-10 rounded-full flex items-center justify-center"
-      style={{ backgroundColor: profileColor }}
-    >
-      <UserCircle size={22} className="text-white" />
-    </button>
-  )}
-</div>
-
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center space-x-2 font-semibold text-sm">
+          {/* 2. Desktop Navigation */}
+          <nav className="hidden lg:flex items-center bg-white/5 border border-white/10 rounded-full px-2 py-1.5 space-x-1">
             {navLinks.map((link) => {
               const isLinkActive = pathname === link.href;
-
               return (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`
-                    relative px-4 py-2 rounded-full transition-all duration-300 group
-                    ${isLinkActive
-                      ? "text-white bg-red-400/10 shadow-[inset_0_0_0_1px_rgba(255,215,0,0.4)]"
-                      : "text-white hover:text-black hover:bg-yellow-50"}
-                  `}
+                  className={`relative px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${isLinkActive
+                      ? "text-white bg-[#74cb01] shadow-lg shadow-red-900/20"
+                      : "text-zinc-400 hover:text-white hover:bg-white/5"
+                    }`}
                 >
                   {link.name}
-
-                  {/* Animated underline indicator for active link */}
                   {isLinkActive && (
-                    <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-yellow-500 rounded-full" />
-                  )}
-
-                  {/* Subtle hover line for non-active links */}
-                  {!isLinkActive && (
-                    <span className="absolute bottom-2 left-1/2 w-0 h-[1.5px] bg-gray-300 transition-all duration-300 group-hover:w-1/2 group-hover:-translate-x-1/2" />
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full blur-[1px]" />
                   )}
                 </Link>
               );
             })}
           </nav>
 
- 
+          {/* 3. Actions Section */}
+          <div className="flex items-center gap-4">
 
-          {/* 3. Actions Section - Desktop */}
-          <div className="hidden lg:flex items-center space-x-4">
-            {/* Primary Action Button */}
-            {!user && (
-              <button
-                onClick={() => setOpenVendor(true)}
-                className="px-6 py-3 border-2 border-red-500 text-white rounded-xl font-bold text-sm uppercase tracking-wide hover:bg-red-500/10 transition-all"
-              >
-                +  Add Business
-              </button>
-            )}
-
-            <div className="h-6 w-[1px] bg-gray-200" />
-
-            {/* AUTH SECTION */}
-            <div className="flex items-center space-x-3">
+            {/* Desktop Actions */}
+            <div className="hidden lg:flex items-center gap-4">
               {!user ? (
                 <>
                   <button
+                    onClick={() => setOpenVendor(true)}
+                    className="px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-[#FF692A] border border-[#FF692A] rounded-xl hover:bg-[#FF692A] hover:text-white transition-all duration-300"
+                  >
+                    + Add Business
+                  </button>
+
+                  <div className="h-8 w-[1px] bg-white/10 mx-2" />
+
+                  <button
                     onClick={() => setShowLoginPopup(true)}
-                    className="px-4 py-2 text-sm font-bold text-white hover:text-white transition"
+                    className="text-sm font-semibold text-zinc-300 hover:text-white transition-colors"
                   >
                     Login
                   </button>
@@ -482,146 +439,92 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
                   <div className="relative">
                     <button
                       onClick={() => setOpenRegisterMenu((prev) => !prev)}
-                      className="px-5 py-2.5 bg-yellow-400 text-black text-sm rounded-full font-bold shadow-sm hover:bg-yellow-500 transition-all flex items-center"
+                      className="group flex items-center gap-2 px-6 py-2.5 bg-[#74cb01] hover:bg-[#74cb01] text-black text-sm font-bold rounded-full transition-all shadow-lg shadow-yellow-900/20"
                     >
                       Register
-                      <ChevronDown size={14} className={`ml-1 transition-transform ${openRegisterMenu ? 'rotate-180' : ''}`} />
+                      <ChevronDown size={16} className={`transition-transform duration-300 ${openRegisterMenu ? 'rotate-180' : ''}`} />
                     </button>
+
+                    {/* Register Dropdown */}
                     {openRegisterMenu && (
-                      <div className="absolute right-0 mt-3 w-56 bg-yellow-100 text-black border border-gray-100 shadow-2xl rounded-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+                      <div className="absolute right-0 mt-4 w-60 bg-zinc-900 border border-white/10 shadow-2xl rounded-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
                         <button
                           onClick={() => { setShowRegisterPopup(true); setOpenRegisterMenu(false); }}
-                          className="w-full text-left px-5 py-3 hover:bg-yellow-100 text-sm font-semibold flex items-center space-x-2"
+                          className="w-full flex items-center gap-3 px-5 py-4 text-zinc-300 hover:bg-white/5 hover:text-white transition-all"
                         >
-                          <UserIcon size={16} /> <span>User Registration</span>
+                          <UserIcon size={18} className="text-[#74cb01]" />
+                          <span className="font-semibold">User Registration</span>
                         </button>
-
                         <button
-                          onClick={() => {
-                            setOpenVendor(true); // Open the popup
-                            setOpenRegisterMenu(false); // Close the dropdown menu
-                          }}
-                          className="w-full text-left px-5 py-3 hover:bg-yellow-100 text-sm font-semibold border-t border-gray-50 flex items-center space-x-2"
+                          onClick={() => { setOpenVendor(true); setOpenRegisterMenu(false); }}
+                          className="w-full flex items-center gap-3 px-5 py-4 text-zinc-300 hover:bg-white/5 border-t border-white/5 hover:text-white transition-all"
                         >
-                          <Briefcase size={16} />
-                          <span>Vendor Registration</span>
+                          <Briefcase size={18} className="text-[#74cb01]" />
+                          <span className="font-semibold">Vendor Registration</span>
                         </button>
                       </div>
                     )}
                   </div>
                 </>
               ) : (
-                /* Profile Dropdown */
+                /* Profile Section */
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setOpenMenu(openMenu === "profile" ? null : "profile")}
-                    className="flex items-center space-x-3 p-2 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 transition-all duration-300 shadow-inner"
+                    className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 hover:border-yellow-400/50 transition-all group"
                   >
-                    <div className="relative flex-shrink-0">
-                      {/* Vendor Medal as Avatar */}
-                      {userRole === "vendor" && profileMedal ? (
-                        <div
-                          className="relative flex items-center justify-center 
-                     rounded-full shadow-lg border-2 border-white
-                     animate-in zoom-in duration-500
-                     hover:scale-110 transition-transform
-                     px-3 py-2 min-w-[2.5rem] max-w-[5rem]"
-                                                 style={{
-                            backgroundColor: '#000000', // black background for medal
-                            boxShadow: `0 0 15px ${profileColor}60`,
-                          }}
-                          title="Vendor Rank"
-                        >
-                          <span
-                            className={`text-sm font-bold text-white select-none drop-shadow-md ${profileMedal.length > 2 ? 'text-[10px]' : 'text-sm'
-                              }`}
-                          >
-                            {profileMedal}
-                          </span>
-                          {/* Glow Ring */}
-                          <div className="absolute inset-0 rounded-full border border-yellow-400 opacity-40 animate-pulse" />
-                        </div>
-                      ) : (
-                        /* Regular User Avatar */
-                        <div
-                          className="w-12 h-12 rounded-full flex items-center justify-center border-2 transition-transform group-hover:scale-105 overflow-hidden"
-                          style={{
-                            backgroundColor: profileColor,
-                            borderColor: 'rgba(255,255,255,0.9)',
-                            boxShadow: `0 0 20px ${profileColor}60`,
-                          }}
-                        >
-                          <UserCircle size={28} className="text-white drop-shadow-md" />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Profile Info */}
-                    <div className="flex flex-col items-start pr-4">
-                      <span className="text-[10px] font-black text-white/70 uppercase tracking-widest leading-none mb-1">
+                    {userRole === "vendor" && profileMedal ? (
+                      <div className="h-10 px-3 flex items-center justify-center bg-black border border-yellow-500/50 rounded-full shadow-[0_0_10px_rgba(234,179,8,0.2)]">
+                        <span className="text-xs font-black text-[#74cb01] uppercase">{profileMedal}</span>
+                      </div>
+                    ) : (
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-zinc-800 border border-white/10 group-hover:border-[#74cb01] transition-colors">
+                        <UserCircle size={24} className="text-zinc-400 group-hover:text-[#74cb01]" />
+                      </div>
+                    )}
+                    <div className="text-left">
+                      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">
                         {userRole === "vendor" ? "Premium Vendor" : "Member"}
-                      </span>
+                      </p>
                       <div className="flex items-center gap-1">
-                        <span className="text-sm font-bold text-white tracking-tight">Account</span>
-                        <ChevronDown
-                          size={14}
-                          className={`text-yellow-400 transition-transform duration-300 ${openMenu === "profile" ? 'rotate-180' : ''
-                            }`}
-                        />
+                        <span className="text-sm font-bold text-white">Account</span>
+                        <ChevronDown size={14} className={`text-[#74cb01] transition-transform ${openMenu === "profile" ? 'rotate-180' : ''}`} />
                       </div>
                     </div>
                   </button>
 
-                  {/* DROPDOWN MENU */}
+                  {/* Profile Dropdown */}
                   {openMenu === "profile" && (
-                    <div className="absolute right-0 mt-3 bg-gradient-to-b from-yellow-50 to-yellow-100 border border-yellow-200 shadow-2xl rounded-2xl py-2 w-60 text-sm z-50 animate-in fade-in slide-in-from-top-2">
-                      {/* Header */}
-                      <div className="px-4 py-2 mb-1 border-b border-yellow-200">
-                        <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Account</p>
-                      </div>
-
-                      {/* My Profile - Always shown */}
-                      <Link
-                        href={userRole === "vendor" ? "/user/vendor-profile" : "/user/profile"}
-                        className="flex items-center px-4 py-2.5 hover:bg-yellow-200 hover:text-gray-900 font-medium text-gray-800 transition-colors duration-200"
-                      >
-                        My Profile
-                      </Link>
-
+                    <div className="absolute right-0 mt-4 w-64 bg-zinc-900 border border-white/10 shadow-2xl rounded-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2">
+                      <Link href={userRole === "vendor" ? "/user/vendor-profile" : "/user/profile"} className="flex items-center px-5 py-3 text-zinc-300 hover:bg-white/5 hover:text-white font-medium">My Profile</Link>
                       {userRole === "vendor" && (
                         <>
-                          <Link
-                            href="/vendor/products"
-                            className="flex items-center px-4 py-2.5 hover:bg-yellow-200 hover:text-gray-900 font-medium text-gray-800 transition-colors duration-200"
-                          >
-                            Products
-                          </Link>
-                          <Link
-                            href="/vendor/enquiry"
-                            className="flex items-center px-4 py-2.5 hover:bg-yellow-200 hover:text-gray-900 font-medium text-gray-800 transition-colors duration-200"
-                          >
-                            Enquiries
-                          </Link>
+                          <Link href="/vendor/products" className="flex items-center px-5 py-3 text-zinc-300 hover:bg-white/5 hover:text-white font-medium">Products</Link>
+                          <Link href="/vendor/enquiry" className="flex items-center px-5 py-3 text-zinc-300 hover:bg-white/5 hover:text-white font-medium">Enquiries</Link>
                         </>
                       )}
-
-                      {/* Logout - Always shown */}
-                      <button
-                        onClick={logout}
-                        className="flex w-full px-4 py-2.5 hover:bg-red-100 text-left text-red-600 font-bold mt-1 rounded-b-2xl transition-colors duration-200"
-                      >
-                        Logout
-                      </button>
+                      <button onClick={logout} className="w-full text-left px-5 py-3 text-[#74cb01] hover:bg-red-500/10 font-bold border-t border-white/5 mt-2">Logout</button>
                     </div>
                   )}
                 </div>
+              )}
+            </div>
 
+            {/* MOBILE ACTIONS */}
+            <div className="flex lg:hidden items-center gap-2">
+              {!user ? (
+                <>
+                  <button onClick={() => setOpenVendor(true)} className="px-3 py-2 text-[10px] font-bold border border-[#74cb01] text-[#74cb01] rounded-lg active:scale-95 transition-transform">+ Business</button>
+                  <button onClick={() => setShowLoginPopup(true)} className="px-4 py-2 text-[10px] font-bold bg-[#74cb01] text-black rounded-lg shadow-lg shadow-yellow-900/20">Login</button>
+                </>
+              ) : (
+                <button onClick={() => setShowMoreMenu(true)} className="w-10 h-10 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center shadow-lg">
+                  <UserCircle size={22} className="text-[#74cb01]" />
+                </button>
               )}
             </div>
           </div>
         </div>
-
-        {/* Mobile Menu Overlay - Full Screen */}
       </header>
 
       {/* MOBILE MENU OVERLAY */}
@@ -782,75 +685,75 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
                 <CloseIcon size={20} />
               </button>
             </div>
-          <div className="p-4 space-y-4">
+            <div className="p-4 space-y-4">
 
-  {/* PROFILE OPTIONS */}
-  {user && (
-    <div className="border rounded-xl p-3">
-      <p className="text-xs font-bold text-gray-500 uppercase mb-2">
-        Account
-      </p>
+              {/* PROFILE OPTIONS */}
+              {user && (
+                <div className="border rounded-xl p-3">
+                  <p className="text-xs font-bold text-gray-500 uppercase mb-2">
+                    Account
+                  </p>
 
-      <Link
-        href={userRole === "vendor" ? "/user/vendor-profile" : "/user/profile"}
-        onClick={() => setShowMoreMenu(false)}
-        className="block py-2 px-3 rounded-lg hover:bg-gray-100 font-semibold"
-      >
-        My Profile
-      </Link>
+                  <Link
+                    href={userRole === "vendor" ? "/user/vendor-profile" : "/user/profile"}
+                    onClick={() => setShowMoreMenu(false)}
+                    className="block py-2 px-3 rounded-lg hover:bg-gray-100 font-semibold"
+                  >
+                    My Profile
+                  </Link>
 
-      {userRole === "vendor" && (
-        <>
-          <Link
-            href="/vendor/products"
-            onClick={() => setShowMoreMenu(false)}
-            className="block py-2 px-3 rounded-lg hover:bg-gray-100 font-semibold"
-          >
-            Products
-          </Link>
+                  {userRole === "vendor" && (
+                    <>
+                      <Link
+                        href="/vendor/products"
+                        onClick={() => setShowMoreMenu(false)}
+                        className="block py-2 px-3 rounded-lg hover:bg-gray-100 font-semibold"
+                      >
+                        Products
+                      </Link>
 
-          <Link
-            href="/vendor/enquiry"
-            onClick={() => setShowMoreMenu(false)}
-            className="block py-2 px-3 rounded-lg hover:bg-gray-100 font-semibold"
-          >
-            Enquiries
-          </Link>
-        </>
-      )}
+                      <Link
+                        href="/vendor/enquiry"
+                        onClick={() => setShowMoreMenu(false)}
+                        className="block py-2 px-3 rounded-lg hover:bg-gray-100 font-semibold"
+                      >
+                        Enquiries
+                      </Link>
+                    </>
+                  )}
 
-      <button
-        onClick={() => {
-          logout();
-          setShowMoreMenu(false);
-        }}
-        className="w-full text-left py-2 px-3 rounded-lg text-red-600 font-bold hover:bg-red-50 mt-2"
-      >
-        Logout
-      </button>
-    </div>
-  )}
+                  <button
+                    onClick={() => {
+                      logout();
+                      setShowMoreMenu(false);
+                    }}
+                    className="w-full text-left py-2 px-3 rounded-lg text-red-600 font-bold hover:bg-red-50 mt-2"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
 
-  {/* REMAINING NAV LINKS */}
-  <div>
-    <p className="text-xs font-bold text-gray-500 uppercase mb-2 px-1">
-      Navigation
-    </p>
+              {/* REMAINING NAV LINKS */}
+              <div>
+                <p className="text-xs font-bold text-gray-500 uppercase mb-2 px-1">
+                  Navigation
+                </p>
 
-    {navLinks
-      .filter((link) => !bottomNavItems.some((item) => item.href === link.href))
-      .map((link) => (
-        <Link
-          key={link.name}
-          href={link.href}
-          onClick={() => setShowMoreMenu(false)}
-          className="block py-3 px-4 text-gray-800 font-medium hover:bg-gray-100 rounded-lg"
-        >
-          {link.name}
-        </Link>
-      ))}
-  </div>
-</div>
+                {navLinks
+                  .filter((link) => !bottomNavItems.some((item) => item.href === link.href))
+                  .map((link) => (
+                    <Link
+                      key={link.name}
+                      href={link.href}
+                      onClick={() => setShowMoreMenu(false)}
+                      className="block py-3 px-4 text-gray-800 font-medium hover:bg-gray-100 rounded-lg"
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+              </div>
+            </div>
 
           </div>
         </div>
@@ -867,7 +770,7 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
 
           <div className="relative bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             {/* Design Element: Top Glow */}
-            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-300" />
+            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#74cb01] via-[#74cb01] to-[#74cb01]" />
 
             <div className="p-6 md:p-10">
               <button
@@ -902,7 +805,7 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
                     value={loginData.email}
                     onChange={handleLoginChange}
                     placeholder="name@company.com"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-all font-medium text-slate-900 text-sm"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#74cb01] focus:border-[#74cb01] outline-none transition-all font-medium text-slate-900 text-sm"
                   />
                 </div>
 
@@ -917,7 +820,7 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
                     onChange={handleLoginChange}
                     placeholder="Enter OTP"
                     type="text"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-all font-medium text-center text-lg tracking-widest"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#74cb01] focus:border-[#74cb01] outline-none transition-all font-medium text-center text-lg tracking-widest"
                   />
                 </div>
 
@@ -932,7 +835,7 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
                   <button
                     onClick={verifyLoginOtp}
                     disabled={loginLoading}
-                    className="py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-900 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                    className="py-3 bg-[#74cb01] hover:bg-[#74cb01] text-slate-900 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
                   >
                     {loginLoading ? "Verifying..." : "Login"}
                   </button>
@@ -953,7 +856,7 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
 
           <div className="relative bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             {/* Design Element: Top Glow */}
-            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-400 via-yellow-500 to-yellow-300" />
+            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#74cb01] via-[#74cb01] to-[#74cb01]" />
 
             <div className="p-6 md:p-10">
               <button
@@ -965,7 +868,7 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
 
               <div className="text-center mb-6">
                 <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-2">Create Account</h2>
-                <p className="text-slate-500 font-medium text-sm md:text-base">Join QickTick today and get started</p>
+                <p className="text-slate-500 font-medium text-sm md:text-base">Join Dtssolutions today and get started</p>
               </div>
 
               {registerError && (
@@ -1005,10 +908,10 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
                       />
                     </div>
 
-                                      <button
+                    <button
                       onClick={sendRegisterOtp}
                       disabled={registerLoading}
-                      className="w-full py-3 bg-slate-900 text-yellow-500 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg transition-all hover:bg-black hover:scale-105 active:scale-95 mt-4 disabled:opacity-50"
+                      className="w-full py-3 bg-slate-900 text-[#74cb01] rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg transition-all hover:bg-black hover:scale-105 active:scale-95 mt-4 disabled:opacity-50"
                     >
                       {registerLoading ? "Sending OTP..." : "Get Verification Code"}
                     </button>
@@ -1032,14 +935,14 @@ ${showLoginPopup || showRegisterPopup || openVendor ? "lg:hidden" : "block"}
                           type="text"
                           inputMode="numeric"
                           maxLength={8}
-                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-all font-medium text-center text-xl tracking-widest"
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#74cb01] focus:border-[#74cb01] outline-none transition-all font-medium text-center text-xl tracking-widest"
                         />
                       </div>
 
                       <button
                         onClick={verifyRegisterOtp}
                         disabled={registerLoading}
-                        className="w-full py-3 bg-yellow-500 text-slate-900 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg transition-all hover:bg-yellow-400 hover:scale-105 active:scale-95 mt-4 disabled:opacity-50"
+                        className="w-full py-3 bg-yellow-500 text-slate-900 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg transition-all hover:bg-[#74cb01] hover:scale-105 active:scale-95 mt-4 disabled:opacity-50"
                       >
                         {registerLoading ? "Verifying..." : "Complete Registration"}
                       </button>

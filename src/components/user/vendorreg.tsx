@@ -543,7 +543,7 @@ export default function VendorRegister({
 
       // ✅ SET ROLE IN SUPABASE AUTH (CRITICAL)
       await supabase.auth.updateUser({
-                data: {
+        data: {
           role: "vendor",
         },
       });
@@ -627,9 +627,9 @@ export default function VendorRegister({
 
   const inputClass = "w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-800 text-sm font-medium";
   const labelClass = "block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide";
-const sortedCategories = [...categories].sort((a, b) =>
-  a.name.localeCompare(b.name)
-);
+  const sortedCategories = [...categories].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
 
   return (
     <>
@@ -641,7 +641,7 @@ const sortedCategories = [...categories].sort((a, b) =>
           {/* Header with Close Button */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-yellow-300 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-[#74cb01] rounded-xl flex items-center justify-center shadow-lg">
                 <ShieldCheck className="text-white" size={20} />
               </div>
               <div>
@@ -662,13 +662,13 @@ const sortedCategories = [...categories].sort((a, b) =>
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
             <div className="flex justify-between items-center mb-2">
               <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Setup Progress</span>
-              <span className="text-xs font-semibold text-yellow-300 bg-blue-50 px-2 py-1 rounded-md">
+              <span className="text-xs font-semibold text-[#74cb01] bg-blue-50 px-2 py-1 rounded-md">
                 Step {step} of 7
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
-                className="bg-yellow-300 h-2 rounded-full transition-all duration-500"
+                className="bg-[#74cb01] h-2 rounded-full transition-all duration-500"
                 style={{ width: `${(step / 7) * 100}%` }}
               ></div>
             </div>
@@ -723,7 +723,7 @@ const sortedCategories = [...categories].sort((a, b) =>
                         <button
                           onClick={verifyOtp}
                           disabled={loading}
-                          className="w-full py-3 bg-yellow-300 hover:bg-yellow-300 text-white rounded-xl font-semibold text-sm uppercase tracking-wide shadow-lg transition-all disabled:opacity-50"
+                          className="w-full py-3 bg-[#74cb01] hover:bg-[#74cb01] text-white rounded-xl font-semibold text-sm uppercase tracking-wide shadow-lg transition-all disabled:opacity-50"
                         >
                           {loading ? "Verifying..." : "Verify OTP"}
                         </button>
@@ -736,6 +736,9 @@ const sortedCategories = [...categories].sort((a, b) =>
                           { label: "Manufacturer", value: "manufacturer" },
                           { label: "Industrial", value: "industrial" },
                           { label: "Distributor", value: "distributor" },
+                          { label: "Wholesaler", value: "wholesaler" },
+                          { label: "Dealer", value: "dealer" },
+                          { label: "Sub-Dealer", value: "sub-dealer" },
                           { label: "Retailer", value: "retailer" },
                           { label: "Service Provider", value: "service" },
                         ].map((option) => (
@@ -862,7 +865,7 @@ const sortedCategories = [...categories].sort((a, b) =>
                         </>
                       ) : (
                         <>
-                          <Upload size={20} className="text-yellow-300" />
+                          <Upload size={20} className="text-[#74cb01]" />
                           <input
                             type="file"
                             accept="image/*"
@@ -944,56 +947,56 @@ const sortedCategories = [...categories].sort((a, b) =>
                 </div>
               )}
 
-{step === 4 && (
-  <div className="space-y-6 animate-fade-in">
-    <div className="text-center">
-      <h2 className="text-2xl font-bold text-gray-900">
-        Business Categories
-      </h2>
-      <p className="text-sm text-gray-600">
-        Select all that apply
-      </p>
-    </div>
+              {step === 4 && (
+                <div className="space-y-6 animate-fade-in">
+                  <div className="text-center">
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      Business Categories
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                      Select all that apply
+                    </p>
+                  </div>
 
-    <div>
-      <label className={labelClass}>
-        Business Categories (Alphabetical)
-      </label>
+                  <div>
+                    <label className={labelClass}>
+                      Business Categories (Alphabetical)
+                    </label>
 
-      <div className="mt-3 border border-gray-300 rounded-xl bg-white max-h-72 overflow-y-auto">
-        {sortedCategories.map(cat => {
-          const selected = formData.categories.includes(cat.id);
+                    <div className="mt-3 border border-gray-300 rounded-xl bg-white max-h-72 overflow-y-auto">
+                      {sortedCategories.map(cat => {
+                        const selected = formData.categories.includes(cat.id);
 
-          return (
-            <label
-              key={cat.id}
-              className={`flex items-center gap-3 px-4 py-3 cursor-pointer border-b last:border-b-0
+                        return (
+                          <label
+                            key={cat.id}
+                            className={`flex items-center gap-3 px-4 py-3 cursor-pointer border-b last:border-b-0
                 ${selected ? "bg-yellow-50" : "hover:bg-gray-50"}`}
-            >
-              <input
-                type="checkbox"
-                checked={selected}
-                onChange={() => {
-                  setFormData(prev => ({
-                    ...prev,
-                    categories: selected
-                      ? prev.categories.filter(c => c !== cat.id)
-                      : [...prev.categories, cat.id],
-                  }));
-                }}
-                className="h-4 w-4 accent-yellow-500"
-              />
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selected}
+                              onChange={() => {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  categories: selected
+                                    ? prev.categories.filter(c => c !== cat.id)
+                                    : [...prev.categories, cat.id],
+                                }));
+                              }}
+                              className="h-4 w-4 accent-[#74cb01]"
+                            />
 
-              <span className="text-sm text-gray-800">
-                {cat.name}
-              </span>
-            </label>
-          );
-        })}
-      </div>
-    </div>
-  </div>
-)}
+                            <span className="text-sm text-gray-800">
+                              {cat.name}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {step === 5 && (
                 <div className="space-y-6 animate-fade-in">
@@ -1014,7 +1017,7 @@ const sortedCategories = [...categories].sort((a, b) =>
                       <button
                         onClick={addWebsite}
                         type="button"
-                        className="bg-yellow-300 text-white px-4 py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md"
+                        className="bg-[#74cb01] text-white px-4 py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md"
                       >
                         <Plus size={20} />
                       </button>
@@ -1035,7 +1038,7 @@ const sortedCategories = [...categories].sort((a, b) =>
                     type="button"
                     onClick={useMyLocation}
                     disabled={loading}
-                    className="flex items-center gap-2 mb-4 px-4 py-3 bg-gray-900 text-white rounded-xl text-sm font-semibold uppercase tracking-wide hover:bg-yellow-300 transition-all disabled:opacity-50"
+                    className="flex items-center gap-2 mb-4 px-4 py-3 bg-gray-900 text-white rounded-xl text-sm font-semibold uppercase tracking-wide hover:bg-[#74cb01] transition-all disabled:opacity-50"
                   >
                     <Globe size={16} />
                     {loading ? "Detecting Location..." : "Use My Location"}
@@ -1169,7 +1172,7 @@ const sortedCategories = [...categories].sort((a, b) =>
                         </div>
                       ))}
                       <label className="aspect-square rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all group">
-                        <div className="p-2 bg-white rounded-lg shadow-sm group-hover:bg-yellow-300 group-hover:text-white transition-colors">
+                        <div className="p-2 bg-white rounded-lg shadow-sm group-hover:bg-[#74cb01] group-hover:text-white transition-colors">
                           <Plus size={20} strokeWidth={2} />
                         </div>
                         <span className="text-xs font-medium mt-2 uppercase tracking-wide">Add Photo</span>
@@ -1180,7 +1183,7 @@ const sortedCategories = [...categories].sort((a, b) =>
                   <div>
                     <label className={labelClass}>Video Experience</label>
                     <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-all group">
-                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-2 group-hover:bg-yellow-300 group-hover:text-white transition-colors">
+                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-2 group-hover:bg-[#74cb01] group-hover:text-white transition-colors">
                         <Upload size={20} />
                       </div>
                       <span className="text-sm font-medium text-gray-600">Drop video file here</span>
@@ -1221,7 +1224,7 @@ const sortedCategories = [...categories].sort((a, b) =>
                           <span className="text-lg tracking-tight">VIP Membership <span className="text-blue-400 group-hover:text-white">Access</span></span>
                           <span className="text-xs tracking-widest opacity-70">Scale your business today</span>
                         </div>
-                        <div className="absolute -top-3 -right-3 w-10 h-10 bg-yellow-300 rounded-full flex items-center justify-center border-4 border-white shadow-lg animate-bounce">
+                        <div className="absolute -top-3 -right-3 w-10 h-10 bg-[#74cb01] rounded-full flex items-center justify-center border-4 border-white shadow-lg animate-bounce">
                           <ChevronRight size={20} strokeWidth={3} />
                         </div>
                       </button>
@@ -1253,20 +1256,20 @@ const sortedCategories = [...categories].sort((a, b) =>
                             >
                               <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div className="flex items-center gap-4">
-                                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${isSelected ? "bg-gray-900 text-yellow-300 rotate-6" : "bg-gray-200 text-gray-500"
+                                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${isSelected ? "bg-gray-900 text-[#74cb01] rotate-6" : "bg-gray-200 text-gray-500"
                                     }`}>
                                     <Check size={24} strokeWidth={isSelected ? 3 : 2} />
                                   </div>
                                   <div>
                                     <h3 className="text-lg font-bold uppercase tracking-tight text-gray-900">{p.name}</h3>
                                     <div className="flex gap-2 mt-1">
-                                      <span className="text-xs font-semibold px-2 py-1 bg-yellow-300 text-white rounded-md uppercase tracking-wide">{p.duration_months} Months</span>
+                                      <span className="text-xs font-semibold px-2 py-1 bg-[#74cb01] text-white rounded-md uppercase tracking-wide">{p.duration_months} Months</span>
                                       {isSelected && <span className="text-xs font-semibold px-2 py-1 bg-gray-900 text-white rounded-md uppercase tracking-wide animate-pulse">Selected</span>}
                                     </div>
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <p className={`text-2xl font-bold tracking-tight ${isSelected ? "text-yellow-300" : "text-gray-900"}`}>₹{totalPrice.toLocaleString()}</p>
+                                  <p className={`text-2xl font-bold tracking-tight ${isSelected ? "text-[#74cb01]" : "text-gray-900"}`}>₹{totalPrice.toLocaleString()}</p>
                                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-1">Inclusive of GST</p>
                                 </div>
                               </div>

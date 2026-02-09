@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Mail, Phone, Send, Loader, Lock, History, Activity, 
-  ArrowRight, Clock, AlertCircle, CheckCircle2, X, Sparkles, Zap
+  Mail, Phone, Send, Loader2, User, ShieldCheck, 
+  CheckCircle, Bell, Lock, Sparkles, Plus, 
+  MessageSquare, Zap, Target, Search, MousePointer2
 } from "lucide-react";
 
 export default function EnquiryPage() {
@@ -13,304 +14,258 @@ export default function EnquiryPage() {
   const [loading, setLoading] = useState(true);
   const [hasSubscription, setHasSubscription] = useState(false);
 
-  // Form States
+  // Form State
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "" });
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formLoading, setFormLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
-    checkSubscriptionStatus();
-    fetchEnquiries();
-
-    const channel = supabase
-      .channel('public-enquiries')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'enquiries' }, 
-        (payload) => {
-          setEnquiries((prev) => [payload.new, ...prev]);
-        }
-      )
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
+    const initializePage = async () => {
+      await Promise.all([checkSubscriptionStatus(), fetchEnquiries()]);
+      setLoading(false);
+    };
+    initializePage();
   }, []);
-
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    if (!formData.name.trim()) newErrors.name = "Required";
-    if (!formData.email.match(/^\S+@\S+\.\S+$/)) newErrors.email = "Invalid";
-    if (formData.phone && !formData.phone.match(/^\d{10,15}$/)) newErrors.phone = "Invalid";
-    if (formData.message.length < 10) newErrors.message = "Min 10 chars";
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const checkSubscriptionStatus = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    const { data: vendor } = await supabase.from("vendor_register").select("subscription_expiry").eq("user_id", user.id).maybeSingle();
-    const isVendorActive = vendor?.subscription_expiry && new Date(vendor.subscription_expiry) > new Date();
-    const { data: sub } = await supabase.from("user_subscriptions").select("id").eq("user_id", user.id).eq("status", "active").maybeSingle();
-    setHasSubscription(!!isVendorActive || !!sub);
+    const { data: vendor } = await supabase.from("vendor_register")
+      .select("subscription_expiry")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    
+    const isActive = vendor?.subscription_expiry && new Date(vendor.subscription_expiry) > new Date();
+    setHasSubscription(!!isActive);
   };
 
   const fetchEnquiries = async () => {
-    const tenDaysAgo = new Date();
-    tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
-    const { data } = await supabase.from("enquiries").select("*").gte('created_at', tenDaysAgo.toISOString()).order("created_at", { ascending: false });
+    const { data } = await supabase.from("enquiries")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(10);
     if (data) setEnquiries(data);
-    setLoading(false);
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!formData.name || !formData.message) return;
 
     setFormLoading(true);
     const { error } = await supabase.from("enquiries").insert([formData]);
-
+    
     if (!error) {
       setFormData({ name: "", email: "", phone: "", message: "" });
       setShowToast(true);
+      fetchEnquiries();
       setTimeout(() => setShowToast(false), 4000);
-      setErrors({});
     }
     setFormLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFDF5] pb-10 font-sans selection:bg-yellow-200">
+    <div className="min-h-screen bg-[#FAFAFA] text-slate-900 pb-32 font-sans">
       
-      {/* --- SUCCESS TOAST (Compact) --- */}
-      <AnimatePresence>
-        {showToast && (
-          <motion.div 
-            initial={{ y: 50, opacity: 0 }} animate={{ y: -20, opacity: 1 }} exit={{ y: 50, opacity: 0 }}
-            className="fixed bottom-0 inset-x-0 z-[9999] flex justify-center px-4 pointer-events-none"
-          >
-            <div className="bg-gray-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 pointer-events-auto border border-white/10">
-              <Zap className="text-yellow-400" size={16} fill="currentColor" />
-              <span className="font-black  uppercase tracking-widest text-[10px]">Signal Live</span>
-              <button onClick={() => setShowToast(false)} className="text-white/40 hover:text-white p-1"><X size={16} /></button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* --- HEADER (Reduced Size) --- */}
-      <div className="bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-16 pb-32 px-6 relative overflow-hidden border-b border-yellow-100">
-        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(#F59E0B_0.5px,transparent_0.5px)] [background-size:24px_24px]" />
-        
-        <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div>
-            <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full mb-4 shadow-sm border border-yellow-300">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-600 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-600"></span>
-              </span>
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-800">Global Pulse Stream</span>
-            </div>
-            <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-gray-900 leading-none uppercase">
-              ENQUIRY <span className="text-red-600 ">FEED</span>
-            </h1>
-          </div>
-          <div className="hidden lg:block bg-white p-6 rounded-[2.5rem] -rotate-3 shadow-xl border border-yellow-100">
-             <Sparkles size={50} className="text-yellow-600" />
-          </div>
+      {/* --- CENTERED PREMIUM HERO --- */}
+      <header className="relative pt-24 pb-44 overflow-hidden">
+        {/* Animated Background Orbs */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10">
+            <div className="absolute top-[-10%] left-[10%] w-[400px] h-[400px] bg-[#74cb01]/10 rounded-full blur-[120px] animate-pulse" />
+            <div className="absolute bottom-[10%] right-[10%] w-[400px] h-[400px] bg-[#00AEEF]/10 rounded-full blur-[120px]" />
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-6 -mt-16 relative z-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center text-center"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-slate-100 mb-8">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F26522] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F26522]"></span>
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Live Trade Network</span>
+            </div>
+            
+            <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-6 leading-[0.9]">
+              Direct <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#74cb01] to-[#00AEEF]">Sourcing.</span>
+            </h1>
+            <p className="max-w-2xl text-slate-500 text-lg md:text-xl font-medium leading-relaxed">
+              Skip the middlemen. Post your requirement globally and connect with <br className="hidden md:block" /> 
+              verified local vendors in seconds.
+            </p>
+          </motion.div>
+        </div>
+      </header>
+
+      {/* --- MAIN INTERFACE (Floating Grid) --- */}
+      <div className="max-w-7xl mx-auto px-6 -mt-24 relative z-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           
-          {/* --- LEFT: BROADCAST FORM --- */}
-          <div className="lg:col-span-7">
-            <div className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-xl border border-yellow-100">
-              <div className="mb-8">
-                  <h3 className="text-xl font-black tracking-tighter uppercase  text-gray-900">Post your Requirement</h3>
-                  <p className="text-gray-400 font-bold uppercase text-[9px] tracking-widest mt-1">Broadcast requirement to all verified vendors</p>
+          {/* LEFT: ENQUIRY FORM (Bento Style) */}
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+            className="lg:col-span-5 bg-white/80 backdrop-blur-2xl p-8 md:p-12 rounded-[3.5rem] shadow-[0_40px_80px_-15px_rgba(0,0,0,0.05)] border border-white sticky top-10"
+          >
+            <div className="flex items-center gap-5 mb-12">
+              <div className="h-14 w-14 bg-gradient-to-br from-[#74cb01] to-[#5ea501] rounded-2xl flex items-center justify-center text-white shadow-xl shadow-[#74cb01]/20">
+                <Plus size={28} strokeWidth={3} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-black uppercase tracking-tighter">Post Lead</h2>
+                <p className="text-[10px] text-[#74cb01] font-black tracking-[0.2em] uppercase">Verified Broadcast</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleFormSubmit} className="space-y-6">
+              <DTSInput label="Full Name" icon={<User size={18}/>} value={formData.name} placeholder="Who should we contact?"
+                onChange={(v: string) => setFormData({...formData, name: v})} />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <DTSInput label="Email Address" icon={<Mail size={16}/>} value={formData.email} placeholder="mail@company.com"
+                  onChange={(v: string) => setFormData({...formData, email: v})} />
+                <DTSInput label="Phone Number" icon={<Phone size={16}/>} value={formData.phone} placeholder="10-digit mobile"
+                  onChange={(v: string) => setFormData({...formData, phone: v})} />
               </div>
 
-              <form onSubmit={handleFormSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Input 
-                    label="Name" placeholder="IDENTITY..." error={errors.name}
-                    value={formData.name} onChange={(val:string) => setFormData({...formData, name: val})} 
-                  />
-                  <Input 
-                    label="Email" type="email" placeholder="CONTACT..." error={errors.email}
-                    value={formData.email} onChange={(val:string) => setFormData({...formData, email: val})} 
-                  />
-                </div>
-                <Input 
-                  label="Phone Number" placeholder="MOBILE..." error={errors.phone}
-                  value={formData.phone} onChange={(val:string) => setFormData({...formData, phone: val})} 
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Requirements</label>
+                <textarea 
+                  rows={4} 
+                  required
+                  className="w-full p-6 rounded-[2rem] bg-slate-100/50 border-none outline-none focus:ring-4 focus:ring-[#74cb01]/10 text-sm font-semibold transition-all placeholder:text-slate-400"
+                  placeholder="Tell us what you need, quantity, and timeline..."
+                  value={formData.message}
+                  onChange={(e) => setFormData({...formData, message: e.target.value})}
                 />
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center px-2">
-<label className="text-[9px] font-black uppercase tracking-[0.2em] text-red-600 ">Requirement</label>
-                  </div>
-                  <textarea 
-  placeholder="WHAT ARE YOU LOOKING FOR?..."
-  rows={3} 
-  value={formData.message} 
-  onChange={(e) => setFormData({...formData, message: e.target.value})}
-  className={`
-    w-full p-4 rounded-2xl outline-none transition-all font-bold uppercase text-[11px] tracking-widest text-black
-    bg-black/5 border 
-    ${errors.message ? 'border-red-400' : 'border-black/10'} 
-    focus:border-black focus:bg-white 
-    placeholder:text-black/30
-  `}
-/>
-                </div>
+              </div>
 
-                <button 
-                  type="submit" disabled={formLoading}
-                  className="w-full bg-gray-900 hover:bg-red-600 text-white py-5 rounded-2xl font-black text-lg uppercase tracking-tighter transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95 disabled:opacity-50"
-                >
-                  {formLoading ? <Loader className="animate-spin" size={20} /> : <>Enquiry Submit<Send size={18} /></>}
-                </button>
-              </form>
-            </div>
-          </div>
+              <button 
+                disabled={formLoading}
+                className="group w-full bg-slate-900 hover:bg-[#74cb01] text-white py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] transition-all duration-500 flex items-center justify-center gap-3 shadow-2xl active:scale-95 overflow-hidden relative"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                   {formLoading ? <Loader2 className="animate-spin" /> : <>Blast Lead Now <Send size={16} /></>}
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-[#74cb01] to-[#00AEEF] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              </button>
+            </form>
+          </motion.div>
 
-          {/* --- RIGHT: LIVE PULSE FEED --- */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="flex items-center justify-between px-2">
-              <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-2 text-gray-900">
-                <Clock className="text-red-600" size={20} /> Live Leads
-              </h2>
-              <span className="bg-yellow-400 text-black text-[8px] font-black px-2 py-0.5 rounded uppercase">Recent</span>
+          {/* RIGHT: LIVE FEED */}
+          <div className="lg:col-span-7 space-y-8">
+            <div className="flex items-center justify-between px-6">
+              <div className="flex items-center gap-3">
+                <div className="h-2.5 w-2.5 bg-[#00AEEF] rounded-full animate-pulse shadow-[0_0_10px_#00AEEF]" />
+                <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400">Opportunities Hub</h3>
+              </div>
+              <Bell size={18} className="text-slate-300" />
             </div>
 
-            <div className="space-y-4 max-h-[700px] overflow-y-auto pr-1 custom-scrollbar">
-              <AnimatePresence initial={false}>
-                {enquiries.length === 0 ? (
-                    <div className="bg-white p-10 rounded-[2rem] border border-dashed border-yellow-200 text-center shadow-inner">
-                        <History className="mx-auto text-yellow-100 mb-2" size={30} />
-                        <p className="text-yellow-800/40 text-[9px] font-black uppercase tracking-widest">No Signals Detected</p>
-                    </div>
-                ) : enquiries.map((enq) => (
-                  <motion.div 
-                    key={enq.id} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
-                    className="bg-white p-6 rounded-[2rem] border border-transparent hover:border-yellow-400 shadow-md relative group transition-all duration-300"
-                  >
-                    <div className="flex justify-between items-center mb-4">
-                      <div className="flex items-center gap-1.5">
-                         <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></span>
-                         <span className="text-[8px] font-black text-red-600 uppercase tracking-widest ">Live Signal</span>
-                      </div>
-                      <span className="text-[8px] font-black text-gray-300">{new Date(enq.created_at).toLocaleDateString()}</span>
-                    </div>
-
-                    <div className="relative mb-4">
-                       <p className="text-[11px] font-bold text-gray-600 leading-relaxed uppercase tracking-tight relative z-10">
-                         {enq.message}
-                       </p>
-                    </div>
-
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-8 h-8 rounded-xl bg-gray-900 text-yellow-400 flex items-center justify-center font-black text-[10px] shadow-lg">
-                        {enq.name?.charAt(0).toUpperCase()}
-                      </div>
-                      <p className="text-[10px] font-black text-gray-900 uppercase tracking-tighter">{enq.name}</p>
-                    </div>
-
-                    {/* PRIVATE DATA BOX */}
-                    <div className="relative rounded-2xl bg-gray-900 p-4 overflow-hidden">
-                      <div className={`space-y-1 transition-all duration-500 ${!hasSubscription ? 'blur-sm select-none pointer-events-none opacity-20' : ''}`}>
-                        <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase">
-                          <Mail size={12} className="text-yellow-400" /> {enq.email}
-                        </div>
-                        <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase ">
-                          <Phone size={12} className="text-yellow-400" /> {enq.phone || "HIDDEN"}
-                        </div>
-                      </div>
-
-                      {!hasSubscription && (
-                        <div 
-                          onClick={() => window.location.href='/user/subscription-plans'}
-                          className="absolute inset-0 z-10 flex items-center justify-center bg-gray-900/40 backdrop-blur-[2px] cursor-pointer"
-                        >
-                          <span className="text-[8px] font-black uppercase text-yellow-400 tracking-widest bg-gray-900 px-3 py-1 rounded-full border border-yellow-400/30">Unlock Contact</span>
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
+            <div className="space-y-6">
+              <AnimatePresence mode="popLayout">
+                {enquiries.map((enq, idx) => (
+                  <EnquiryCard 
+                    key={enq.id} 
+                    enquiry={enq} 
+                    idx={idx} 
+                    isLocked={!hasSubscription} 
+                  />
                 ))}
               </AnimatePresence>
             </div>
           </div>
         </div>
       </div>
-      
-      {/* --- PROTOCOL FLOW (Compact) --- */}
-      <div className="max-w-7xl mx-auto px-6 mt-20 mb-10">
-        <div className="bg-white rounded-[3rem] p-10 md:p-16 relative overflow-hidden border border-yellow-100 shadow-xl">
-          <div className="relative z-10 flex flex-col items-center mb-12">
-            <h2 className="text-3xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter text-center leading-none">
-              The <span className="text-red-600">Protocol</span>
-            </h2>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
-            <FlowStep number="01" icon={<Send size={24}/>} color="bg-yellow-400" title="Broadcast" desc="Requirement is instantly tagged and pushed to feed." />
-            <FlowStep number="02" icon={<Activity size={24}/>} color="bg-red-600" textColor="text-white" title="Stream" desc="Verified vendors monitor the pulse stream live." />
-            <FlowStep number="03" icon={<Zap size={24}/>} color="bg-gray-900" textColor="text-yellow-400" title="Connect" desc="Partners unlock bridges to send competitive quotes." />
-          </div>
-        </div>
-      </div>
+      {/* --- TOAST NOTIFICATION --- */}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50, x: "-50%" }} animate={{ opacity: 1, y: 0, x: "-50%" }} exit={{ opacity: 0, scale: 0.9, x: "-50%" }}
+            className="fixed bottom-10 left-1/2 z-[100] bg-slate-900 text-white px-10 py-5 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center gap-4"
+          >
+            <CheckCircle className="text-[#74cb01]" size={24} />
+            <span className="text-[11px] font-black uppercase tracking-[0.2em]">Requirement Broadcasted Successfully</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
-function FlowStep({ number, icon, color, title, desc, textColor = "text-black" }: any) {
+// --- REFINED SUBCOMPONENTS ---
+
+function EnquiryCard({ enquiry, idx, isLocked }: any) {
   return (
-    <div className="relative group">
-      <div className="mb-4 relative flex items-center gap-4">
-        <div className={`w-12 h-12 rounded-xl ${color} ${textColor} flex items-center justify-center shadow-lg relative z-10 transition-transform group-hover:scale-110`}>
+    <motion.div 
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: idx * 0.05 }}
+      className="group bg-white p-8 rounded-[3rem] border border-slate-100 hover:border-[#00AEEF]/20 shadow-sm hover:shadow-2xl transition-all duration-500"
+    >
+      <div className="flex flex-wrap justify-between items-start gap-4 mb-8">
+        <div className="flex items-center gap-5">
+          <div className="h-16 w-16 rounded-3xl bg-slate-100 flex items-center justify-center font-black text-2xl text-slate-400 group-hover:bg-[#00AEEF] group-hover:text-white transition-all duration-500">
+            {enquiry.name?.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <h4 className="font-black text-xl tracking-tighter uppercase">{enquiry.name}</h4>
+            <div className="flex items-center gap-3 mt-1">
+               <span className="text-[10px] font-black text-[#74cb01] uppercase tracking-widest">Verified Trade</span>
+               <span className="h-1 w-1 bg-slate-200 rounded-full" />
+               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(enquiry.created_at).toLocaleDateString()}</span>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
+           <Zap size={12} className="text-[#F26522] fill-[#F26522]" />
+           <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Hot Lead</span>
+        </div>
+      </div>
+
+      <div className="bg-slate-50/80 p-6 rounded-[2rem] mb-8 border border-slate-100 group-hover:bg-white group-hover:border-[#00AEEF]/10 transition-colors">
+        <p className="text-slate-600 text-[15px] leading-relaxed font-medium">
+          {enquiry.message}
+        </p>
+      </div>
+
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2">
+        <div className={`flex flex-wrap gap-8 transition-all duration-1000 ${isLocked ? 'blur-md pointer-events-none opacity-30 select-none' : ''}`}>
+          <div className="flex items-center gap-2 text-xs font-black text-slate-500 uppercase tracking-tight">
+            <Mail size={16} className="text-[#00AEEF]" /> {enquiry.email}
+          </div>
+          <div className="flex items-center gap-2 text-xs font-black text-slate-500 uppercase tracking-tight">
+            <Phone size={16} className="text-[#74cb01]" /> {enquiry.phone || '+91 0000 0000'}
+          </div>
+        </div>
+
+        {isLocked && (
+          <button className="flex items-center gap-3 bg-slate-900 text-white px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#F26522] transition-all shadow-lg active:scale-95">
+            <Lock size={14} /> Unlock Contact
+          </button>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+function DTSInput({ label, icon, value, onChange, placeholder }: any) {
+  return (
+    <div className="space-y-3">
+      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">{label}</label>
+      <div className="relative group">
+        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#74cb01] group-focus-within:scale-110 transition-all duration-300">
           {icon}
         </div>
-        <span className="text-3xl font-black text-black select-none">{number}</span>
-      </div>
-      <div className="space-y-1">
-        <h4 className="text-gray-900 font-black uppercase tracking-widest text-base">{title}</h4>
-        <p className="text-gray-400 text-[10px] font-bold leading-relaxed uppercase tracking-wider">{desc}</p>
-      </div>
-    </div>
-  );
-}
-
-
-function Input({ label, value, onChange, type = "text", placeholder, error }: any) {
-  return (
-    <div className="space-y-2 w-full">
-      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-red-600 ml-2">
-        {label}
-      </label>
-      <div className="relative">
-        <input
-          type={type}
+        <input 
+          type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className={`
-            w-full p-4 rounded-2xl outline-none transition-all font-bold uppercase text-[11px] tracking-widest text-black 
-            bg-black/5 border 
-            ${error ? 'border-red-400 shadow-sm' : 'border-black/10'} 
-            focus:border-black focus:bg-white 
-            placeholder:text-black/30
-          `}
+          className="w-full pl-16 pr-6 py-5 rounded-[1.8rem] bg-slate-100/50 border-none outline-none focus:ring-4 focus:ring-[#74cb01]/10 text-sm font-bold transition-all placeholder:text-slate-300"
         />
-        {error && (
-          <div className="absolute -bottom-5 left-2 flex items-center gap-1">
-            <AlertCircle size={8} className="text-red-500" />
-            <span className="text-[8px] text-red-500 font-black uppercase">{error}</span>
-          </div>
-        )}
       </div>
     </div>
   );

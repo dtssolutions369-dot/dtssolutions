@@ -302,9 +302,16 @@ function SearchSearchResults() {
                                         <option value="" className="text-black">All Types</option>
                                         <option value="Distributer" className="text-black">Distributor</option>
                                         <option value="Manufacturer" className="text-black">Manufacturer</option>
+                                        <option value="Sub-Dealer" className="text-black">Sub-Dealer</option>
+                                        <option value="Wholesaler" className="text-black">Wholesaler</option>
+                                        <option value="Dealer" className="text-black">Dealer</option>
                                         <option value="Retailers" className="text-black">Retailers</option>
                                         <option value="Service Sector" className="text-black">Service Sector</option>
                                     </select>
+                                                                        
+- 
+- 
+
                                 </div>
                             </div>
                             <button

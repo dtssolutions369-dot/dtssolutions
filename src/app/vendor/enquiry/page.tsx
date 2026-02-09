@@ -4,19 +4,9 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  MessageSquare, 
-  Send, 
-  Loader, 
-  ShieldAlert, 
-  Sparkles,
-  Zap,
-  HeadphonesIcon,
-  Globe,
-  Clock,
-  CheckCircle2,
-  FileText,
-  BadgeCheck,
-  MessageSquareText
+  Send, Loader, ShieldAlert, Sparkles, CheckCircle2, FileText, 
+  MessageSquareText, ArrowRight, ShieldCheck, UserCheck, 
+  ListChecks, Timer, Rocket
 } from "lucide-react";
 
 export default function VendorEnquiryPage() {
@@ -47,7 +37,7 @@ export default function VendorEnquiryPage() {
 
   const handleFormSubmit = async () => {
     if (!subject.trim() || !message.trim()) {
-      setFormError("Please fill in all required fields.");
+      setFormError("Identity and Intent fields are required.");
       return;
     }
     setFormLoading(true);
@@ -59,9 +49,9 @@ export default function VendorEnquiryPage() {
     ]);
 
     if (error) {
-      setFormError("Submission failed. Please try again.");
+      setFormError("Transmission failed. Please try again.");
     } else {
-      setFormSuccess("Ticket successfully transmitted to Admin.");
+      setFormSuccess("Your enquiry has been routed to the admin team.");
       setSubject("");
       setMessage("");
     }
@@ -69,185 +59,160 @@ export default function VendorEnquiryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] text-slate-900 pb-20 font-sans">
-      {/* HERO SECTION */}
-      <div className="bg-gradient-to-b from-[#FEF3C7] to-[#FFFDF5] pt-16 pb-24 px-4 sm:px-6 relative overflow-hidden border-b border-yellow-200">
-        {/* Dot Grid Pattern Overlay */}
-        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#F59E0B_0.5px,transparent_0.5px)] [background-size:24px_24px]" />
-
-        <div className="max-w-6xl mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="text-center md:text-left">
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-5xl sm:text-5xl md:text-5xl font-black tracking-tighter text-gray-900 leading-tight uppercase mb-4"
-            >
-              Admin  
-              <span className="text-red-600 "> Connect</span>
-            </motion.h1>
-
-            <motion.p 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="text-gray-600 text-sm sm:text-base max-w-md font-medium leading-relaxed mx-auto md:mx-0"
-            >
-              Instant communication channel for verified partners. Our technical team monitors this feed 24/7.
-            </motion.p>
-          </div>
-
-          {/* Decorative Icon Card - hide on mobile */}
+    <div className="min-h-screen bg-white text-slate-800 pb-12 font-sans selection:bg-[#74cb01]/20">
+      
+      {/* CLEAN HEADER */}
+      <div className="relative pt-16 pb-28 overflow-hidden bg-slate-50/80 border-b border-slate-100">
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#74cb01]/5 rounded-full blur-[80px] translate-x-1/4 -translate-y-1/2" />
+        
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
           <motion.div 
-            initial={{ opacity: 0, rotate: 0, scale: 0.9 }}
-            animate={{ opacity: 1, rotate: -3, scale: 1 }}
-            className="hidden lg:block bg-white p-6 rounded-3xl shadow-xl border border-yellow-100 relative"
+            initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-2 mb-4"
           >
-            <div className="absolute -top-2 -left-2 bg-green-500 text-white px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest shadow-lg flex items-center gap-1">
-              <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-              Live 24/7
-            </div>
-            <MessageSquareText size={50} className="text-yellow-600" />
+            <div className="h-1 w-8 bg-[#74cb01] rounded-full" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#74cb01]">Priority Channel</span>
           </motion.div>
+          
+          <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-slate-900 leading-none uppercase">
+            Admin <span className="text-[#74cb01]">Concierge</span>
+          </h1>
+          <p className="mt-4 text-slate-500 text-base font-medium max-w-md">
+            Directly communicate with our operations team for technical support or account enquiries.
+          </p>
         </div>
       </div>
 
-      {/* FORM + SIDE PANEL */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 -mt-20 relative z-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      {/* COMPACT CONTENT GRID */}
+      <div className="max-w-7xl mx-auto px-6 -mt-12 relative z-30">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
           
-          {/* MAIN FORM */}
+          {/* FORM CARD */}
           <motion.div 
-            initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-            className="lg:col-span-8 bg-white shadow-lg rounded-3xl p-6 sm:p-10 border border-slate-100"
+            initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
+            className="lg:col-span-8 bg-white p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-slate-100"
           >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-[#D80000] rounded-2xl flex items-center justify-center shadow-lg">
-                  <Zap className="text-[#FFD700] fill-[#FFD700]" size={24} />
+            <div className="flex items-center gap-3 mb-8">
+                <div className="w-10 h-10 bg-[#74cb01]/10 rounded-xl flex items-center justify-center text-[#74cb01]">
+                    <MessageSquareText size={20} />
                 </div>
-                <div>
-                  <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Open Support Ticket</h2>
-                  <p className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest">Average Response: 15 Minutes</p>
-                </div>
-              </div>
+                <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight">Compose Request</h2>
             </div>
 
             <AnimatePresence mode="wait">
               {formError && (
-                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 text-[#D80000] p-4 rounded-2xl text-sm font-bold mb-6 border-l-4 border-[#D80000] flex items-center gap-2">
-                  <ShieldAlert size={18} /> {formError}
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-red-50 text-red-600 p-4 rounded-xl flex items-center gap-3 mb-6 text-xs font-bold border border-red-100">
+                  <ShieldAlert size={16} /> {formError}
                 </motion.div>
               )}
               {formSuccess && (
-                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-emerald-50 text-emerald-700 p-4 rounded-2xl text-sm font-bold mb-6 border-l-4 border-emerald-500 flex items-center gap-2">
-                  <Sparkles size={18} className="text-emerald-500" /> {formSuccess}
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-green-50 text-green-700 p-4 rounded-xl flex items-center gap-3 mb-6 text-xs font-bold border border-green-100">
+                  <CheckCircle2 size={16} /> {formSuccess}
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-1">
-                  <FileText size={12} className="text-[#D80000]"/> Subject Identification
-                </label>
-                <input
+            <div className="space-y-4">
+              <input
                   type="text"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  placeholder="e.g. KYC Verification Query"
-                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 sm:p-5 focus:bg-white focus:border-[#D80000] focus:ring-2 focus:ring-red-300 outline-none transition-all text-sm font-bold text-slate-800 placeholder:text-slate-300"
-                />
-              </div>
+                  placeholder="Subject: e.g. Payment Issue, API Error"
+                  className="w-full px-6 py-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold focus:ring-2 focus:ring-[#74cb01]/10 focus:bg-white border border-transparent focus:border-[#74cb01]/20 transition-all placeholder:text-slate-300"
+              />
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-1">
-                  <MessageSquare size={12} className="text-[#D80000]"/> Detailed Inquiry
-                </label>
-                <textarea
-                  rows={5}
+              <textarea
+                  rows={6}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  placeholder="How can we assist your business today?"
-                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 sm:p-5 focus:bg-white focus:border-[#D80000] focus:ring-2 focus:ring-red-300 outline-none transition-all text-sm font-bold text-slate-800 placeholder:text-slate-300 resize-none"
-                />
-              </div>
+                  placeholder="Describe your enquiry in detail..."
+                  className="w-full px-6 py-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold focus:ring-2 focus:ring-[#74cb01]/10 focus:bg-white border border-transparent focus:border-[#74cb01]/20 transition-all resize-none placeholder:text-slate-300"
+              />
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 onClick={handleFormSubmit}
                 disabled={formLoading}
-                className="w-full bg-slate-900 hover:bg-black disabled:bg-slate-200 text-[#FFD700] py-4 sm:py-5 rounded-2xl font-black transition-all flex items-center justify-center gap-3 text-sm sm:text-lg uppercase tracking-tight"
+                className="w-full bg-slate-900 hover:bg-black text-white py-5 rounded-2xl font-black transition-all flex items-center justify-center gap-3 text-sm uppercase tracking-[0.2em] shadow-lg shadow-slate-200"
               >
-                {formLoading ? <Loader className="animate-spin" size={20} /> : (
-                  <> Dispatch Ticket <Send size={18} /> </>
+                {formLoading ? <Loader className="animate-spin" size={18} /> : (
+                  <> Send Request <Send size={16} className="text-[#74cb01]" /> </>
                 )}
-              </button>
+              </motion.button>
             </div>
           </motion.div>
 
-          {/* SIDE PANEL */}
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-            className="lg:col-span-4 flex flex-col gap-6 mt-6 lg:mt-0"
-          >
-            {/* Status Card */}
-            <div className="bg-slate-900 rounded-3xl p-6 text-white relative overflow-hidden">
-              <h3 className="text-lg font-black mb-4 flex items-center gap-2">
-                <Globe size={16} className="text-yellow-500 animate-pulse" /> System Status
-              </h3>
-              <div className="space-y-2">
-                <StatusItem label="Admin Dashboard" status="Operational" />
-                <StatusItem label="Payment Gateway" status="Operational" />
-                <StatusItem label="Email Servers" status="Fast" />
-              </div>
+          {/* REPLACED SIDEBAR: ROADMAP & IDENTITY */}
+          <div className="lg:col-span-4 flex flex-col gap-5">
+            
+            {/* NEW: Process Roadmap */}
+            <div className="bg-white p-7 rounded-[2.5rem] border border-slate-100 shadow-lg shadow-slate-100">
+                <h3 className="text-xs font-black mb-6 text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <ListChecks size={14} /> Submission Roadmap
+                </h3>
+                <div className="space-y-6">
+                    <StepItem 
+                        icon={<FileText size={14} />} 
+                        title="Review" 
+                        desc="Admin validates the request"
+                        active 
+                    />
+                    <StepItem 
+                        icon={<Timer size={14} />} 
+                        title="Processing" 
+                        desc="Ticket assigned to lead"
+                    />
+                    <StepItem 
+                        icon={<Rocket size={14} />} 
+                        title="Resolution" 
+                        desc="Final response sent to you"
+                    />
+                </div>
             </div>
 
-            {/* Quick Links */}
-            <div className="bg-yellow-400 rounded-3xl p-6 text-slate-900">
-              <h3 className="text-lg font-black mb-4 flex items-center gap-2">
-                <HeadphonesIcon size={16} /> Quick Support
-              </h3>
-              <div className="space-y-2">
-                <QuickLink icon={<BadgeCheck size={14}/>} title="Partner FAQ" desc="Instant answers" />
-                <QuickLink icon={<Clock size={14}/>} title="Emergency" desc="WhatsApp Admin" />
-              </div>
+            {/* NEW: Verification Card */}
+            <div className="bg-slate-900 p-7 rounded-[2.5rem] text-white relative overflow-hidden group">
+                <div className="relative z-10">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-[#74cb01] rounded-lg">
+                            <UserCheck size={18} className="text-slate-900" />
+                        </div>
+                        <span className="text-xs font-black uppercase tracking-widest">Verified Vendor</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                        You are sending this as: <br />
+                        <span className="text-white font-bold">{vendorEmail || "Authenticated User"}</span>
+                    </p>
+                </div>
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#74cb01]/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-[#74cb01]/20 transition-all" />
             </div>
 
-            {/* Trust Badge */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-4 flex items-center gap-3 shadow-sm">
-              <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center">
-                <CheckCircle2 className="text-emerald-500" size={28} />
-              </div>
-              <div>
-                <p className="text-[9px] font-black uppercase text-slate-400">Secure Channel</p>
-                <p className="text-sm font-black text-slate-800 leading-tight">End-to-End Encrypted Communication</p>
-              </div>
+            <div className="bg-slate-50 border border-dashed border-slate-200 p-5 rounded-[2rem] flex items-center gap-4">
+                <ShieldCheck size={20} className="text-slate-300" />
+                <p className="text-[10px] font-bold text-slate-400 uppercase leading-tight">
+                    Messages are encrypted <br /> & stored securely.
+                </p>
             </div>
-          </motion.div>
+            
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function StatusItem({ label, status }: { label: string; status: string }) {
-  return (
-    <div className="flex items-center justify-between border-b border-white/20 pb-2">
-      <span className="text-[9px] font-bold text-white/70 uppercase">{label}</span>
-      <span className="text-[9px] font-black text-yellow-400 uppercase tracking-tighter">{status}</span>
-    </div>
-  );
-}
-
-function QuickLink({ icon, title, desc }: { icon: any; title: string; desc: string }) {
-  return (
-    <div className="flex items-center gap-3 bg-white/50 p-3 rounded-2xl cursor-pointer hover:bg-white transition-colors group">
-      <div className="w-8 h-8 bg-slate-900 text-yellow-400 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
-        {icon}
-      </div>
-      <div>
-        <p className="text-[9px] font-black uppercase tracking-tight">{title}</p>
-        <p className="text-[9px] font-medium text-slate-600">{desc}</p>
-      </div>
-    </div>
-  );
+/* Roadmap Component */
+function StepItem({ icon, title, desc, active = false }: { icon: any, title: string, desc: string, active?: boolean }) {
+    return (
+        <div className="flex gap-4">
+            <div className={`mt-1 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${active ? 'bg-[#74cb01] text-white' : 'bg-slate-50 text-slate-300'}`}>
+                {icon}
+            </div>
+            <div>
+                <p className={`text-xs font-black uppercase tracking-tight ${active ? 'text-slate-900' : 'text-slate-400'}`}>{title}</p>
+                <p className="text-[10px] text-slate-400 font-medium">{desc}</p>
+            </div>
+        </div>
+    );
 }

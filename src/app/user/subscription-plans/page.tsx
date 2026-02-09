@@ -107,7 +107,7 @@ export default function SubscriptionPlanPage() {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
       amount: totalAmount,
       currency: "INR",
-      name: "QickTick",
+      name: "Dtssolutions",
       description: `Subscription to ${plan.name}`,
       handler: async function (response: any) {
         const paymentId = response.razorpay_payment_id;
