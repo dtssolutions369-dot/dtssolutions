@@ -114,7 +114,9 @@ export default function SettingsPage() {
                 label="Platform Name" 
                 placeholder="e.g. Acme Corp"
                 value={settings.site_name} 
-                onChange={(v) => setSettings({...settings, site_name: v})} 
+onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+  setSettings({ ...settings, site_name: e.target.value })
+}
               />
               <Input 
                 label="Support Email" 
