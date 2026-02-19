@@ -1,94 +1,128 @@
 "use client";
 
-import React, { useState } from "react";
-import { MapPin, ArrowRight, Loader2, Navigation, CheckCircle2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import {
+  MapPin,
+  ArrowRight,
+  Loader2,
+  CheckCircle2,
+  Search,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 
 interface LocationModalProps {
   isOpen: boolean;
-  onSelect: (data: { city: string; pincode: string; area?: string; state?: string }) => void;
+  onSelect: (data: {
+    city: string;
+    pincode: string;
+    area?: string;
+    state?: string;
+  }) => void;
 }
 
 export default function LocationModal({ isOpen, onSelect }: LocationModalProps) {
-  const [pincode, setPincode] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [area, setArea] = useState("");
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<any[]>([]);
+  const [selected, setSelected] = useState<any>(null);
+
   const [loading, setLoading] = useState(false);
+  const [checkingShop, setCheckingShop] = useState(false);
   const [error, setError] = useState("");
 
-  const fetchLocationFromDB = async (code: string) => {
-    if (code.length === 6) {
-      setLoading(true);
-      setError("");
-      try {
-        // 1. Check if any approved businesses exist in this pincode
-        const { count, error: businessError } = await supabase
-          .from("business_profiles")
-          .select("id", { count: 'exact', head: true })
-          .eq("pincode", code)
-          .eq("is_approved", true); // Only show pincodes with approved shops
+  // 🔥 Fetch City + Pincode suggestions from DB
+  const fetchSuggestions = async (value: string) => {
+    if (value.length < 3) {
+      setResults([]);
+      return;
+    }
 
-        if (businessError) throw businessError;
+    setLoading(true);
+    setError("");
 
-        if (count === 0) {
-          setError("No shops available in this area yet.");
-          setCity("");
-          return;
-        }
+    try {
+      const { data, error } = await supabase
+        .from("pincodes")
+        .select("pincode, city, state, area_locality")
+.or(
+  `city.ilike.%${value}%,area_locality.ilike.%${value}%,pincode.ilike.%${value}%`
+)
+        .limit(10);
 
-        // 2. Fetch City/State details (Either from your pincodes table or an external API)
-        const { data: geoData, error: geoError } = await supabase
-          .from("pincodes")
-          .select("city, state, area_locality")
-          .eq("pincode", code)
-          .single();
+      if (error) throw error;
 
-        if (geoError || !geoData) {
-          // Fallback: If not in your pincodes table, we know shops exist, 
-          // so we could just say "Verified Area"
-          setCity("Verified Location");
-          setState("Active Zone");
-        } else {
-          setCity(geoData.city);
-          setState(geoData.state);
-          setArea(geoData.area_locality);
-        }
-
-      } catch (err) {
-        console.error(err);
-        setError("Location verification failed.");
-      } finally {
-        setLoading(false);
-      }
+      setResults(data || []);
+    } catch (err) {
+      console.error(err);
+      setResults([]);
+    } finally {
+      setLoading(false);
     }
   };
-  const handlePincodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
-    setPincode(value);
 
-    if (value.length === 6) {
-      fetchLocationFromDB(value);
-    } else {
-      setCity("");
-      setState("");
-      setArea("");
-      setError("");
+  // ✅ Check if shops exist in that pincode
+  const verifyShopsInPincode = async (pincode: string) => {
+    setCheckingShop(true);
+    setError("");
+
+    try {
+      const { count, error } = await supabase
+        .from("business_profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("pincode", pincode)
+        .eq("is_approved", true);
+
+      if (error) throw error;
+
+      if (count === 0) {
+        setSelected(null);
+        setError("No shops available in this area yet.");
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      console.error(err);
+      setError("Location verification failed.");
+      return false;
+    } finally {
+      setCheckingShop(false);
+    }
+  };
+
+  const handleSelectLocation = async (item: any) => {
+    setSelected(null);
+    setQuery(`${item.area_locality}, ${item.city}`);
+
+    setResults([]);
+
+    const isValid = await verifyShopsInPincode(item.pincode);
+
+    if (isValid) {
+      setSelected(item);
     }
   };
 
   const handleContinue = () => {
-    if (city && pincode) {
-      // Passes the validated data back to your Page/Header
-      onSelect({
-        city,
-        pincode,
-        area,
-        state
-      });
-    }
+    if (!selected) return;
+
+    onSelect({
+      city: selected.city,
+      pincode: selected.pincode,
+      state: selected.state,
+      area: selected.area_locality,
+    });
   };
+
+  useEffect(() => {
+    if (!isOpen) {
+      setQuery("");
+      setResults([]);
+      setSelected(null);
+      setError("");
+      setLoading(false);
+    }
+  }, [isOpen]);
 
   return (
     <AnimatePresence>
@@ -101,36 +135,92 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
             className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden"
           >
             <div className="p-10 text-center space-y-6">
+              {/* ICON */}
               <div className="relative mx-auto w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center">
                 <div className="absolute inset-0 bg-orange-500/20 rounded-full animate-ping" />
                 <MapPin className="text-[#ff3d00] relative z-10" size={36} />
               </div>
 
+              {/* TITLE */}
               <div className="space-y-2">
-                <h2 className="text-2xl font-black text-slate-800 tracking-tight">Set Location</h2>
+                <h2 className="text-2xl font-black text-slate-800 tracking-tight">
+                  Set Location
+                </h2>
                 <p className="text-slate-500 text-sm font-medium leading-relaxed">
-                  Enter your pincode to see shops and products near you.
+                  Search your city or area to see shops and products near you.
                 </p>
               </div>
 
-              <div className="space-y-4">
+              {/* SEARCH INPUT */}
+              <div className="space-y-4 relative">
                 <div className="relative">
+                  <Search
+                    className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"
+                    size={18}
+                  />
+
                   <input
                     type="text"
-                    maxLength={6}
-                    placeholder="e.g. 110001"
-                    className={`w-full p-5 bg-slate-50 border-2 rounded-2xl outline-none font-bold text-center text-xl transition-all ${city ? 'border-green-500 ring-4 ring-green-50' : 'border-slate-100 focus:border-[#ff3d00]'
-                      }`}
-                    value={pincode}
-                    onChange={handlePincodeChange}
+                    placeholder="Search city or area (e.g. Indiranagar)"
+                    className={`w-full pl-12 pr-12 py-5 bg-slate-50 border-2 rounded-2xl outline-none font-bold text-center text-sm transition-all ${
+                      selected
+                        ? "border-green-500 ring-4 ring-green-50"
+                        : "border-slate-100 focus:border-[#ff3d00]"
+                    }`}
+                    value={query}
+                    onChange={(e) => {
+                      setQuery(e.target.value);
+                      setSelected(null);
+                      setError("");
+                      fetchSuggestions(e.target.value);
+                    }}
                   />
-                  {loading && <Loader2 className="absolute right-5 top-1/2 -translate-y-1/2 animate-spin text-orange-500" size={20} />}
-                  {city && <CheckCircle2 className="absolute right-5 top-1/2 -translate-y-1/2 text-green-500" size={24} />}
+
+                  {(loading || checkingShop) && (
+                    <Loader2
+                      className="absolute right-5 top-1/2 -translate-y-1/2 animate-spin text-orange-500"
+                      size={20}
+                    />
+                  )}
+
+                  {selected && (
+                    <CheckCircle2
+                      className="absolute right-5 top-1/2 -translate-y-1/2 text-green-500"
+                      size={24}
+                    />
+                  )}
                 </div>
 
+                {/* DROPDOWN RESULTS */}
                 <AnimatePresence>
-                  {/* Inside the AnimatePresence where city is displayed */}
-                  {city && (
+                  {results.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute top-[70px] left-0 w-full bg-white border border-slate-100 shadow-xl rounded-2xl overflow-hidden z-50"
+                    >
+                      {results.map((item, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleSelectLocation(item)}
+                          className="w-full text-left px-6 py-4 hover:bg-orange-50 transition-all border-b last:border-b-0 border-slate-100"
+                        >
+                          <p className="font-black text-slate-800 text-sm">
+                            {item.area_locality}, {item.city}
+                          </p>
+                          <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider">
+                            {item.state} • {item.pincode}
+                          </p>
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* VERIFIED DISPLAY */}
+                <AnimatePresence>
+                  {selected && (
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -139,21 +229,27 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
                       <div className="flex items-center gap-2">
                         <CheckCircle2 size={16} className="text-[#ff3d00]" />
                         <span className="text-slate-800 font-black text-sm uppercase tracking-wider">
-                          {city}, {state}
+                          {selected.city}, {selected.state}
                         </span>
                       </div>
                       <p className="text-[#ff3d00] text-[11px] font-black uppercase">
-                        Verified Shops available in your area
+                        Verified Shops available in your area ({selected.pincode})
                       </p>
                     </motion.div>
                   )}
                 </AnimatePresence>
 
-                {error && <p className="text-red-500 text-xs font-bold uppercase tracking-wide">{error}</p>}
+                {/* ERROR */}
+                {error && (
+                  <p className="text-red-500 text-xs font-bold uppercase tracking-wide">
+                    {error}
+                  </p>
+                )}
               </div>
 
+              {/* CONTINUE BUTTON */}
               <button
-                disabled={!city || loading}
+                disabled={!selected || loading || checkingShop}
                 onClick={handleContinue}
                 className="w-full bg-gradient-to-r from-[#ff3d00] to-[#ff6200] text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-orange-200 hover:shadow-2xl hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-30 flex items-center justify-center gap-3"
               >
