@@ -28,7 +28,7 @@ export default function CustomerLayout({
         localStorage.setItem("user_location", JSON.stringify(loc));
         setIsLocationModalOpen(false);
         // Refresh page to sync data across all components
-        window.location.reload(); 
+        window.location.reload();
     };
 
     return (
@@ -38,8 +38,8 @@ export default function CustomerLayout({
                 <CustomerHeader
                     location={location}
                     onLocationClick={() => setIsLocationModalOpen(true)}
-                    onAuthClick={() => {}}
                 />
+
             </div>
 
             <LocationModal

@@ -47,7 +47,7 @@ export default function CustomerHeader({ location, onLocationClick }: HeaderProp
         await supabase.auth.signOut();
         setUser(null);
         setShowDropdown(false);
-        router.push("/");
+        router.push("/customer/dashboard");
         router.refresh();
     };
 
