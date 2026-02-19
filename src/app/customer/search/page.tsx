@@ -278,7 +278,7 @@ function ProductCard({ product }: { product: any }) {
         </div>
       </div>
 
-      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} message="Sign in to save this item." />
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </>
   );
 }

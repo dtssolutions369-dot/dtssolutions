@@ -156,7 +156,6 @@ export default function CustomerHeader({ location, onLocationClick }: HeaderProp
             <AuthModal
                 isOpen={isAuthModalOpen}
                 onClose={() => setIsAuthModalOpen(false)}
-                message="Sign in to access your account"
             />
         </>
     );
