@@ -1,7 +1,13 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'example.com', // Change this to your actual image host
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
 };
-
 export default nextConfig;
