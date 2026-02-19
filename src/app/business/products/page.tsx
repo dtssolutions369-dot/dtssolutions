@@ -9,6 +9,7 @@ import {
   Layers, LayoutGrid
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -71,6 +72,7 @@ export default function ProductsPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white w-full">
+        <Toaster position="bottom-center" />
       {/* 1. TOP HEADER - STICKY & FULL WIDTH */}
       <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
