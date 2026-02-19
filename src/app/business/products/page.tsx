@@ -97,7 +97,7 @@ export default function ProductsPage() {
             />
           </div>
           <Link
-            href="/business/products/add"
+            href="/business/add"
             className="bg-[#ff3d00] hover:bg-black text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shrink-0 shadow-lg shadow-orange-100"
           >
             <Plus size={18} strokeWidth={3} /> <span className="hidden sm:inline">Add Product</span>
