@@ -113,6 +113,31 @@ export default function AdminCategories() {
     setFormData({ name: item.name, image_url: item.image_url || "", parent_id: item.parent_id });
     setIsModalOpen(true);
   };
+const executeDelete = async () => {
+  if (!deleteConfirm.id) return;
+
+  try {
+    setIsSubmitting(true);
+
+    // Delete category (this will cascade if FK is set with ON DELETE CASCADE)
+    const { error } = await supabase
+      .from("categories")
+      .delete()
+      .eq("id", deleteConfirm.id);
+
+    if (error) throw error;
+
+    toast.success("Category deleted successfully");
+
+    setDeleteConfirm({ isOpen: false, id: null });
+    fetchData(); // refresh list
+
+  } catch (error: any) {
+    toast.error(error.message);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#fafafa] pt-0 p-6">
