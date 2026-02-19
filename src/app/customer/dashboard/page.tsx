@@ -372,7 +372,11 @@ export default function CustomerDashboard() {
 }
 
 // Sub-components stay the same...
-function ValueCard({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) {
+function ValueCard({ icon, title, desc }: {
+    icon: React.ReactElement<{ size?: number; className?: string }>,
+    title: string,
+    desc: string
+}) {
     return (
         <div className="group relative bg-white p-10 rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.04)] hover:shadow-[0_40px_80px_rgba(255,61,0,0.1)] transition-all duration-500 hover:-translate-y-2 overflow-hidden border border-slate-50">
             {/* Decorative Background Element */}
@@ -380,7 +384,6 @@ function ValueCard({ icon, title, desc }: { icon: React.ReactNode, title: string
 
             <div className="relative space-y-6">
                 <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:bg-white group-hover:shadow-xl transition-all duration-500">
-                    {React.cloneElement(icon as React.ReactElement, { size: 32 })}
                 </div>
 
                 <div className="space-y-3">
