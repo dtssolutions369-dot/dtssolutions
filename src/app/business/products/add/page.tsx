@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
-
+export const dynamic = 'force-dynamic';
 export default function AddProductPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
