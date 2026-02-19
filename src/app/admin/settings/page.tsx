@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { 
-  Globe, Share2, Save, Loader2, MapPin, Mail, 
-  Phone, Instagram, Facebook, Youtube, ShieldCheck 
+import {
+  Globe, Share2, Save, Loader2, MapPin, Mail,
+  Phone, Instagram, Facebook, Youtube, ShieldCheck
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -76,7 +76,7 @@ export default function SettingsPage() {
   return (
     <div className="max-w-9xl mx-auto ">
       <Toaster position="top-right" />
-      
+
       {/* STICKY HEADER */}
       <header className="sticky top-0 z-10 py-2 bg-slate-50/80 backdrop-blur-md mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -86,8 +86,8 @@ export default function SettingsPage() {
             Manage global parameters and social identifiers
           </p>
         </div>
-        
-        <button 
+
+        <button
           onClick={handleUpdate}
           disabled={saving}
           className="group relative bg-slate-900 text-white px-8 py-3.5 rounded-2xl font-bold overflow-hidden transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-70"
@@ -101,78 +101,95 @@ export default function SettingsPage() {
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
+
         {/* PRIMARY INFO */}
         <div className="lg:col-span-8 space-y-8">
-          <FormSection 
-            title="Core Identity" 
+          <FormSection
+            title="Core Identity"
             description="The public face of your platform"
             icon={<Globe className="text-blue-500" />}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input 
-                label="Platform Name" 
+              <Input
+                label="Platform Name"
                 placeholder="e.g. Acme Corp"
-                value={settings.site_name} 
-onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-  setSettings({ ...settings, site_name: e.target.value })
-}
+                value={settings.site_name}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setSettings({ ...settings, site_name: e.target.value })
+                } />
+              <Input
+                label="Support Email"
+                icon={<Mail size={16} />}
+                value={settings.support_email}
+                onChange={(v: string) =>
+                  setSettings({ ...settings, support_email: v })
+                }
               />
-              <Input 
-                label="Support Email" 
-                icon={<Mail size={16}/>} 
-                value={settings.support_email} 
-                onChange={(v) => setSettings({...settings, support_email: v})} 
+
+              <Input
+                label="Primary Phone"
+                icon={<Phone size={16} />}
+                value={settings.support_phone}
+                onChange={(v: string) =>
+                  setSettings({ ...settings, support_phone: v })
+                }
               />
-              <Input 
-                label="Primary Phone" 
-                icon={<Phone size={16}/>}
-                value={settings.support_phone} 
-                onChange={(v) => setSettings({...settings, support_phone: v})} 
+
+              <Input
+                label="HQ Location"
+                icon={<MapPin size={16} />}
+                value={settings.address}
+                onChange={(v: string) =>
+                  setSettings({ ...settings, address: v })
+                }
               />
-              <Input 
-                label="HQ Location" 
-                icon={<MapPin size={16}/>} 
-                value={settings.address} 
-                onChange={(v) => setSettings({...settings, address: v})} 
-              />
+
             </div>
           </FormSection>
         </div>
 
         {/* SOCIAL LINKS */}
-     {/* SOCIAL LINKS */}
-<div className="lg:col-span-4 space-y-8">
-  <FormSection 
-    title="Social Presence" 
-    description="External link routing"
-    icon={<Share2 className="text-pink-500" />}
-  >
-    <div className="space-y-5">
-      <Input 
-        label="Instagram" 
-        placeholder="instagram.com/username"
-        icon={<Instagram size={16} />}
-        value={settings.instagram_url} 
-        onChange={(v) => setSettings({...settings, instagram_url: v})} 
-      />
-      <Input 
-        label="Facebook" 
-        placeholder="facebook.com/pagename"
-        icon={<Facebook size={16} />}
-        value={settings.facebook_url} 
-        onChange={(v) => setSettings({...settings, facebook_url: v})} 
-      />
-      <Input 
-        label="YouTube" 
-        placeholder="youtube.com/@channel"
-        icon={<Youtube size={16} />}
-        value={settings.youtube_url} 
-        onChange={(v) => setSettings({...settings, youtube_url: v})} 
-      />
-    </div>
-  </FormSection>
+        {/* SOCIAL LINKS */}
+        <div className="lg:col-span-4 space-y-8">
+          <FormSection
+            title="Social Presence"
+            description="External link routing"
+            icon={<Share2 className="text-pink-500" />}
+          >
+           <div className="space-y-5">
+  <Input
+    label="Instagram"
+    placeholder="instagram.com/username"
+    icon={<Instagram size={16} />}
+    value={settings.instagram_url}
+    onChange={(v: string) =>
+      setSettings({ ...settings, instagram_url: v })
+    }
+  />
+
+  <Input
+    label="Facebook"
+    placeholder="facebook.com/pagename"
+    icon={<Facebook size={16} />}
+    value={settings.facebook_url}
+    onChange={(v: string) =>
+      setSettings({ ...settings, facebook_url: v })
+    }
+  />
+
+  <Input
+    label="YouTube"
+    placeholder="youtube.com/@channel"
+    icon={<Youtube size={16} />}
+    value={settings.youtube_url}
+    onChange={(v: string) =>
+      setSettings({ ...settings, youtube_url: v })
+    }
+  />
 </div>
+
+          </FormSection>
+        </div>
 
       </div>
     </div>
@@ -210,8 +227,8 @@ function Input({ label, value, onChange, placeholder, icon }: any) {
             {icon}
           </div>
         )}
-        <input 
-          type="text" 
+        <input
+          type="text"
           placeholder={placeholder}
           className={`
             w-full ${icon ? 'pl-11' : 'pl-5'} pr-5 py-4 
