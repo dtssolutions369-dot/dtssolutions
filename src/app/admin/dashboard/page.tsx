@@ -182,7 +182,10 @@ function DashboardCard({ label, value, icon, trend, warning, color }: any) {
 
   return (
     <motion.div 
-      whileHover={{ y: -5, shadow: "0 20px 40px rgba(0,0,0,0.04)" }}
+whileHover={{ 
+  y: -5, 
+  boxShadow: "0 20px 40px rgba(0,0,0,0.04)" 
+}}
       className={`bg-white p-8 rounded-[2.5rem] border-2 transition-all ${
         warning ? 'border-orange-200' : 'border-white shadow-sm'
       }`}
