@@ -22,7 +22,7 @@ import AuthModal from "@/components/AuthModal";
 import toast from "react-hot-toast";
 
 export default function ProductDetailPage() {
-    const router = useRouter();   
+    const router = useRouter();
     const { id } = useParams();
     const [product, setProduct] = useState<any>(null);
     const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
@@ -148,17 +148,17 @@ export default function ProductDetailPage() {
 
                 {/* --- NAVIGATION & ACTIONS --- */}
                 <div className="flex items-center justify-between mb-8">
-                    <button 
-                        onClick={() => router.back()} 
+                    <button
+                        onClick={() => router.back()}
                         className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors font-bold text-sm group"
                     >
                         <div className="p-2 bg-white rounded-full border border-slate-100 shadow-sm group-hover:text-[#ff3d00] transition-all">
-                            <ArrowLeft size={18} /> 
+                            <ArrowLeft size={18} />
                         </div>
                         Back to Results
                     </button>
-                    
-                    <button 
+
+                    <button
                         onClick={handleShare}
                         className="p-3 bg-white rounded-full border border-slate-100 shadow-sm text-slate-400 hover:text-[#ff3d00] transition-all"
                     >
@@ -288,14 +288,14 @@ export default function ProductDetailPage() {
                                         <a href={`tel:${product.business_profiles?.phone}`} className="py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest border border-white/10 transition-all">
                                             <Phone size={14} /> Call Now
                                         </a>
-                                        <a 
-  href={`https://wa.me/${product.business_profiles?.phone}`} 
-  target="_blank" 
-  rel="noopener noreferrer"
-  className="py-4 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest transition-all"
->
-  <MessageCircle size={14} /> WhatsApp
-</a>
+                                        <a
+                                            href={`https://wa.me/${product.business_profiles?.phone}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="py-4 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest transition-all"
+                                        >
+                                            <MessageCircle size={14} /> WhatsApp
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -317,7 +317,10 @@ export default function ProductDetailPage() {
                 </section>
             </main>
 
-            <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} message="Sign in to add items to your wishlist." />
+<AuthModal
+    isOpen={isAuthOpen}
+    onClose={() => setIsAuthOpen(false)}
+/>
         </div>
     );
 }
@@ -325,7 +328,7 @@ export default function ProductDetailPage() {
 function RelatedProductCard({ product }: { product: any }) {
     // Calculate rating for related products
     const reviews = product.business_profiles?.business_reviews || [];
-    const avg = reviews.length > 0 
+    const avg = reviews.length > 0
         ? (reviews.reduce((acc: number, curr: any) => acc + curr.rating, 0) / reviews.length).toFixed(1)
         : null;
 
