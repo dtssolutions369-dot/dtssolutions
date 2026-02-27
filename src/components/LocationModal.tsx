@@ -77,7 +77,7 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
         .from("business_profiles")
         .select("id", { count: "exact", head: true })
         .eq("pincode", pincode)
-        .eq("is_approved", true);
+    .eq("status", "approved");
 
       if (supabaseError) {
         console.error("Supabase Query Error:", supabaseError);

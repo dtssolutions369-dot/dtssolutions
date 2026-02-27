@@ -56,16 +56,18 @@ export default function CustomerDashboard() {
         if (savedLocation) {
             const loc = JSON.parse(savedLocation);
             setLocation(loc);
-            fetchDashboardData(loc.pincode);
+            // Pass both pincode and city
+            fetchDashboardData(loc.pincode, loc.city);
         } else {
             setIsLocationModalOpen(true);
             fetchDashboardData();
         }
     }, []);
 
-    const fetchDashboardData = async (userPincode?: string) => {
+    const fetchDashboardData = async (userPincode?: string, userCity?: string) => {
         setLoading(true);
         try {
+            // 1. Fetch Banners and Categories (Independent of location)
             const { data: bannerData } = await supabase
                 .from("banners")
                 .select("*")
@@ -77,20 +79,48 @@ export default function CustomerDashboard() {
                 .select("*")
                 .is("parent_id", null);
 
-            let query = supabase
-                .from("products")
-                .select(`*, business_profiles!inner (id, shop_name, pincode, address)`)
-                .eq("status", "active");
-
-            if (userPincode && userPincode !== "000000") {
-                query = query.eq("business_profiles.pincode", userPincode);
-            }
-
-            const { data: prodData } = await query.order("created_at", { ascending: false });
-
             setBanners(bannerData || []);
             setCategories(catData || []);
-            setProducts(prodData || []);
+
+            // 2. Fetch Products with Fallback Logic
+            let finalProducts: any[] = [];
+
+            if (userPincode && userPincode !== "000000") {
+                // STEP A: Try to find products in the specific PINCODE
+                const { data: pincodeData } = await supabase
+                    .from("products")
+                    .select(`*, business_profiles!inner (id, shop_name, pincode, city, address)`)
+                    .eq("status", "active")
+                    .eq("business_profiles.pincode", userPincode)
+                    .order("created_at", { ascending: false });
+
+                if (pincodeData && pincodeData.length > 0) {
+                    finalProducts = pincodeData;
+                }
+                // STEP B: Fallback to CITY if no pincode products found
+                else if (userCity || location?.city) {
+                    const searchCity = userCity || location?.city;
+                    const { data: cityData } = await supabase
+                        .from("products")
+                        .select(`*, business_profiles!inner (id, shop_name, pincode, city, address)`)
+                        .eq("status", "active")
+                        .eq("business_profiles.city", searchCity)
+                        .order("created_at", { ascending: false });
+
+                    finalProducts = cityData || [];
+                }
+            } else {
+                // If no location at all, show general active products
+                const { data: allData } = await supabase
+                    .from("products")
+                    .select(`*, business_profiles!inner (id, shop_name, pincode, city, address)`)
+                    .eq("status", "active")
+                    .limit(20);
+                finalProducts = allData || [];
+            }
+
+            setProducts(finalProducts);
+
         } catch (err) {
             console.error("Dashboard Error:", err);
         } finally {
@@ -102,7 +132,8 @@ export default function CustomerDashboard() {
         setLocation(loc);
         localStorage.setItem("user_location", JSON.stringify(loc));
         setIsLocationModalOpen(false);
-        fetchDashboardData(loc.pincode);
+        // Pass both pincode and city here as well
+        fetchDashboardData(loc.pincode, loc.city);
     };
 
     if (loading) {
@@ -205,9 +236,17 @@ export default function CustomerDashboard() {
                     <div className="bg-orange-50 p-10 rounded-[3.5rem] flex flex-col md:flex-row justify-between items-center gap-6">
                         <div className="text-center md:text-left">
                             <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
-                                Latest in <span className="text-[#ff3d00] underline decoration-4 underline-offset-8">{location?.city || "Local Area"}</span>
+                                {products.length > 0 ? (
+                                    <>Latest in <span className="text-[#ff3d00] underline decoration-4 underline-offset-8">{location?.city || "Local Area"}</span></>
+                                ) : (
+                                    <>Coming soon to <span className="text-slate-400">{location?.city || "your area"}</span></>
+                                )}
                             </h2>
-                            <p className="text-orange-900/50 font-bold mt-2">Recently added products from your neighborhood</p>
+                            <p className="text-orange-900/50 font-bold mt-2">
+                                {products.length > 0
+                                    ? "Recently added products from your neighborhood"
+                                    : "We're currently onboarding shops in your specific area. Check back soon!"}
+                            </p>
                         </div>
                         <div className="flex items-center gap-4 bg-white px-6 py-4 rounded-3xl shadow-sm">
                             <MapPin className="text-[#ff3d00]" />
@@ -287,8 +326,8 @@ function TrustItem({ icon, title, desc, color = "text-[#ff3d00]", bg = "bg-orang
     return (
         <div className="flex items-center gap-5 p-8 rounded-[2.5rem] bg-white border border-slate-50 shadow-sm">
             <div className={`w-14 h-14 ${bg} ${color} rounded-2xl flex items-center justify-center flex-shrink-0`}>
-{React.cloneElement(icon as React.ReactElement<any>, { size: 28 })}
-                </div>
+                {React.cloneElement(icon as React.ReactElement<any>, { size: 28 })}
+            </div>
             <div>
                 <h4 className="font-black text-slate-900 text-lg">{title}</h4>
                 <p className="text-slate-500 text-sm font-medium">{desc}</p>

@@ -1,14 +1,13 @@
 "use client";
 
 import React, { useEffect, useState, Suspense } from "react";
-// FIXED: Added useSearchParams and usePathname imports
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import ProductFilters from "@/components/ProductFilters";
 import ProductCard from "@/components/ProductCard";
 import EmptyState from "@/components/EmptyState";
 import { toast, Toaster } from "react-hot-toast";
-import { Loader2, Search, X } from "lucide-react";
+import { Loader2, Search, X, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ProductGalleryWrapper() {
@@ -30,9 +29,12 @@ function ProductGalleryPage() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // --- FILTERS STATE ---
+  // --- STATE ---
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [location, setLocation] = useState<any>(null);
+  
+  // Filters
   const [sort, setSort] = useState("relevance");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,8 +42,15 @@ function ProductGalleryPage() {
   const [category, setCategory] = useState("");
   const [subCategory, setSubCategory] = useState("");
 
-  // 1. Sync State with URL on Load
+  // 1. Load Location and Sync URL Params
   useEffect(() => {
+    // Load Location from Storage
+    const savedLocation = localStorage.getItem("user_location");
+    if (savedLocation) {
+      setLocation(JSON.parse(savedLocation));
+    }
+
+    // Sync URL Params
     const urlCategory = searchParams.get("category");
     const urlSubCategory = searchParams.get("subCategory");
     const urlBiz = searchParams.get("businessType");
@@ -51,18 +60,19 @@ function ProductGalleryPage() {
     if (urlBiz) setBusinessType(urlBiz);
   }, [searchParams]);
 
-  // 2. Fetch Products when filters change
+  // 2. Fetch Products when filters or location changes
   useEffect(() => {
     const handler = setTimeout(() => {
       fetchProducts();
     }, 400);
     return () => clearTimeout(handler);
-  }, [sort, priceRange, searchQuery, businessType, category, subCategory]);
+  }, [sort, priceRange, searchQuery, businessType, category, subCategory, location]);
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      let query = supabase
+      // BASE QUERY
+      let baseQuery = supabase
         .from("products")
         .select(`
           *,
@@ -71,47 +81,65 @@ function ProductGalleryPage() {
             shop_name,
             business_type,
             status,
-            business_reviews (
-              rating
-            )
+            pincode,
+            city,
+            business_reviews (rating)
           )
         `)
         .eq("status", "active")
         .eq("business_profiles.status", "approved");
 
-      // --- APPLY FILTERS ---
-      if (searchQuery) {
-        query = query.ilike("name", `%${searchQuery}%`);
+      // Apply Filters (Shared across Pincode/City/All)
+      const applyFilters = (q: any) => {
+        let filtered = q;
+        if (searchQuery) filtered = filtered.ilike("name", `%${searchQuery}%`);
+        if (businessType) filtered = filtered.eq("business_profiles.business_type", businessType);
+        if (category) filtered = filtered.eq("category_id", category);
+        if (subCategory) filtered = filtered.eq("sub_category_id", subCategory);
+        filtered = filtered.lte("price", priceRange[1]);
+        
+        if (sort === "price-low") filtered = filtered.order("price", { ascending: true });
+        else if (sort === "price-high") filtered = filtered.order("price", { ascending: false });
+        else filtered = filtered.order("created_at", { ascending: false });
+        
+        return filtered;
+      };
+
+      let finalData: any[] = [];
+
+      // STEP A: Try Pincode Search
+      if (location?.pincode && location.pincode !== "000000") {
+        const { data: pincodeData } = await applyFilters(
+          baseQuery.eq("business_profiles.pincode", location.pincode)
+        );
+
+        if (pincodeData && pincodeData.length > 0) {
+          finalData = pincodeData;
+        } 
+        // STEP B: Fallback to City
+        else if (location?.city) {
+            // We have to re-create the base query because the previous one was already filtered by pincode
+            let cityQuery = supabase
+                .from("products")
+                .select(`*, business_profiles!inner (*)`)
+                .eq("status", "active")
+                .eq("business_profiles.status", "approved")
+                .eq("business_profiles.city", location.city);
+            
+            const { data: cityData } = await applyFilters(cityQuery);
+            finalData = cityData || [];
+        }
+      } else {
+        // NO LOCATION: Fetch everything
+        const { data: allData } = await applyFilters(baseQuery).limit(40);
+        finalData = allData || [];
       }
 
-      if (businessType) {
-        query = query.eq("business_profiles.business_type", businessType);
-      }
-
-      if (category) {
-        query = query.eq("category_id", category);
-      }
-
-      if (subCategory) {
-        query = query.eq("sub_category_id", subCategory);
-      }
-
-      // Price Filter
-      query = query.lte("price", priceRange[1]);
-
-      // Sorting Logic
-      if (sort === "price-low") query = query.order("price", { ascending: true });
-      else if (sort === "price-high") query = query.order("price", { ascending: false });
-      else query = query.order("created_at", { ascending: false });
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-      setProducts(data || []);
+      setProducts(finalData);
 
     } catch (err: any) {
       console.error("Filter Error:", err);
-      toast.error(err.message || "Failed to filter products");
+      toast.error("Failed to fetch products");
     } finally {
       setLoading(false);
     }
@@ -124,7 +152,6 @@ function ProductGalleryPage() {
     setBusinessType("");
     setCategory("");
     setSubCategory("");
-    // Clear URL params
     router.push(pathname);
   };
 
@@ -138,9 +165,15 @@ function ProductGalleryPage() {
               <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter">
                 Explore<span className="text-[#ff3d00]">.</span>
               </h1>
-              <p className="text-slate-400 font-bold text-xs md:text-sm uppercase tracking-widest">
-                {products.length} Items found in the vault
-              </p>
+              <div className="flex items-center gap-2 text-slate-400 font-bold text-xs md:text-sm uppercase tracking-widest">
+                <span>{products.length} Items found</span>
+                {location && (
+                    <div className="flex items-center gap-1 bg-orange-100 text-[#ff3d00] px-3 py-1 rounded-full lowercase tracking-normal font-black">
+                        <MapPin size={12} />
+                        {location.pincode}
+                    </div>
+                )}
+              </div>
             </div>
 
             <div className="relative w-full md:w-[400px] group">
@@ -204,7 +237,15 @@ function ProductGalleryPage() {
                 </AnimatePresence>
               </div>
             ) : (
-              <EmptyState onReset={handleReset} />
+              <div className="space-y-4">
+                 <EmptyState onReset={handleReset} />
+                 {location?.city && (
+                    <p className="text-center text-slate-400 font-medium">
+                        Tip: We couldn't find items in {location.pincode} or {location.city}. <br/>
+                        Try expanding your search by resetting filters.
+                    </p>
+                 )}
+              </div>
             )}
           </section>
         </div>
