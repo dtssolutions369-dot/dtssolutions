@@ -287,8 +287,8 @@ function TrustItem({ icon, title, desc, color = "text-[#ff3d00]", bg = "bg-orang
     return (
         <div className="flex items-center gap-5 p-8 rounded-[2.5rem] bg-white border border-slate-50 shadow-sm">
             <div className={`w-14 h-14 ${bg} ${color} rounded-2xl flex items-center justify-center flex-shrink-0`}>
-                {React.cloneElement(icon as React.ReactElement, { size: 28 })}
-            </div>
+{React.cloneElement(icon as React.ReactElement<any>, { size: 28 })}
+                </div>
             <div>
                 <h4 className="font-black text-slate-900 text-lg">{title}</h4>
                 <p className="text-slate-500 text-sm font-medium">{desc}</p>
