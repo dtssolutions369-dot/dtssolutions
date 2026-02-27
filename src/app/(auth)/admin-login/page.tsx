@@ -166,13 +166,7 @@ export default function AdminLoginPage() {
           </div>
         </form>
 
-        <div className="mt-10 pt-6 border-t border-slate-50 flex flex-col items-center">
-           <div className="flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-             <div className="w-1 h-1 bg-red-500 rounded-full animate-pulse" />
-             Encrypted Dashboard Access
-           </div>
-        </div>
-      </motion.div>
+             </motion.div>
     </div>
   );
 }

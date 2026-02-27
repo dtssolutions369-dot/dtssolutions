@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import {
-  Plus, Search, ShoppingBag, MoreVertical, Loader2,
+  Plus, Search, ShoppingBag, MoreVertical, Loader2, Trash2,
   PackageOpen, ChevronRight, ChevronLeft, Edit3, Filter,
   Layers, LayoutGrid
 } from "lucide-react";
@@ -70,9 +70,32 @@ export default function ProductsPage() {
     return matchesSearch && matchesCategory && matchesSubCategory;
   });
 
+
+  const handleDelete = async (productId: string) => {
+    const confirmDelete = confirm("Are you sure you want to delete this product?");
+    if (!confirmDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from("products")
+        .delete()
+        .eq("id", productId);
+
+      if (error) throw error;
+
+      // Remove from UI instantly
+      setProducts(prev => prev.filter(p => p.id !== productId));
+
+      toast.success("Product deleted successfully");
+    } catch (error) {
+      console.error("Delete Error:", error);
+      toast.error("Failed to delete product");
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-white w-full">
-        <Toaster position="bottom-center" />
+      <Toaster position="bottom-center" />
       {/* 1. TOP HEADER - STICKY & FULL WIDTH */}
       <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -163,8 +186,11 @@ export default function ProductsPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
             {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+              <ProductCard
+                key={product.id}
+                product={product}
+                onDelete={handleDelete}
+              />))}
           </div>
         )}
       </main>
@@ -174,34 +200,43 @@ export default function ProductsPage() {
 
 // Inside your ProductsPage.tsx - Updated ProductCard component
 
-function ProductCard({ product }: { product: any }) {
-  const [currentImgIndex, setCurrentImgIndex] = useState(0);
+function ProductCard({
+  product,
+  onDelete
+}: {
+  product: any;
+  onDelete: (id: string) => void;
+}) {
+  const [currentImgIndex] = useState(0);
   const hasImages = product.images && product.images.length > 0;
-
-  // CHECK STATUS
-  const isInactive = product.status === 'inactive';
+  const isInactive = product.status === "inactive";
 
   return (
     <motion.div
       layout
-      className={`bg-white border border-slate-100 rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-slate-200/50 transition-all group flex flex-col h-full relative ${isInactive ? 'ring-2 ring-red-50' : ''}`}
+      className={`bg-white border border-slate-100 rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-slate-200/50 transition-all group flex flex-col h-full relative ${isInactive ? "ring-2 ring-red-50" : ""
+        }`}
     >
-      {/* Show overlay ONLY if inactive */}
+      {/* Inactive Overlay */}
       {isInactive && (
         <div className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[1px] flex flex-col items-center justify-center p-4 text-center">
           <div className="bg-white shadow-xl p-3 rounded-2xl mb-2 border border-red-100">
             <PackageOpen size={24} className="text-red-600" />
           </div>
-          <p className="text-[10px] font-black uppercase tracking-widest text-red-600 bg-white px-2 py-1 rounded-md shadow-sm">Hidden from Public<br /> take a plans to unhide it </p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-red-600 bg-white px-2 py-1 rounded-md shadow-sm">
+            Hidden from Public
+          </p>
         </div>
       )}
 
+      {/* Image */}
       <div className="relative aspect-square bg-slate-50 overflow-hidden">
         {hasImages ? (
           <img
             src={product.images[currentImgIndex]}
             alt={product.name}
-            className={`w-full h-full object-cover transition-transform duration-500 ${!isInactive && 'group-hover:scale-110'}`}
+            className={`w-full h-full object-cover transition-transform duration-500 ${!isInactive && "group-hover:scale-110"
+              }`}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-slate-200 bg-slate-100">
@@ -209,40 +244,60 @@ function ProductCard({ product }: { product: any }) {
           </div>
         )}
 
-        {/* Price Tag Overlay */}
-        <div className={`absolute bottom-3 left-3 px-3 py-1 rounded-lg text-sm font-black ${isInactive ? 'bg-slate-400 text-white' : 'bg-black/80 text-white backdrop-blur-md'}`}>
-          ₹{product.price.toLocaleString('en-IN')}
+        {/* Price */}
+        <div
+          className={`absolute bottom-3 left-3 px-3 py-1 rounded-lg text-sm font-black ${isInactive
+            ? "bg-slate-400 text-white"
+            : "bg-black/80 text-white backdrop-blur-md"
+            }`}
+        >
+          ₹{product.price.toLocaleString("en-IN")}
         </div>
       </div>
 
+      {/* Content */}
       <div className="p-5 flex flex-col flex-grow">
+        {/* Top Row */}
         <div className="flex justify-between items-start mb-2">
-          <h3 className={`font-bold text-slate-900 transition-colors line-clamp-1 ${!isInactive && 'group-hover:text-[#ff3d00]'}`}>
+          <h3
+            className={`font-bold text-slate-900 transition-colors line-clamp-1 ${!isInactive && "group-hover:text-[#ff3d00]"
+              }`}
+          >
             {product.name}
           </h3>
-          <button className="text-slate-300 hover:text-black transition-colors"><MoreVertical size={16} /></button>
+
+          {/* ACTION BUTTONS */}
+          <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
+            <Link
+              href={`/business/products/add?id=${product.id}`}
+              className="text-slate-500 hover:text-[#ff3d00]"
+            >
+              <Edit3 size={18} />
+            </Link>
+
+            <button
+              onClick={() => onDelete(product.id)}
+              className="text-slate-500 hover:text-red-600"
+            >
+              <Trash2 size={18} />
+            </button>
+          </div>
         </div>
 
+        {/* Description */}
         <p className="text-slate-400 text-xs line-clamp-2 mb-6 font-medium leading-relaxed">
           {product.description || "No description provided."}
         </p>
 
+        {/* Bottom Row */}
         <div className="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest bg-slate-50 px-2 py-1 rounded">
-              {product.categories?.name || "Stock"}
-            </span>
-            {isInactive && (
-              <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-            )}
-          </div>
+          <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest bg-slate-50 px-2 py-1 rounded">
+            {product.categories?.name || "Stock"}
+          </span>
 
-          <Link
-            href={`/business/products/add?id=${product.id}`}
-            className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-[#ff3d00] hover:text-white transition-all"
-          >
-            <Edit3 size={16} strokeWidth={2.5} />
-          </Link>
+          {isInactive && (
+            <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+          )}
         </div>
       </div>
     </motion.div>

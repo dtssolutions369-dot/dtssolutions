@@ -20,7 +20,7 @@ const menuItems = [
  // { name: "Businesses", icon: <Store size={22} />, path: "/admin/businesses" },
   { name: "Banners", icon: <ImageIcon size={22} />, path: "/admin/banners" },
   { name: "Complaints", icon: <MessageSquare size={22} />, path: "/admin/complaints" },
-  { name: "Settings", icon: <Settings size={22} />, path: "/admin/settings" },
+ // { name: "Settings", icon: <Settings size={22} />, path: "/admin/settings" },
 ];
 
 export default function AdminSidebar() {

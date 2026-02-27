@@ -3,10 +3,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { 
-  ChevronLeft, Upload, Loader2, X, Save, 
-  Image as ImageIcon, Info, Tag, IndianRupee, 
-  Sparkles, CheckCircle2
+import {
+    ChevronLeft, Upload, Loader2, X, Save,
+    Image as ImageIcon, Info, Tag, IndianRupee,
+    Sparkles, CheckCircle2
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,18 +21,34 @@ export default function AddProductPage() {
     const [fetchingData, setFetchingData] = useState(isEditMode);
     const [categories, setCategories] = useState<any[]>([]);
     const [subCategories, setSubCategories] = useState<any[]>([]);
-
     const [formData, setFormData] = useState({
         name: "",
         description: "",
         price: "",
+        discount: "",
+        final_price: "",   // ✅ ADD THIS
         category_id: "",
         sub_category_id: "",
     });
+    const price = parseFloat(formData.price || "0");
+    const discount = parseFloat(formData.discount || "0");
 
+    const finalPrice =
+        discount > 0 ? price - (price * discount) / 100 : price;
     const [uploadingImage, setUploadingImage] = useState(false);
     const [previewImages, setPreviewImages] = useState<string[]>([]);
+    useEffect(() => {
+        const price = parseFloat(formData.price || "0");
+        const discount = parseFloat(formData.discount || "0");
 
+        const calculated =
+            discount > 0 ? price - (price * discount) / 100 : price;
+
+        setFormData(prev => ({
+            ...prev,
+            final_price: calculated.toString()
+        }));
+    }, [formData.price, formData.discount]);
     useEffect(() => {
         const initPage = async () => {
             const { data: catData } = await supabase
@@ -56,6 +72,7 @@ export default function AddProductPage() {
                         name: product.name,
                         description: product.description,
                         price: product.price.toString(),
+                        discount: product.discount?.toString() || "0",
                         category_id: product.category_id,
                         sub_category_id: product.sub_category_id || "",
                     });
@@ -96,7 +113,7 @@ export default function AddProductPage() {
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             const fileName = `${Date.now()}-${Math.random()}.${file.name.split('.').pop()}`;
-            
+
             const { error: uploadError } = await supabase.storage
                 .from('product-images')
                 .upload(fileName, file);
@@ -110,71 +127,72 @@ export default function AddProductPage() {
         setUploadingImage(false);
     };
 
-const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validation
-    if (previewImages.length === 0) return toast.error("Upload at least one image");
-    if (!formData.category_id) return toast.error("Please select a category");
-    
-    setLoading(true);
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
 
-    try {
-        // 1. Get the current logged-in Auth User
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-        if (authError || !user) throw new Error("Authentication failed. Please log in again.");
+        // Validation
+        if (previewImages.length === 0) return toast.error("Upload at least one image");
+        if (!formData.category_id) return toast.error("Please select a category");
 
-        // 2. Fetch the Business Profile ID linked to this user
-        // We need the 'id' from business_profiles, not the 'id' from auth.users
-        const { data: profile, error: profileError } = await supabase
-            .from("business_profiles")
-            .select("id")
-            .eq("user_id", user.id)
-            .single();
+        setLoading(true);
 
-        if (profileError || !profile) {
-            throw new Error("Business profile not found. Please complete your profile setup.");
+        try {
+            // 1. Get the current logged-in Auth User
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            if (authError || !user) throw new Error("Authentication failed. Please log in again.");
+
+            // 2. Fetch the Business Profile ID linked to this user
+            // We need the 'id' from business_profiles, not the 'id' from auth.users
+            const { data: profile, error: profileError } = await supabase
+                .from("business_profiles")
+                .select("id")
+                .eq("user_id", user.id)
+                .single();
+
+            if (profileError || !profile) {
+                throw new Error("Business profile not found. Please complete your profile setup.");
+            }
+
+            // 3. Prepare the final payload
+            const payload = {
+                name: formData.name,
+                description: formData.description,
+                price: price,
+                discount: discount || 0,
+                final_price: parseFloat(formData.final_price || "0"),
+                category_id: formData.category_id,
+                sub_category_id: formData.sub_category_id || null,
+                images: previewImages,
+                business_id: profile.id,
+                status: 'active'
+            };
+            let error;
+            if (isEditMode) {
+                const { error: updateError } = await supabase
+                    .from("products")
+                    .update(payload)
+                    .eq("id", productId);
+                error = updateError;
+            } else {
+                const { error: insertError } = await supabase
+                    .from("products")
+                    .insert([payload]);
+                error = insertError;
+            }
+
+            if (error) throw error;
+
+            toast.success(isEditMode ? "Updated successfully!" : "Published successfully!");
+            router.push("/business/products");
+            router.refresh();
+
+        } catch (err: any) {
+            console.error("Submission Error:", err);
+            toast.error(err.message || "An unexpected error occurred");
+        } finally {
+            setLoading(false);
         }
-
-        // 3. Prepare the final payload
-        const payload = {
-            name: formData.name,
-            description: formData.description,
-            price: parseFloat(formData.price),
-            category_id: formData.category_id,
-            sub_category_id: formData.sub_category_id || null,
-            images: previewImages,
-            business_id: profile.id, // Using the Profile UUID correctly now
-            status: 'active'
-        };
-
-        let error;
-        if (isEditMode) {
-            const { error: updateError } = await supabase
-                .from("products")
-                .update(payload)
-                .eq("id", productId);
-            error = updateError;
-        } else {
-            const { error: insertError } = await supabase
-                .from("products")
-                .insert([payload]);
-            error = insertError;
-        }
-
-        if (error) throw error;
-
-        toast.success(isEditMode ? "Updated successfully!" : "Published successfully!");
-        router.push("/business/products");
-        router.refresh();
-        
-    } catch (err: any) {
-        console.error("Submission Error:", err);
-        toast.error(err.message || "An unexpected error occurred");
-    } finally {
-        setLoading(false);
-    }
-};
+    };
     if (fetchingData) return (
         <div className="h-screen flex flex-col items-center justify-center bg-white">
             <Loader2 className="animate-spin text-[#ff3d00]" size={48} />
@@ -199,19 +217,19 @@ const handleSubmit = async (e: React.FormEvent) => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <button 
-                        type="button" 
-                        onClick={() => router.back()} 
+                    <button
+                        type="button"
+                        onClick={() => router.back()}
                         className="px-6 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors"
                     >
                         Cancel
                     </button>
-                    <button 
+                    <button
                         onClick={handleSubmit}
                         disabled={loading || uploadingImage}
                         className="bg-[#ff3d00] hover:bg-black text-white px-8 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-lg shadow-orange-100 disabled:opacity-50"
                     >
-                        {loading ? <Loader2 className="animate-spin" size={18} /> : isEditMode ? <><Save size={18}/> Save Changes</> : <><CheckCircle2 size={18}/> Publish Product</>}
+                        {loading ? <Loader2 className="animate-spin" size={18} /> : isEditMode ? <><Save size={18} /> Save Changes</> : <><CheckCircle2 size={18} /> Publish Product</>}
                     </button>
                 </div>
             </nav>
@@ -226,15 +244,15 @@ const handleSubmit = async (e: React.FormEvent) => {
                                 <ImageIcon size={18} className="text-orange-500" />
                                 <h2 className="font-black text-slate-900 uppercase tracking-wider text-xs">Product Media</h2>
                             </div>
-                            
+
                             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                                 <AnimatePresence>
                                     {previewImages.map((url, idx) => (
-                                        <motion.div 
+                                        <motion.div
                                             initial={{ opacity: 0, scale: 0.8 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             exit={{ opacity: 0, scale: 0.8 }}
-                                            key={idx} 
+                                            key={idx}
                                             className="group relative aspect-square rounded-2xl overflow-hidden border-2 border-slate-50"
                                         >
                                             <img src={url} alt="" className="w-full h-full object-cover" />
@@ -251,9 +269,9 @@ const handleSubmit = async (e: React.FormEvent) => {
                                 </AnimatePresence>
 
                                 {previewImages.length < 5 && (
-                                    <button 
-                                        type="button" 
-                                        onClick={() => fileInputRef.current?.click()} 
+                                    <button
+                                        type="button"
+                                        onClick={() => fileInputRef.current?.click()}
                                         className="aspect-square border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center bg-slate-50 hover:bg-orange-50 hover:border-orange-200 transition-all group"
                                     >
                                         {uploadingImage ? (
@@ -276,13 +294,13 @@ const handleSubmit = async (e: React.FormEvent) => {
                                 <Info size={18} className="text-orange-500" />
                                 <h2 className="font-black text-slate-900 uppercase tracking-wider text-xs">Information</h2>
                             </div>
-                            
+
                             <div className="space-y-4">
                                 <div className="group">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Product Name</label>
                                     <input required placeholder="e.g. Vintage Leather Jacket" className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-orange-500 transition-all font-bold text-lg" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
                                 </div>
-                                
+
                                 <div className="group">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Description</label>
                                     <textarea required placeholder="Tell your customers about the material, fit, and style..." rows={5} className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-orange-500 transition-all font-medium text-slate-600" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
@@ -297,12 +315,38 @@ const handleSubmit = async (e: React.FormEvent) => {
                                 <h2 className="font-black text-slate-900 uppercase tracking-wider text-xs">Pricing & Categorization</h2>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                 <div className="relative">
                                     <IndianRupee size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" />
                                     <input required type="number" placeholder="Price" className="w-full pl-12 pr-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-orange-500 transition-all font-bold" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} />
                                 </div>
-
+                                {/* Discount % */}
+                                <div className="relative">
+                                    <Tag size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input
+                                        type="number"
+                                        placeholder="Discount %"
+                                        min="0"
+                                        max="90"
+                                        className="w-full pl-12 pr-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-orange-500 transition-all font-bold"
+                                        value={formData.discount}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, discount: e.target.value })
+                                        }
+                                    />
+                                </div>
+                                <div className="relative">
+                                    <IndianRupee size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input
+                                        type="number"
+                                        placeholder="Final Price"
+                                        className="w-full pl-12 pr-6 py-4 bg-orange-50 border-2 border-orange-200 rounded-2xl outline-none focus:bg-white focus:border-orange-500 transition-all font-bold"
+                                        value={formData.final_price}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, final_price: e.target.value })
+                                        }
+                                    />
+                                </div>
                                 <select required className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-orange-500 transition-all font-bold text-slate-700 cursor-pointer appearance-none" value={formData.category_id} onChange={(e) => handleCategoryChange(e.target.value)}>
                                     <option value="">Select Category</option>
                                     {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -333,8 +377,16 @@ const handleSubmit = async (e: React.FormEvent) => {
                                 <div className="w-full h-full flex items-center justify-center"><ImageIcon size={48} className="text-slate-200" /></div>
                             )}
                             <div className="absolute bottom-4 left-4 bg-black text-white px-3 py-1 rounded-lg text-sm font-black tracking-tight">
-                                ₹{parseFloat(formData.price || "0").toLocaleString('en-IN')}
-                            </div>
+                                <div className="flex flex-col items-start">
+                                    {discount > 0 && (
+                                        <span className="text-xs line-through opacity-60">
+                                            ₹{price.toLocaleString('en-IN')}
+                                        </span>
+                                    )}
+                                    <span>
+                                        ₹{parseFloat(formData.final_price || "0").toLocaleString('en-IN')}
+                                    </span>
+                                </div>                            </div>
                         </div>
                         <div className="p-6 space-y-2">
                             <h3 className="text-lg font-black text-slate-900 line-clamp-1">

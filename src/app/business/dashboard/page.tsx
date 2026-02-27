@@ -73,7 +73,6 @@ export default function BusinessDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard icon={<Package className="text-blue-600" />} label="Total Products" value={stats.totalProducts} color="blue" />
-        <StatCard icon={<Eye className="text-purple-600" />} label="Total Views" value={stats.totalViews} color="purple" />
         <StatCard icon={<Calendar className="text-green-600" />} label="Days Remaining" value={stats.daysRemaining} color="green" />
         <StatCard 
           icon={<CheckCircle2 className={stats.isApproved ? "text-emerald-600" : "text-amber-600"} />} 

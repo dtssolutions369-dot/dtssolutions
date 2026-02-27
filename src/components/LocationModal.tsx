@@ -44,17 +44,22 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
       const { data, error } = await supabase
         .from("pincodes")
         .select("pincode, city, state, area_locality")
-.or(
-  `city.ilike.%${value}%,area_locality.ilike.%${value}%,pincode.ilike.%${value}%`
-)
+        // Filter: Match pincode OR city
+        .or(`pincode.ilike.%${value}%,city.ilike.%${value}%`)
+        .eq('is_active', true) // Only show active delivery zones
         .limit(10);
 
       if (error) throw error;
 
-      setResults(data || []);
+      // Remove duplicates if multiple entries have the same pincode
+      const uniqueResults = data?.filter((v, i, a) =>
+        a.findIndex(t => (t.pincode === v.pincode)) === i
+      );
+
+      setResults(uniqueResults || []);
     } catch (err) {
-      console.error(err);
-      setResults([]);
+      console.error("Fetch Error:", err);
+      setError("Could not find location.");
     } finally {
       setLoading(false);
     }
@@ -66,36 +71,46 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
     setError("");
 
     try {
-      const { count, error } = await supabase
+      console.log("Checking shops for pincode:", pincode);
+
+      const { count, error: supabaseError } = await supabase
         .from("business_profiles")
         .select("id", { count: "exact", head: true })
         .eq("pincode", pincode)
         .eq("is_approved", true);
 
-      if (error) throw error;
+      if (supabaseError) {
+        console.error("Supabase Query Error:", supabaseError);
+        throw supabaseError;
+      }
 
-      if (count === 0) {
+      if (count === 0 || count === null) {
         setSelected(null);
         setError("No shops available in this area yet.");
         return false;
       }
 
       return true;
-    } catch (err) {
-      console.error(err);
-      setError("Location verification failed.");
+    } catch (err: any) {
+      console.error("Full Error Object:", err);
+      // This will show you if it's a '403 Forbidden' (RLS issue) 
+      // or 'column does not exist' error.
+      setError(err.message || "Location verification failed.");
       return false;
     } finally {
       setCheckingShop(false);
     }
   };
 
-  const handleSelectLocation = async (item: any) => {
+ const handleSelectLocation = async (item: any) => {
+    setError("");
     setSelected(null);
-    setQuery(`${item.area_locality}, ${item.city}`);
-
+    
+    // Set query to something readable for the user
+    setQuery(`${item.city} (${item.pincode})`);
     setResults([]);
 
+    // We use the exact pincode from the suggestion to verify shops
     const isValid = await verifyShopsInPincode(item.pincode);
 
     if (isValid) {
@@ -162,11 +177,10 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
                   <input
                     type="text"
                     placeholder="Search city or area (e.g. Indiranagar)"
-                    className={`w-full pl-12 pr-12 py-5 bg-slate-50 border-2 rounded-2xl outline-none font-bold text-center text-sm transition-all ${
-                      selected
-                        ? "border-green-500 ring-4 ring-green-50"
-                        : "border-slate-100 focus:border-[#ff3d00]"
-                    }`}
+                    className={`w-full pl-12 pr-12 py-5 bg-slate-50 border-2 rounded-2xl outline-none font-bold text-center text-sm transition-all ${selected
+                      ? "border-green-500 ring-4 ring-green-50"
+                      : "border-slate-100 focus:border-[#ff3d00]"
+                      }`}
                     value={query}
                     onChange={(e) => {
                       setQuery(e.target.value);

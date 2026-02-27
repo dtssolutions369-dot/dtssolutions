@@ -17,9 +17,10 @@ export default function AdminPincodes() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [editId, setEditId] = useState<string | null>(null);
+  
+  // Removed area_locality from state as it's now automated
   const [formData, setFormData] = useState({
     pincode: "",
-    area_locality: "",
     city: "Delhi",
     state: "Delhi",
     is_active: true
@@ -48,7 +49,7 @@ export default function AdminPincodes() {
 
       if (profileError) throw profileError;
 
-      // 3. Merge Logic: Ensure we show counts and capture "unmanaged" pincodes from businesses
+      // 3. Merge Logic: Calculate how many businesses are in each pincode
       const businessCounts = profiles.reduce((acc: any, curr) => {
         if (curr.pincode) acc[curr.pincode] = (acc[curr.pincode] || 0) + 1;
         return acc;
@@ -77,12 +78,18 @@ export default function AdminPincodes() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      // We hardcode area_locality to "General Area" here for manual adds
+      const submissionData = {
+        ...formData,
+        area_locality: "General Area" 
+      };
+
       if (editId) {
-        const { error } = await supabase.from("pincodes").update(formData).eq("id", editId);
+        const { error } = await supabase.from("pincodes").update(submissionData).eq("id", editId);
         if (error) throw error;
         toast.success("Pincode updated");
       } else {
-        const { error } = await supabase.from("pincodes").insert([formData]);
+        const { error } = await supabase.from("pincodes").insert([submissionData]);
         if (error) throw error;
         toast.success("Pincode added");
       }
@@ -107,14 +114,13 @@ export default function AdminPincodes() {
       setEditId(item.id);
       setFormData({ 
         pincode: item.pincode, 
-        area_locality: item.area_locality, 
         city: item.city, 
         state: item.state, 
         is_active: item.is_active 
       });
     } else {
       setEditId(null);
-      setFormData({ pincode: "", area_locality: "", city: "Delhi", state: "Delhi", is_active: true });
+      setFormData({ pincode: "", city: "Delhi", state: "Delhi", is_active: true });
     }
     setIsModalOpen(true);
   };
@@ -151,7 +157,7 @@ export default function AdminPincodes() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                 <input 
                     type="text"
-                    placeholder="Search area or pincode..."
+                    placeholder="Search by pincode or city..."
                     className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 ring-orange-500/20 font-medium"
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -162,7 +168,6 @@ export default function AdminPincodes() {
           <thead>
             <tr className="bg-slate-50/50 text-[10px] font-black uppercase tracking-widest text-slate-400">
               <th className="p-6">Pincode</th>
-              <th className="p-6">Area/Locality</th>
               <th className="p-6">City/State</th>
               <th className="p-6 text-center">Businesses</th>
               <th className="p-6 text-center">Status</th>
@@ -170,11 +175,15 @@ export default function AdminPincodes() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {pincodes.filter(p => p.pincode.includes(searchQuery)).map((item) => (
+            {pincodes
+              .filter(p => p.pincode.includes(searchQuery) || p.city.toLowerCase().includes(searchQuery.toLowerCase()))
+              .map((item) => (
               <tr key={item.id} className="hover:bg-slate-50/30 transition-colors">
                 <td className="p-6 font-black text-slate-800">{item.pincode}</td>
-                <td className="p-6 text-slate-600 font-bold">{item.area_locality}</td>
-                <td className="p-6 text-slate-400 text-sm">{item.city}, {item.state}</td>
+                <td className="p-6">
+                   <p className="text-slate-700 font-bold">{item.city}</p>
+                   <p className="text-slate-400 text-xs uppercase tracking-tighter">{item.state}</p>
+                </td>
                 <td className="p-6 text-center">
                     <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-black">
                         {item.business_count}
@@ -187,14 +196,20 @@ export default function AdminPincodes() {
                 </td>
                 <td className="p-6 text-right">
                     <div className="flex justify-end gap-2">
-                        <button onClick={() => openModal(item)} className="p-2 text-slate-300 hover:text-blue-500"><Edit2 size={16}/></button>
-                        <button onClick={() => handleDelete(item.id)} className="p-2 text-slate-300 hover:text-red-500"><Trash2 size={16}/></button>
+                        <button onClick={() => openModal(item)} className="p-2 text-slate-300 hover:text-blue-500 transition-colors"><Edit2 size={16}/></button>
+                        <button onClick={() => handleDelete(item.id)} className="p-2 text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={16}/></button>
                     </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        {pincodes.length === 0 && !loading && (
+          <div className="p-20 text-center text-slate-400 font-medium">
+            No pincodes found. Add your first delivery area.
+          </div>
+        )}
       </div>
 
       {/* ADD/EDIT MODAL */}
@@ -204,18 +219,22 @@ export default function AdminPincodes() {
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl">
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-black text-slate-900">{editId ? 'Edit' : 'Add New'} Pincode</h2>
-                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full"><X /></button>
+                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X /></button>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pincode Number</label>
-                  <input required maxLength={6} value={formData.pincode} onChange={(e) => setFormData({...formData, pincode: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 ring-[#ff3d00]/20 font-bold" placeholder="e.g. 110001" />
+                  <input 
+                    required 
+                    maxLength={6} 
+                    value={formData.pincode} 
+                    onChange={(e) => setFormData({...formData, pincode: e.target.value})} 
+                    className="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 ring-[#ff3d00]/20 font-bold" 
+                    placeholder="e.g. 110001" 
+                  />
                 </div>
-                <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Area Locality</label>
-                  <input required value={formData.area_locality} onChange={(e) => setFormData({...formData, area_locality: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 ring-[#ff3d00]/20 font-bold" placeholder="e.g. Connaught Place" />
-                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">City</label>
@@ -234,8 +253,8 @@ export default function AdminPincodes() {
                     <span className="text-sm font-bold text-slate-700">Area is Active for Delivery</span>
                 </div>
 
-                <button disabled={isSubmitting} className="w-full bg-[#ff3d00] text-white py-5 rounded-[1.5rem] font-black text-sm shadow-xl shadow-orange-100 mt-4">
-                  {isSubmitting ? <Loader2 className="animate-spin mx-auto" /> : "SAVE PINCODE"}
+                <button disabled={isSubmitting} className="w-full bg-[#ff3d00] text-white py-5 rounded-[1.5rem] font-black text-sm shadow-xl shadow-orange-100 mt-4 flex items-center justify-center gap-2">
+                  {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : "SAVE PINCODE"}
                 </button>
               </form>
             </motion.div>

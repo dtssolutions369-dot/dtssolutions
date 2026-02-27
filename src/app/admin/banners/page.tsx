@@ -99,9 +99,9 @@ export default function BannersPage() {
 
       <div className="max-w-[1600px] mx-auto p-6 space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatCard label="Live Campaigns" value={stats.active} icon={<Eye size={20}/>} color="text-green-600" bg="bg-green-50" />
-          <StatCard label="Paused Banners" value={stats.inactive} icon={<EyeOff size={20}/>} color="text-slate-400" bg="bg-slate-50" />
-          <StatCard label="Total Inventory" value={stats.total} icon={<ImageIcon size={20}/>} color="text-blue-600" bg="bg-blue-50" />
+                    <StatCard label="Total Inventory" value={stats.total} icon={<ImageIcon size={20}/>} color="text-blue-600" bg="bg-blue-50" />
+          <StatCard label="Active Banners" value={stats.active} icon={<Eye size={20}/>} color="text-green-600" bg="bg-green-50" />
+          <StatCard label="Inactive Banners" value={stats.inactive} icon={<EyeOff size={20}/>} color="text-slate-400" bg="bg-slate-50" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

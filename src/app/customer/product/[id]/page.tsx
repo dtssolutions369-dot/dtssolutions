@@ -14,11 +14,12 @@ import {
     Loader2,
     Store,
     ArrowLeft,
-    Star // Added Star icon
+    Star
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import AuthModal from "@/components/AuthModal";
+import ProductCard from "@/components/ProductCard"; // Imported shared component
 import toast from "react-hot-toast";
 
 export default function ProductDetailPage() {
@@ -43,47 +44,60 @@ export default function ProductDetailPage() {
     const fetchFullProductData = async () => {
         setLoading(true);
         try {
-            // UPDATED QUERY: Fetching business_reviews through business_profiles
-            const { data: prodData } = await supabase
+            // UPDATED QUERY: Explicitly selecting existing columns to avoid 'is_verified' errors
+            const { data: prodData, error: prodError } = await supabase
                 .from("products")
                 .select(`
                     *, 
                     business_profiles (
-                        *,
+                        id,
+                        shop_name,
+                        address,
+                        phone,
+                        business_type,
+                        status,
                         business_reviews (rating)
                     )
                 `)
                 .eq("id", id)
                 .single();
 
+            if (prodError) throw prodError;
+
             if (prodData) {
                 setProduct(prodData);
                 checkWishlistStatus(prodData.id);
 
-                // Calculate Rating
+                // Calculate Rating for the main product shop
                 const reviews = prodData.business_profiles?.business_reviews || [];
                 if (reviews.length > 0) {
                     const avg = (reviews.reduce((acc: number, curr: any) => acc + curr.rating, 0) / reviews.length).toFixed(1);
                     setShopRating({ avg, count: reviews.length });
                 }
 
-                // Fetch Related Products (also with shop reviews)
-                const { data: related } = await supabase
+                // Fetch Related Products using the structure ProductCard expects
+                const { data: related, error: relError } = await supabase
                     .from("products")
                     .select(`
                         *, 
-                        business_profiles(
+                        business_profiles (
+                            id,
                             shop_name,
+                            business_type,
+                            status,
                             business_reviews (rating)
                         )
                     `)
                     .eq("category_id", prodData.category_id)
                     .neq("id", id)
                     .limit(4);
+                
+                if (relError) throw relError;
                 setRelatedProducts(related || []);
             }
-        } catch (err) {
-            console.error(err);
+        } catch (err: any) {
+            console.error("Error fetching product:", err.message);
+            toast.error("Could not load product details");
         } finally {
             setLoading(false);
         }
@@ -126,6 +140,10 @@ export default function ProductDetailPage() {
     if (!product) return <div className="p-20 text-center font-bold">Product not found.</div>;
 
     const images = product.images || ["/placeholder.png"];
+    const discount = product.discount || 0;
+    const finalPrice = discount > 0 
+        ? Math.round(product.price - (product.price * discount) / 100) 
+        : product.price;
 
     const handleShare = async () => {
         const shareData = {
@@ -172,6 +190,13 @@ export default function ProductDetailPage() {
                     <div className="lg:col-span-7">
                         <div className="space-y-6">
                             <div className="relative aspect-[4/3] md:aspect-[16/10] rounded-[3rem] overflow-hidden bg-white shadow-2xl shadow-slate-200 border-4 border-white">
+                                {product.discount > 0 && (
+                                    <div className="absolute top-8 left-8 z-20">
+                                        <div className="bg-[#ff3d00] text-white px-4 py-2 rounded-2xl text-xs font-black shadow-xl">
+                                            {product.discount}% OFF
+                                        </div>
+                                    </div>
+                                )}
                                 <AnimatePresence mode="wait">
                                     <motion.img
                                         key={currentImg}
@@ -225,7 +250,6 @@ export default function ProductDetailPage() {
                                     <Store size={14} />
                                     <span className="text-[10px] font-black uppercase tracking-widest">{product.business_profiles?.shop_name}</span>
                                 </div>
-                                {/* Header Rating Display */}
                                 {shopRating && (
                                     <div className="flex items-center gap-1.5 px-3 py-2 bg-slate-50 rounded-full border border-slate-100">
                                         <Star size={12} className="fill-[#ff3d00] text-[#ff3d00]" />
@@ -237,12 +261,26 @@ export default function ProductDetailPage() {
 
                             <h1 className="text-5xl font-black text-slate-900 tracking-tighter leading-tight">{product.name}</h1>
 
-                            <div className="flex items-center gap-4">
-                                <span className="text-5xl font-black text-slate-900">₹{product.price.toLocaleString()}</span>
-                                <div className="flex flex-col">
-                                    <span className="text-slate-400 line-through font-bold text-lg">₹{(product.price + 250).toLocaleString()}</span>
-                                    <span className="text-emerald-500 font-black text-xs">Save up to 15%</span>
-                                </div>
+                            <div className="space-y-2 mt-4">
+                                {discount > 0 ? (
+                                    <>
+                                        <div className="flex items-end gap-4">
+                                            <span className="text-5xl font-black text-[#ff3d00]">
+                                                ₹{finalPrice.toLocaleString()}
+                                            </span>
+                                            <span className="text-2xl font-bold text-slate-400 line-through">
+                                                ₹{product.price.toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <p className="text-emerald-600 font-black text-sm">
+                                            You save ₹{(product.price - finalPrice).toLocaleString()} ({discount}% OFF)
+                                        </p>
+                                    </>
+                                ) : (
+                                    <span className="text-5xl font-black text-slate-900">
+                                        ₹{product.price.toLocaleString()}
+                                    </span>
+                                )}
                             </div>
                         </header>
 
@@ -252,6 +290,17 @@ export default function ProductDetailPage() {
                                 {product.description || "Indulge in the perfect blend of quality and craftsmanship. Curated from premium local sources."}
                             </p>
                         </div>
+                        
+                        {product.business_profiles?.business_type && (
+                            <div className="mt-6 flex items-center gap-3">
+                                <span className="text-xs font-black uppercase tracking-widest text-slate-400">
+                                    Business Type
+                                </span>
+                                <span className="px-4 py-2 bg-orange-50 text-[#ff3d00] rounded-full text-[11px] font-black uppercase tracking-widest border border-orange-100">
+                                    {product.business_profiles.business_type}
+                                </span>
+                            </div>
+                        )}
 
                         {/* PREMIUM SELLER CARD */}
                         <div className="p-8 bg-slate-900 rounded-[3rem] text-white space-y-6 relative overflow-hidden shadow-2xl shadow-slate-400/20">
@@ -261,7 +310,6 @@ export default function ProductDetailPage() {
                                         <span className="text-[10px] font-black text-[#ff3d00] uppercase tracking-[0.3em]">Sold Exclusively By</span>
                                         <h3 className="text-3xl font-black tracking-tighter mt-2">{product.business_profiles?.shop_name}</h3>
                                     </div>
-                                    {/* Rating Badge inside seller card */}
                                     {shopRating && (
                                         <div className="bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 text-center">
                                             <div className="flex items-center gap-1 mb-1">
@@ -304,55 +352,24 @@ export default function ProductDetailPage() {
                     </div>
                 </div>
 
-                {/* --- RELATED PRODUCTS --- */}
+                {/* --- RELATED PRODUCTS SECTION --- */}
                 <section className="space-y-8 pt-10 border-t border-slate-100">
                     <div className="flex items-center justify-between">
                         <h2 className="text-3xl font-black text-slate-900 tracking-tighter">Recommended for you</h2>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {/* Using ProductCard within the global grid layout */}
+                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
                         {relatedProducts.map((rel) => (
-                            <RelatedProductCard key={rel.id} product={rel} />
+                            <ProductCard key={rel.id} product={rel} />
                         ))}
                     </div>
                 </section>
             </main>
 
-<AuthModal
-    isOpen={isAuthOpen}
-    onClose={() => setIsAuthOpen(false)}
-/>
+            <AuthModal
+                isOpen={isAuthOpen}
+                onClose={() => setIsAuthOpen(false)}
+            />
         </div>
-    );
-}
-
-function RelatedProductCard({ product }: { product: any }) {
-    // Calculate rating for related products
-    const reviews = product.business_profiles?.business_reviews || [];
-    const avg = reviews.length > 0
-        ? (reviews.reduce((acc: number, curr: any) => acc + curr.rating, 0) / reviews.length).toFixed(1)
-        : null;
-
-    return (
-        <Link href={`/customer/product/${product.id}`} className="group bg-white p-4 rounded-[2.5rem] shadow-xl shadow-slate-200/40 hover:shadow-orange-500/10 transition-all border border-transparent hover:border-orange-100">
-            <div className="aspect-square rounded-[2rem] overflow-hidden bg-slate-50 mb-4 relative">
-                <img src={product.images?.[0]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={product.name} />
-                {avg && (
-                    <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
-                        <Star size={10} className="fill-[#ff3d00] text-[#ff3d00]" />
-                        <span className="text-[10px] font-black text-slate-900">{avg}</span>
-                    </div>
-                )}
-            </div>
-            <div className="px-2">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-[#ff3d00] transition-colors">{product.business_profiles?.shop_name}</span>
-                <h4 className="font-bold text-slate-900 truncate mt-1">{product.name}</h4>
-                <div className="flex items-center justify-between mt-3">
-                    <p className="font-black text-xl text-slate-900">₹{product.price.toLocaleString()}</p>
-                    <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center group-hover:bg-[#ff3d00] transition-all">
-                        <ChevronRight size={18} />
-                    </div>
-                </div>
-            </div>
-        </Link>
     );
 }
