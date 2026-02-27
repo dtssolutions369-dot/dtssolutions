@@ -1,7 +1,11 @@
 "use client";
 
 import React from "react";
-import { Facebook, Twitter, Instagram, MapPin, Phone, Mail, ArrowRight, ShieldCheck, ExternalLink } from "lucide-react";
+import { 
+  Facebook, Twitter, Instagram, MapPin, 
+  Phone, Mail, ArrowRight, ShieldCheck, 
+  ExternalLink, MessageSquare, Store 
+} from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -18,7 +22,7 @@ export default function CustomerFooter() {
           
           {/* Brand Column */}
           <div className="lg:col-span-4 space-y-8">
-            <Link href="/" className="flex items-center gap-3 group">
+            <Link href="/" className="flex items-center gap-3 group w-fit">
               <div className="relative w-12 h-12 transition-transform duration-500 group-hover:rotate-[360deg]">
                 <Image 
                   src="/logo.png" 
@@ -38,9 +42,9 @@ export default function CustomerFooter() {
             </p>
             
             <div className="flex gap-4">
-              <SocialIcon icon={<Facebook size={18} />} />
-              <SocialIcon icon={<Twitter size={18} />} />
-              <SocialIcon icon={<Instagram size={18} />} />
+              <SocialIcon icon={<Facebook size={18} />} href="#" />
+              <SocialIcon icon={<Twitter size={18} />} href="#" />
+              <SocialIcon icon={<Instagram size={18} />} href="#" />
             </div>
           </div>
 
@@ -59,16 +63,36 @@ export default function CustomerFooter() {
               </ul>
             </div>
 
-            {/* Legal & Trust Section */}
+            {/* Legal & Support Section */}
             <div>
               <h4 className="text-white font-black mb-8 uppercase tracking-widest text-xs border-l-4 border-[#ff3d00] pl-3">
-                Legal & Trust
+                Legal & Support
               </h4>
               <ul className="space-y-4">
                 <FooterLink href="/terms" label="Terms & Conditions" />
                 <FooterLink href="/privacy" label="Privacy Policy" />
-                <FooterLink href="/refund" label="Refund Policy" />
-                <FooterLink href="/shipping" label="Shipping Policy" />
+                
+                {/* Highlighted Business Link */}
+                <li className="pt-2">
+                  <Link 
+                    href="/businessregister" 
+                    className="flex items-center gap-2 text-[#ff3d00] hover:text-white transition-all duration-300 text-sm font-black group"
+                  >
+                    <Store size={16} className="group-hover:scale-110 transition-transform" />
+                    Register Business
+                  </Link>
+                </li>
+
+                {/* Complaint Link */}
+                <li>
+                  <Link 
+                    href="/customer/complaints" 
+                    className="flex items-center gap-2 text-slate-400 hover:text-white transition-all duration-300 text-sm font-bold group"
+                  >
+                    <MessageSquare size={16} className="text-slate-500 group-hover:text-[#ff3d00] transition-colors" />
+                    Lodge Complaint
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
@@ -76,7 +100,7 @@ export default function CustomerFooter() {
           {/* Contact Column */}
           <div className="lg:col-span-3">
             <h4 className="text-white font-black mb-8 uppercase tracking-widest text-xs border-l-4 border-[#ff3d00] pl-3">
-              Support
+              Contact Us
             </h4>
             <div className="bg-white/5 backdrop-blur-md rounded-[2.5rem] p-6 border border-white/10 space-y-6">
               <ContactItem 
@@ -101,11 +125,10 @@ export default function CustomerFooter() {
             <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest text-center md:text-left">
               © {currentYear} DTS SOLUTIONS. ALL RIGHTS RESERVED.
             </p>
-            {/* DEVELOPED BY SECTION */}
             <Link 
               href="https://rakvih.in/" 
               target="_blank" 
-              className="flex items-center gap-2 group/dev text-slate-400 hover:text-white transition-colors"
+              className="flex items-center gap-2 group/dev text-slate-400 hover:text-white transition-colors justify-center md:justify-start"
             >
               <span className="text-[10px] font-bold uppercase tracking-widest">Developed by</span>
               <span className="text-[11px] font-black text-[#ff3d00] group-hover/dev:underline decoration-white underline-offset-4 flex items-center gap-1">
@@ -115,13 +138,13 @@ export default function CustomerFooter() {
           </div>
 
           <div className="flex flex-col md:items-end gap-4">
-             <div className="flex items-center gap-2 text-[#ff3d00] font-black text-[10px] uppercase tracking-tighter">
+            <div className="flex items-center gap-2 text-[#ff3d00] font-black text-[10px] uppercase tracking-tighter">
               <ShieldCheck size={14} />
               Secure Local Shopping
             </div>
             <div className="flex gap-6 text-[10px] font-black uppercase text-slate-500">
-               <Link href="/privacy" className="hover:text-white">Privacy</Link>
-               <Link href="/terms" className="hover:text-white">Terms</Link>
+               <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+               <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
             </div>
           </div>
         </div>
@@ -146,16 +169,21 @@ function FooterLink({ href, label }: { href: string; label: string }) {
 function ContactItem({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
     <div className="flex gap-4 group cursor-default">
-      <div className="shrink-0">{icon}</div>
-      <span className="text-slate-300 text-xs font-bold leading-snug group-hover:text-white transition-colors">{text}</span>
+      <div className="shrink-0 mt-0.5">{icon}</div>
+      <span className="text-slate-300 text-xs font-bold leading-snug group-hover:text-white transition-colors">
+        {text}
+      </span>
     </div>
   );
 }
 
-function SocialIcon({ icon }: { icon: React.ReactNode }) {
+function SocialIcon({ icon, href }: { icon: React.ReactNode; href: string }) {
   return (
-    <div className="w-11 h-11 bg-white/5 hover:bg-[#ff3d00] rounded-2xl flex items-center justify-center cursor-pointer transition-all duration-500 text-white border border-white/10 hover:shadow-[0_10px_20px_-5px_#ff3d00] hover:-translate-y-1">
+    <Link 
+      href={href}
+      className="w-11 h-11 bg-white/5 hover:bg-[#ff3d00] rounded-2xl flex items-center justify-center cursor-pointer transition-all duration-500 text-white border border-white/10 hover:shadow-[0_10px_20px_-5px_#ff3d00] hover:-translate-y-1"
+    >
       {icon}
-    </div>
+    </Link>
   );
 }
