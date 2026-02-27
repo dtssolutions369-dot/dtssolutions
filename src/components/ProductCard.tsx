@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Heart, Store, ArrowRight, Star, ShieldCheck } from "lucide-react";
+import { ShoppingBag, Store, ArrowRight, Star, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "react-hot-toast";
@@ -136,7 +136,7 @@ useEffect(() => {
                         className={`absolute bottom-2 right-2 md:bottom-4 md:right-4 w-9 h-9 md:w-11 md:h-11 backdrop-blur-xl rounded-full flex items-center justify-center transition-all duration-300 z-30 shadow-xl active:scale-90 ${isWishlisted ? "bg-[#ff3d00] text-white" : "bg-white/90 text-slate-400 hover:text-[#ff3d00]"
                             }`}
                     >
-                        <Heart size={16} className={isWishlisted ? "fill-current" : ""} />
+                        <ShoppingBag size={16} className={isWishlisted ? "fill-current" : ""} />
                     </button>
 
                     {/* SHOP TAG - Hidden on very small screens or shortened */}

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import {
-    Heart,
+    ShoppingBag,
     Share2,
     MapPin,
     Phone,
@@ -223,7 +223,7 @@ export default function ProductDetailPage() {
                                     className={`absolute top-8 right-8 w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all ${isWishlisted ? "bg-[#ff3d00] text-white" : "bg-white/90 backdrop-blur-md text-slate-400"
                                         }`}
                                 >
-                                    {wishlistLoading ? <Loader2 className="animate-spin" size={20} /> : <Heart size={24} fill={isWishlisted ? "currentColor" : "none"} />}
+                                    {wishlistLoading ? <Loader2 className="animate-spin" size={20} /> : <ShoppingBag size={24} fill={isWishlisted ? "currentColor" : "none"} />}
                                 </button>
                             </div>
 

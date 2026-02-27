@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { Loader2, Heart, ArrowLeft, Lock, Sparkles } from "lucide-react";
+import { Loader2, ShoppingBag, ArrowLeft, Lock, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -56,7 +56,7 @@ export default function WishlistPage() {
   };
 
   // This handles removing the item from the UI list if the user 
-  // clicks the "Heart" button inside the ProductCard
+  // clicks the "ShoppingBag" button inside the ProductCard
   const handleRemoveFromUI = (productId: string) => {
     setItems((prev) => prev.filter((p) => p.id !== productId));
   };
@@ -121,7 +121,7 @@ export default function WishlistPage() {
           </div>
         ) : (
           <div className="text-center py-24 bg-white rounded-[3.5rem] border-2 border-dashed border-slate-100 flex flex-col items-center">
-             <Heart className="text-slate-200 mb-6" size={48} />
+             <ShoppingBag className="text-slate-200 mb-6" size={48} />
              <h2 className="text-3xl font-black text-slate-800 tracking-tight">Your wishlist is empty</h2>
              <Link href="/customer/categories" className="mt-8 bg-slate-900 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#ff3d00] transition-all">
                Start Exploring

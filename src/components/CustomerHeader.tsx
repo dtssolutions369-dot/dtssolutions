@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import {
-    Search, MapPin, Heart, User, Bell,
+    Search, MapPin, ShoppingBag, User, Bell,
     ChevronDown, LogOut, Settings, UserCircle,
-    Home, Shapes, ShoppingBag, Menu, X
+    Home, Shapes,  Menu, X
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
@@ -101,7 +101,7 @@ export default function CustomerHeader({ location, onLocationClick }: HeaderProp
                             href="/customer/wishlist" 
                             className={`hidden md:flex p-3 rounded-2xl transition-all relative ${pathname === '/customer/wishlist' ? "bg-orange-50 text-[#ff3d00]" : "text-slate-400 hover:bg-slate-50 hover:text-slate-900"}`}
                         >
-                            <Heart size={24} fill={pathname === '/customer/wishlist' ? "currentColor" : "none"} />
+                            <ShoppingBag size={24} fill={pathname === '/customer/wishlist' ? "currentColor" : "none"} />
                             {/* Visual indicator for "Saved" - You could later add a real count here */}
                             <span className="absolute top-2 right-2 w-2 h-2 bg-[#ff3d00] rounded-full border-2 border-white"></span>
                         </Link>
@@ -156,7 +156,7 @@ export default function CustomerHeader({ location, onLocationClick }: HeaderProp
                 })}
                 <Link href="/customer/wishlist" className={`flex flex-col items-center gap-1 ${pathname === '/customer/wishlist' ? "text-[#ff3d00]" : "text-slate-400"}`}>
                     <div className={`p-1 rounded-xl transition-all ${pathname === '/customer/wishlist' ? "bg-orange-50 scale-110" : ""}`}>
-                        <Heart size={20} fill={pathname === '/customer/wishlist' ? "currentColor" : "none"} />
+                        <ShoppingBag size={20} fill={pathname === '/customer/wishlist' ? "currentColor" : "none"} />
                     </div>
                     <span className="text-[10px] font-bold uppercase tracking-tighter">Saved</span>
                 </Link>
