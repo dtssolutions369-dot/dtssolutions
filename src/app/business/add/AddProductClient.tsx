@@ -68,13 +68,16 @@ export default function AddProductPage() {
                     toast.error("Could not find product");
                     router.push("/business/products");
                 } else {
+                    // Around line 71 in AddProductClient.tsx
                     setFormData({
                         name: product.name,
                         description: product.description,
                         price: product.price.toString(),
-                        discount: product.discount?.toString() || "0",
+                        discount: product.discount.toString(),
+                        // Add this line to satisfy the TypeScript requirement
+                        final_price: (product.price - (product.discount || 0)).toString(),
                         category_id: product.category_id,
-                        sub_category_id: product.sub_category_id || "",
+                        sub_category_id: product.sub_category_id,
                     });
                     setPreviewImages(product.images || []);
                     fetchSubCategories(product.category_id);
