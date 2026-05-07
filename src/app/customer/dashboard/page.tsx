@@ -263,8 +263,12 @@ export default function CustomerDashboard() {
                                     key={`${prod.id}-${idx}`}
                                     className="flex-[0_0_300px] md:flex-[0_0_350px] relative z-10 hover:z-20 transition-all"
                                 >
-                                    <ProductCard product={prod} />
-                                </div>
+<ProductCard
+  product={prod}
+  onShopClick={(shopName: string) => {
+    window.location.href = `/customer/product-gallery?search=${encodeURIComponent(shopName)}`;
+  }}
+/>                                </div>
                             ))}
                         </div>
                     </div>
