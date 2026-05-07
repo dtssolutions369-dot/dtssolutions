@@ -217,7 +217,13 @@ export default function BusinessProfilePage() {
           {/* GRID: 2 Columns on Mobile, 4 on Desktop */}
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {displayedProducts.map((prod) => (
-              <ProductCard key={prod.id} product={prod} />
+<ProductCard
+  key={prod.id}
+  product={prod}
+  onShopClick={(shopName: string) => {
+    console.log(shopName);
+  }}
+/>
             ))}
           </div>
         </section>
