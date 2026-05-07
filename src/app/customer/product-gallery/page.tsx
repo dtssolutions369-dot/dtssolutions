@@ -212,15 +212,19 @@ function ProductGalleryPage() {
 
         <div className="flex flex-col lg:flex-row gap-8 md:gap-12">
           <aside className="w-full lg:w-80 shrink-0">
-            <ProductFilters
-              selectedSort={sort} onSortChange={setSort}
-              priceRange={priceRange} onPriceChange={setPriceRange}
-              selectedBusinessType={businessType} onBusinessTypeChange={setBusinessType}
-              selectedCategory={category} onCategoryChange={setCategory}
-              selectedSubCategory={subCategory} onSubCategoryChange={setSubCategory}
-              onReset={handleReset}
-              disabled={false}
-            />
+           <ProductFilters
+  selectedSort={sort}
+  onSortChange={setSort}
+  priceRange={priceRange}
+  onPriceChange={setPriceRange}
+  selectedBusinessType={businessType}
+  onBusinessTypeChange={setBusinessType}
+  selectedCategory={category}
+  onCategoryChange={setCategory}
+  selectedSubCategory={subCategory}
+  onSubCategoryChange={setSubCategory}
+  onReset={handleReset}
+/>
           </aside>
 
           <section className="flex-grow">
