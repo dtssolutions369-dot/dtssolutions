@@ -360,7 +360,13 @@ export default function ProductDetailPage() {
                     {/* Using ProductCard within the global grid layout */}
                     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
                         {relatedProducts.map((rel) => (
-                            <ProductCard key={rel.id} product={rel} />
+<ProductCard
+  key={rel.id}
+  product={rel}
+  onShopClick={(shopName: string) => {
+    console.log(shopName);
+  }}
+/>
                         ))}
                     </div>
                 </section>
