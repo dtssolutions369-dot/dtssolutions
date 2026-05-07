@@ -178,7 +178,7 @@ export default function BusinessRegisterPage() {
                   <div>
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Business Categories</label>
                     <div className="flex flex-wrap gap-2">
-                      {['Wholesaler', 'Retailer', 'Distributor', 'Manufacturer'].map(cat => (
+                      {['Wholesaler', 'Retailer', 'Distributor', 'Manufacturer', 'Services'].map(cat => (
                         <button key={cat} type="button" onClick={() => toggleCategory(cat)} className={`px-4 py-2 rounded-xl text-[10px] font-bold border transition-all ${formData.business_type.includes(cat) ? "bg-orange-600 border-orange-600 text-white" : "bg-white border-slate-200 text-slate-500"}`}>{cat}</button>
                       ))}
                     </div>

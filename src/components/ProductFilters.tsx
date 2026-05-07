@@ -47,7 +47,7 @@ export default function ProductFilters(props: FilterProps) {
     fetchCategories();
   }, []);
 
-  const businessTypes = ["Wholesaler", "Dealer", "Sub-Dealer", "Retailer"];
+  const businessTypes = ["Wholesaler", "Dealer", "Sub-Dealer", "Retailer", 'Services'];
   const parentCategories = allCategories.filter(cat => !cat.parent_id);
   const getSubCategories = (parentId: string) => allCategories.filter(cat => cat.parent_id === parentId);
 

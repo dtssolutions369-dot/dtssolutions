@@ -57,7 +57,7 @@ const handlePayment = async (plan: any) => {
     const totalPrice = Number(plan.base_price) * (1 + Number(plan.tax_percent) / 100);
 
     const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_SC36vr8GUe7tVz",
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_SlDl2RlSCBfONB",
       amount: Math.round(totalPrice * 100),
       currency: "INR",
       // DYNAMIC: Uses the selected plan name for Razorpay popup
