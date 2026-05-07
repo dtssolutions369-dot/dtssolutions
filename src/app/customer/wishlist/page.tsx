@@ -93,7 +93,7 @@ export default function WishlistPage() {
         <header className="mb-10 space-y-6">
           <Link href="/customer/categories" className="inline-flex items-center gap-2 text-slate-400 font-bold text-sm hover:text-[#ff3d00] transition-colors group">
             <div className="p-2 rounded-full bg-white shadow-sm group-hover:bg-orange-50 transition-colors">
-                <ArrowLeft size={16} /> 
+              <ArrowLeft size={16} />
             </div>
             Back to Shopping
           </Link>
@@ -106,7 +106,7 @@ export default function WishlistPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <AnimatePresence mode="popLayout">
               {items.map((product) => (
-                <motion.div 
+                <motion.div
                   layout
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -114,18 +114,23 @@ export default function WishlistPage() {
                   key={product.id}
                 >
                   {/* Reusing the component from your local path */}
-                  <ProductCard product={product} />
+                  <ProductCard
+                    product={product}
+                    onShopClick={(shopName: string) => {
+                      window.location.href = `/customer/product-gallery?search=${encodeURIComponent(shopName)}`;
+                    }}
+                  />
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
         ) : (
           <div className="text-center py-24 bg-white rounded-[3.5rem] border-2 border-dashed border-slate-100 flex flex-col items-center">
-             <ShoppingBag className="text-slate-200 mb-6" size={48} />
-             <h2 className="text-3xl font-black text-slate-800 tracking-tight">Your wishlist is empty</h2>
-             <Link href="/customer/categories" className="mt-8 bg-slate-900 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#ff3d00] transition-all">
-               Start Exploring
-             </Link>
+            <ShoppingBag className="text-slate-200 mb-6" size={48} />
+            <h2 className="text-3xl font-black text-slate-800 tracking-tight">Your wishlist is empty</h2>
+            <Link href="/customer/categories" className="mt-8 bg-slate-900 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#ff3d00] transition-all">
+              Start Exploring
+            </Link>
           </div>
         )}
       </div>
