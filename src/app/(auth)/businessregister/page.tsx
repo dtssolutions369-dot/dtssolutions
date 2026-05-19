@@ -15,11 +15,11 @@ export default function BusinessRegisterPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [regSuccess, setRegSuccess] = useState(false); // New state for registration success message
+  const [regSuccess, setRegSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
     shop_name: "", owner_name: "", email: "", phone: "",
-    pincode: "", address_line: "", city: "", state: "",
+    pincode: "", address_line: "", area: "", city: "", state: "",
     business_type: [] as string[],
     password: "", confirmPassword: "",
   });
@@ -44,7 +44,6 @@ export default function BusinessRegisterPage() {
 
     try {
       if (isLogin) {
-        // 1️⃣ Find profile by phone
         const { data: profile, error: profileError } = await supabase
           .from("business_profiles")
           .select("email, status")
@@ -55,7 +54,6 @@ export default function BusinessRegisterPage() {
         if (profile.status === "pending") throw new Error("Account pending approval by admin");
         if (profile.status === "rejected") throw new Error("Registration rejected. Contact support.");
 
-        // 2️⃣ Sign In
         const { error: authError } = await supabase.auth.signInWithPassword({
           email: profile.email,
           password: formData.password,
@@ -66,11 +64,9 @@ export default function BusinessRegisterPage() {
         toast.success("Welcome back!", { id: toastId });
         router.push("/business/dashboard");
       } else {
-        // REGISTER LOGIC
         if (formData.business_type.length === 0) throw new Error("Select a business category");
         if (formData.password !== formData.confirmPassword) throw new Error("Passwords mismatch");
 
-        // 1️⃣ Auth Signup
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -78,19 +74,17 @@ export default function BusinessRegisterPage() {
 
         if (authError) throw authError;
 
-        // Inside handleAuth -> else (Register Logic) block:
         const { error: insErr } = await supabase.from("business_profiles").insert([
           {
             user_id: authData.user?.id,
             shop_name: formData.shop_name,
             email: formData.email,
             phone: formData.phone,
-            // THE TRIGGER WATCHES THESE THREE:
             pincode: formData.pincode,
             city: formData.city,
             state: formData.state,
-            // Full address for your UI
-            address: `${formData.address_line}, ${formData.city}, ${formData.state}`,
+            // Automatically merges your new separated street address and area metrics
+            address: `${formData.address_line}, ${formData.area}, ${formData.city}, ${formData.state}`,
             business_type: formData.business_type.join(", "),
             status: "pending",
           },
@@ -166,12 +160,20 @@ export default function BusinessRegisterPage() {
                     <Field label="Phone Number *" name="phone" value={formData.phone} onChange={handleChange} required icon={<Phone size={16} />} placeholder="10-digit number" />
                   </div>
 
+                  {/* 📍 CUSTOM ADDRESS FORM GRID LAYOUT */}
                   <div className="p-6 bg-slate-50 rounded-[1.5rem] border border-slate-100 space-y-4">
-                    <Field label="Street Address *" name="address_line" value={formData.address_line} onChange={handleChange} required icon={<MapPin size={16} />} placeholder="Building, Street, Area" />
-                    <div className="grid md:grid-cols-3 gap-3">
-                      <Field label="City *" name="city" value={formData.city} onChange={handleChange} required />
-                      <Field label="State *" name="state" value={formData.state} onChange={handleChange} required />
-                      <Field label="Pincode *" name="pincode" value={formData.pincode} onChange={handleChange} required />
+                    <div className="w-full">
+                      <Field label="Street Address *" name="address_line" value={formData.address_line} onChange={handleChange} required icon={<MapPin size={16} />} placeholder="Building, Street Name, Cross" />
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <Field label="Area *" name="area" value={formData.area} onChange={handleChange} required icon={<MapPin size={16} />} placeholder="Locality or Landmark" />
+                      <Field label="City *" name="city" value={formData.city} onChange={handleChange} required placeholder="City" />
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <Field label="State *" name="state" value={formData.state} onChange={handleChange} required placeholder="State" />
+                      <Field label="Pincode *" name="pincode" value={formData.pincode} onChange={handleChange} required placeholder="6-digit PIN" />
                     </div>
                   </div>
 
