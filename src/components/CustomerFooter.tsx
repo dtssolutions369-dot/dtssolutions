@@ -69,8 +69,8 @@ export default function CustomerFooter() {
                 Legal & Support
               </h4>
               <ul className="space-y-4">
-                <FooterLink href="/terms" label="Terms & Conditions" />
-                <FooterLink href="/privacy" label="Privacy Policy" />
+               
+                <FooterLink href="/customer/privacy" label="Privacy Policy" />
                 
                 {/* Highlighted Business Link */}
                 <li className="pt-2">
@@ -143,8 +143,8 @@ export default function CustomerFooter() {
               Secure Local Shopping
             </div>
             <div className="flex gap-6 text-[10px] font-black uppercase text-slate-500">
-               <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-               <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+               <Link href="/customer/privacy" className="hover:text-white transition-colors">Privacy</Link>
+             
             </div>
           </div>
         </div>
