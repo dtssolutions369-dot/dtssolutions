@@ -68,19 +68,26 @@ jobs:
           cd android
           ./gradlew bundleRelease
 
+      - name: Clean Old Keystore If Exists
+        run: rm -f android/release.keystore
+
       - name: Decode Permanent Keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_CONTENT }}" | base64 --decode > android/release.keystore
 
       - name: Sign AAB with Production Keystore
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
           cd android
           jarsigner \
             -keystore release.keystore \
-            -storepass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
-            -keypass "${{ secrets.ANDROID_KEY_PASSWORD }}" \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -keypass "$KEY_PASSWORD" \
             app/build/outputs/bundle/release/app-release.aab \
-            "${{ secrets.ANDROID_KEY_ALIAS }}"
+            "$KEY_ALIAS"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
