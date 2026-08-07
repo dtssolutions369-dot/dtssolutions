@@ -2,7 +2,7 @@ import "./globals.css";
 
 export const metadata = {
   title: "Dts Solutions",
-  description: "Business profile based ecommerce website",
+  description: "Business profile based ecommerce website.",
   icons: {
     icon: "/logo.png", // Points to public/logo.png
   },
