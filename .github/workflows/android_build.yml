@@ -67,17 +67,17 @@ jobs:
 
       - name: Decode Permanent Keystore
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_CONTENT }}" | base64 --decode > android/release.keystore
+          echo "${{ secrets.ANDROID_KEYSTORE_CONTENT }}" | base64 --decode > android/app/release.keystore
 
       - name: Build and Sign Release AAB
         env:
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
           cd android
           ./gradlew bundleRelease \
-            -Pandroid.injected.signing.store.file=release.keystore \
+            -Pandroid.injected.signing.store.file=app/release.keystore \
             -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
             -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
             -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
