@@ -1,4 +1,5 @@
-name: Build Android APK
+name: Build Android APK and Production AAB
+
 on:
   push:
     branches: [main]
@@ -15,6 +16,29 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
+
+      - name: Create Production .env File
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
+          RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
+          NEXT_PUBLIC_RAZORPAY_KEY_ID: ${{ secrets.NEXT_PUBLIC_RAZORPAY_KEY_ID }}
+          SHIPROCKET_EMAIL: ${{ secrets.SHIPROCKET_EMAIL }}
+          SHIPROCKET_PASSWORD: ${{ secrets.SHIPROCKET_PASSWORD }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: |
+          echo "NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL" >> .env
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY" >> .env
+          echo "SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY" >> .env
+          echo "RAZORPAY_KEY_ID=$RAZORPAY_KEY_ID" >> .env
+          echo "RAZORPAY_KEY_SECRET=$RAZORPAY_KEY_SECRET" >> .env
+          echo "NEXT_PUBLIC_RAZORPAY_KEY_ID=$NEXT_PUBLIC_RAZORPAY_KEY_ID" >> .env
+          echo "SHIPROCKET_EMAIL=$SHIPROCKET_EMAIL" >> .env
+          echo "SHIPROCKET_PASSWORD=$SHIPROCKET_PASSWORD" >> .env
+          echo "GMAIL_APP_PASSWORD=$GMAIL_APP_PASSWORD" >> .env
 
       - name: Install Dependencies
         run: |
@@ -22,11 +46,13 @@ jobs:
           npm install
           npm install @capacitor/android @capacitor/core
 
-      - name: Create Web Assets
-        # This prevents the build from failing if your 'out' folder isn't pushed
+      - name: Build Web Application
+        run: npm run build
+
+      - name: Ensure Android Assets Directory Exists
         run: |
           mkdir -p out
-          echo "<html><body>DTS Solutions</body></html>" > out/index.html
+          mkdir -p android/app/src/main/assets
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -44,10 +70,36 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
+          ./gradlew clean
           ./gradlew assembleDebug
 
-      - name: Upload APK
+      - name: Build Release AAB
+        run: |
+          cd android
+          ./gradlew bundleRelease
+
+      - name: Decode Permanent Keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_CONTENT }}" | base64 --decode > android/release.keystore
+
+      - name: Sign AAB with Production Keystore
+        run: |
+          cd android
+          jarsigner \
+            -keystore release.keystore \
+            -storepass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
+            -keypass "${{ secrets.ANDROID_KEY_PASSWORD }}" \
+            app/build/outputs/bundle/release/app-release.aab \
+            "${{ secrets.ANDROID_KEY_ALIAS }}"
+
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: DTS-Solutions-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload AAB Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DTS-Solutions-AAB
+          path: android/app/build/outputs/bundle/release/app-release.aab
