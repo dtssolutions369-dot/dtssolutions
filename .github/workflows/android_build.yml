@@ -18,27 +18,17 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      - name: Create Production .env File
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
-          RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
-          NEXT_PUBLIC_RAZORPAY_KEY_ID: ${{ secrets.NEXT_PUBLIC_RAZORPAY_KEY_ID }}
-          SHIPROCKET_EMAIL: ${{ secrets.SHIPROCKET_EMAIL }}
-          SHIPROCKET_PASSWORD: ${{ secrets.SHIPROCKET_PASSWORD }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+      - name: Inject Production Environment Variables
         run: |
-          echo "NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL" >> .env
-          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY" >> .env
-          echo "SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY" >> .env
-          echo "RAZORPAY_KEY_ID=$RAZORPAY_KEY_ID" >> .env
-          echo "RAZORPAY_KEY_SECRET=$RAZORPAY_KEY_SECRET" >> .env
-          echo "NEXT_PUBLIC_RAZORPAY_KEY_ID=$NEXT_PUBLIC_RAZORPAY_KEY_ID" >> .env
-          echo "SHIPROCKET_EMAIL=$SHIPROCKET_EMAIL" >> .env
-          echo "SHIPROCKET_PASSWORD=$SHIPROCKET_PASSWORD" >> .env
-          echo "GMAIL_APP_PASSWORD=$GMAIL_APP_PASSWORD" >> .env
+          echo "NEXT_PUBLIC_SUPABASE_URL=https://xuzpwgsqaiaowmrzzrbo.supabase.co" >> .env
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1enB3Z3NxYWlhb3dtcnp6cmJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAwMzc4MjcsImV4cCI6MjA4NTYxMzgyN30.EnDCJpCfpTP-dN3dLE2dpH96ylgQJ7wtHzd_cGHBxEY" >> .env
+          echo "SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1enB3Z3NxYWlhb3dtcnp6cmJvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDAzNzgyNywiZXhwIjoyMDg1NjEzODI3fQ.ILeqYyEmWr0lGr1NpBF5I3mrxlC-Y9afJSLWSX9PuYM" >> .env
+          echo "RAZORPAY_KEY_ID=rzp_test_SlDl2RlSCBfONB" >> .env
+          echo "RAZORPAY_KEY_SECRET=JK3YGA3SEvwrOcshoT08ALWq" >> .env
+          echo "NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_SlDl2RlSCBfONB" >> .env
+          echo "SHIPROCKET_EMAIL=${{ secrets.SHIPROCKET_EMAIL }}" >> .env
+          echo "SHIPROCKET_PASSWORD=${{ secrets.SHIPROCKET_PASSWORD }}" >> .env
+          echo "GMAIL_APP_PASSWORD=${{ secrets.GMAIL_APP_PASSWORD }}" >> .env
 
       - name: Install Dependencies
         run: |
