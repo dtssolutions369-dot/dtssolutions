@@ -65,24 +65,22 @@ jobs:
           ./gradlew clean
           ./gradlew assembleDebug
 
-      - name: Build Release AAB
-        run: |
-          cd android
-          ./gradlew bundleRelease
-
       - name: Decode Permanent Keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_CONTENT }}" | base64 --decode > android/release.keystore
 
-      - name: Sign AAB with Production Keystore
+      - name: Build and Sign Release AAB
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
           cd android
-          jarsigner \
-            -keystore release.keystore \
-            -storepass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
-            -keypass "${{ secrets.ANDROID_KEY_PASSWORD }}" \
-            app/build/outputs/bundle/release/app-release.aab \
-            "${{ secrets.ANDROID_KEY_ALIAS }}"
+          ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file=release.keystore \
+            -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
