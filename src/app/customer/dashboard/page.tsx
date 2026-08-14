@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import LocationModal from "@/components/LocationModal";
 import ProductCard from "@/components/ProductCard";
 import Link from "next/link";
 
@@ -20,7 +19,6 @@ import AutoScroll from 'embla-carousel-auto-scroll';
 
 export default function CustomerDashboard() {
     const [location, setLocation] = useState<any>(null);
-    const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
     const [banners, setBanners] = useState<any[]>([]);
     const [categories, setCategories] = useState<any[]>([]);
     const [products, setProducts] = useState<any[]>([]);
@@ -56,10 +54,8 @@ export default function CustomerDashboard() {
         if (savedLocation) {
             const loc = JSON.parse(savedLocation);
             setLocation(loc);
-            // Pass both pincode and city
             fetchDashboardData(loc.pincode, loc.city);
         } else {
-            setIsLocationModalOpen(true);
             fetchDashboardData();
         }
     }, []);
@@ -86,7 +82,6 @@ export default function CustomerDashboard() {
             let finalProducts: any[] = [];
 
             if (userPincode && userPincode !== "000000") {
-                // STEP A: Try to find products in the specific PINCODE
                 const { data: pincodeData } = await supabase
                     .from("products")
                     .select(`*, business_profiles!inner (id, shop_name, pincode, city, address)`)
@@ -96,9 +91,7 @@ export default function CustomerDashboard() {
 
                 if (pincodeData && pincodeData.length > 0) {
                     finalProducts = pincodeData;
-                }
-                // STEP B: Fallback to CITY if no pincode products found
-                else if (userCity || location?.city) {
+                } else if (userCity || location?.city) {
                     const searchCity = userCity || location?.city;
                     const { data: cityData } = await supabase
                         .from("products")
@@ -110,7 +103,6 @@ export default function CustomerDashboard() {
                     finalProducts = cityData || [];
                 }
             } else {
-                // If no location at all, show general active products
                 const { data: allData } = await supabase
                     .from("products")
                     .select(`*, business_profiles!inner (id, shop_name, pincode, city, address)`)
@@ -128,14 +120,6 @@ export default function CustomerDashboard() {
         }
     };
 
-    const handleLocationSelect = (loc: any) => {
-        setLocation(loc);
-        localStorage.setItem("user_location", JSON.stringify(loc));
-        setIsLocationModalOpen(false);
-        // Pass both pincode and city here as well
-        fetchDashboardData(loc.pincode, loc.city);
-    };
-
     if (loading) {
         return (
             <div className="h-screen flex flex-col items-center justify-center gap-4 bg-white">
@@ -147,7 +131,7 @@ export default function CustomerDashboard() {
 
     return (
         <div className="min-h-screen bg-[#fcfcfc] pb-20">
-            <LocationModal isOpen={isLocationModalOpen} onSelect={handleLocationSelect} />
+            {/* NOTE: LocationModal removed from here because it's handled globally by CustomerLayout */}
 
             <main className="max-w-[1600px] mx-auto px-6 pt-8 space-y-20">
 
@@ -254,21 +238,20 @@ export default function CustomerDashboard() {
                         </div>
                     </div>
 
-                    {/* FIX: Added 'py-10' and '-my-10' to allow the cards to scale without clipping */}
                     <div className="overflow-hidden cursor-grab active:cursor-grabbing py-12 -my-12" ref={latestProductsRef}>
                         <div className="flex gap-6">
                             {[...products, ...products].map((prod, idx) => (
-                                /* FIX: Added 'relative z-10 hover:z-20' so the active card stays on top */
                                 <div
                                     key={`${prod.id}-${idx}`}
                                     className="flex-[0_0_300px] md:flex-[0_0_350px] relative z-10 hover:z-20 transition-all"
                                 >
-<ProductCard
-  product={prod}
-  onShopClick={(shopName: string) => {
-    window.location.href = `/customer/product-gallery?search=${encodeURIComponent(shopName)}`;
-  }}
-/>                                </div>
+                                    <ProductCard
+                                        product={prod}
+                                        onShopClick={(shopName: string) => {
+                                            window.location.href = `/customer/product-gallery?search=${encodeURIComponent(shopName)}`;
+                                        }}
+                                    />
+                                </div>
                             ))}
                         </div>
                     </div>

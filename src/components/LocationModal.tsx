@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   MapPin,
   ArrowRight,
@@ -30,39 +30,48 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
   const [checkingShop, setCheckingShop] = useState(false);
   const [error, setError] = useState("");
 
-  // 🔥 Fetch City + Pincode suggestions from DB
-  const fetchSuggestions = async (value: string) => {
+  // Ref to handle debouncing and prevent multiple rapid network requests
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 🔥 Fetch City + Pincode suggestions with Debounce (fixes UI freezing / race conditions)
+  const fetchSuggestions = (value: string) => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
     if (value.length < 3) {
       setResults([]);
+      setLoading(false);
       return;
     }
 
     setLoading(true);
     setError("");
 
-    try {
-      const { data, error } = await supabase
-        .from("pincodes")
-        .select("pincode, city, state, area_locality")
-        // Filter: Match pincode OR city
-        .or(`pincode.ilike.%${value}%,city.ilike.%${value}%`)
-        .eq('is_active', true) // Only show active delivery zones
-        .limit(10);
+    debounceTimerRef.current = setTimeout(async () => {
+      try {
+        const { data, error } = await supabase
+          .from("pincodes")
+          .select("pincode, city, state, area_locality")
+          .or(`pincode.ilike.%${value}%,city.ilike.%${value}%`)
+          .eq("is_active", true) // Only show active delivery zones
+          .limit(10);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // Remove duplicates if multiple entries have the same pincode
-      const uniqueResults = data?.filter((v, i, a) =>
-        a.findIndex(t => (t.pincode === v.pincode)) === i
-      );
+        // Remove duplicates if multiple entries have the same pincode
+        const uniqueResults = data?.filter(
+          (v, i, a) => a.findIndex((t) => t.pincode === v.pincode) === i
+        );
 
-      setResults(uniqueResults || []);
-    } catch (err) {
-      console.error("Fetch Error:", err);
-      setError("Could not find location.");
-    } finally {
-      setLoading(false);
-    }
+        setResults(uniqueResults || []);
+      } catch (err) {
+        console.error("Fetch Error:", err);
+        setError("Could not find location.");
+      } finally {
+        setLoading(false);
+      }
+    }, 300); // 300ms debounce delay
   };
 
   // ✅ Check if shops exist in that pincode
@@ -71,16 +80,13 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
     setError("");
 
     try {
-      console.log("Checking shops for pincode:", pincode);
-
       const { count, error: supabaseError } = await supabase
         .from("business_profiles")
         .select("id", { count: "exact", head: true })
         .eq("pincode", pincode)
-    .eq("status", "approved");
+        .eq("status", "approved");
 
       if (supabaseError) {
-        console.error("Supabase Query Error:", supabaseError);
         throw supabaseError;
       }
 
@@ -93,8 +99,6 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
       return true;
     } catch (err: any) {
       console.error("Full Error Object:", err);
-      // This will show you if it's a '403 Forbidden' (RLS issue) 
-      // or 'column does not exist' error.
       setError(err.message || "Location verification failed.");
       return false;
     } finally {
@@ -102,15 +106,16 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
     }
   };
 
- const handleSelectLocation = async (item: any) => {
+  const handleSelectLocation = async (item: any) => {
     setError("");
     setSelected(null);
     
-    // Set query to something readable for the user
-    setQuery(`${item.city} (${item.pincode})`);
+    // Set query to a clean formatted readable string
+    const formattedQuery = `${item.area_locality ? item.area_locality + ", " : ""}${item.city} (${item.pincode})`;
+    setQuery(formattedQuery);
     setResults([]);
 
-    // We use the exact pincode from the suggestion to verify shops
+    // Verify shops for the selected pincode
     const isValid = await verifyShopsInPincode(item.pincode);
 
     if (isValid) {
@@ -129,6 +134,7 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
     });
   };
 
+  // Reset states cleanly when modal opens/closes
   useEffect(() => {
     if (!isOpen) {
       setQuery("");
@@ -136,6 +142,7 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
       setSelected(null);
       setError("");
       setLoading(false);
+      setCheckingShop(false);
     }
   }, [isOpen]);
 
@@ -177,16 +184,18 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
                   <input
                     type="text"
                     placeholder="Search city or area (e.g. Indiranagar)"
-                    className={`w-full pl-12 pr-12 py-5 bg-slate-50 border-2 rounded-2xl outline-none font-bold text-center text-sm transition-all ${selected
-                      ? "border-green-500 ring-4 ring-green-50"
-                      : "border-slate-100 focus:border-[#ff3d00]"
-                      }`}
+                    className={`w-full pl-12 pr-12 py-5 bg-slate-50 border-2 rounded-2xl outline-none font-bold text-center text-sm transition-all ${
+                      selected
+                        ? "border-green-500 ring-4 ring-green-50"
+                        : "border-slate-100 focus:border-[#ff3d00]"
+                    }`}
                     value={query}
                     onChange={(e) => {
-                      setQuery(e.target.value);
+                      const val = e.target.value;
+                      setQuery(val);
                       setSelected(null);
                       setError("");
-                      fetchSuggestions(e.target.value);
+                      fetchSuggestions(val);
                     }}
                   />
 
@@ -197,7 +206,7 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
                     />
                   )}
 
-                  {selected && (
+                  {selected && !loading && !checkingShop && (
                     <CheckCircle2
                       className="absolute right-5 top-1/2 -translate-y-1/2 text-green-500"
                       size={24}
@@ -212,13 +221,13 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
-                      className="absolute top-[70px] left-0 w-full bg-white border border-slate-100 shadow-xl rounded-2xl overflow-hidden z-50"
+                      className="absolute top-[70px] left-0 w-full bg-white border border-slate-100 shadow-xl rounded-2xl overflow-hidden z-50 max-h-60 overflow-y-auto text-left"
                     >
                       {results.map((item, index) => (
                         <button
                           key={index}
                           onClick={() => handleSelectLocation(item)}
-                          className="w-full text-left px-6 py-4 hover:bg-orange-50 transition-all border-b last:border-b-0 border-slate-100"
+                          className="w-full text-left px-6 py-4 hover:bg-orange-50 transition-all border-b last:border-b-0 border-slate-100 cursor-pointer"
                         >
                           <p className="font-black text-slate-800 text-sm">
                             {item.area_locality}, {item.city}
@@ -265,7 +274,7 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
               <button
                 disabled={!selected || loading || checkingShop}
                 onClick={handleContinue}
-                className="w-full bg-gradient-to-r from-[#ff3d00] to-[#ff6200] text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-orange-200 hover:shadow-2xl hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-30 flex items-center justify-center gap-3"
+                className="w-full bg-gradient-to-r from-[#ff3d00] to-[#ff6200] text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-orange-200 hover:shadow-2xl hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-30 flex items-center justify-center gap-3 cursor-pointer disabled:cursor-not-allowed"
               >
                 Continue Shopping <ArrowRight size={20} />
               </button>
