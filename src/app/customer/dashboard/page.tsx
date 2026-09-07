@@ -154,7 +154,7 @@ export default function CustomerDashboard() {
                                             {banner.title}
                                         </h1>
                                         <p className="text-white/70 text-lg md:text-2xl font-medium max-w-xl leading-relaxed">
-                                            {banner.description}.
+                                            {banner.description}
                                         </p>
                                     </div>
                                     <img
