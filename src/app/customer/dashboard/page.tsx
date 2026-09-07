@@ -154,7 +154,7 @@ export default function CustomerDashboard() {
                                             {banner.title}
                                         </h1>
                                         <p className="text-white/70 text-lg md:text-2xl font-medium max-w-xl leading-relaxed">
-                                            {banner.description}
+                                            {banner.description}.
                                         </p>
                                     </div>
                                     <img
@@ -240,9 +240,9 @@ export default function CustomerDashboard() {
                                     : "Discover trending products from local stores across all locations"}
                             </p>
                         </div>
-                        
+
                         {/* Interactive Location Badge */}
-                        <button 
+                        <button
                             onClick={handleOpenLocationModal}
                             className="flex items-center gap-4 bg-white hover:bg-orange-50/80 hover:border-orange-300 transition-all px-6 py-4 rounded-3xl shadow-sm border border-orange-100 group cursor-pointer"
                         >
