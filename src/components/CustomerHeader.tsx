@@ -5,7 +5,7 @@ import Image from "next/image";
 import {
     Search, MapPin, ShoppingBag, User, Bell,
     ChevronDown, LogOut, Settings, UserCircle,
-    Home, Shapes,  Menu, X
+    Home, Shapes, Menu, X, RotateCcw
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
@@ -13,11 +13,12 @@ import { useRouter, usePathname } from "next/navigation";
 import AuthModal from "@/components/AuthModal";
 
 interface HeaderProps {
-    location: { city: string; pincode: string; state?: string } | null;
+    location: { city: string; pincode: string; state?: string; area?: string } | null;
     onLocationClick: () => void;
+    onClearLocation?: () => void;
 }
 
-export default function CustomerHeader({ location, onLocationClick }: HeaderProps) {
+export default function CustomerHeader({ location, onLocationClick, onClearLocation }: HeaderProps) {
     const router = useRouter();
     const pathname = usePathname();
     const [user, setUser] = useState<any>(null);
@@ -59,25 +60,60 @@ export default function CustomerHeader({ location, onLocationClick }: HeaderProp
                 <div className="max-w-[1600px] mx-auto px-4 md:px-6 h-16 md:h-24 flex items-center justify-between">
                     
                     {/* LOGO & LOCATION */}
-                    <div className="flex items-center gap-4 md:gap-10 lg:ml-40">
+                    <div className="flex items-center gap-3 md:gap-8 lg:ml-40">
                         <Link href="/customer/dashboard" className="flex items-center">
                             <div className="relative w-28 h-8 md:w-56 md:h-20">
                                 <Image src="/logo.png" alt="Logo" fill className="object-contain object-left scale-110" priority />
                             </div>
                         </Link>
 
-                        {/* Desktop Location Only */}
-                        <button onClick={onLocationClick} className="hidden xl:flex items-center gap-3 pl-8 border-l-2 border-slate-200 group text-left">
-                            <div className="p-3 bg-slate-50 rounded-2xl group-hover:bg-orange-50 group-hover:text-[#ff3d00] text-slate-400 transition-all">
-                                <MapPin size={20} />
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Serviceable At</p>
-                                <div className="flex items-center gap-1 font-extrabold text-sm text-slate-800">
-                                    {location ? location.city : "Select Location"} <ChevronDown size={14} />
+                        {/* Desktop Location Selector */}
+                        <div className="hidden xl:flex items-center gap-2 pl-6 border-l-2 border-slate-200">
+                            <button 
+                                onClick={onLocationClick} 
+                                className="flex items-center gap-3 group text-left cursor-pointer hover:opacity-90 transition-opacity"
+                            >
+                                <div className={`p-3 rounded-2xl transition-all ${
+                                    location 
+                                        ? "bg-orange-50 text-[#ff3d00]" 
+                                        : "bg-slate-50 group-hover:bg-orange-50 group-hover:text-[#ff3d00] text-slate-400"
+                                }`}>
+                                    <MapPin size={20} />
                                 </div>
-                            </div>
-                        </button>
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
+                                        {location ? "Delivering To" : "Serviceable At"}
+                                    </p>
+                                    <div className="flex items-center gap-1 font-extrabold text-sm text-slate-800">
+                                        {location ? (
+                                            <span className="text-slate-900 font-black">
+                                                {location.city} ({location.pincode})
+                                            </span>
+                                        ) : (
+                                            <span className="text-slate-600 font-bold">
+                                                All Locations <span className="text-[#ff3d00] text-xs font-black ml-1">(Set PIN)</span>
+                                            </span>
+                                        )}
+                                        <ChevronDown size={14} className="text-slate-400" />
+                                    </div>
+                                </div>
+                            </button>
+
+                            {/* Quick Clear Button when Location is Active */}
+                            {location && onClearLocation && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onClearLocation();
+                                    }}
+                                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all text-xs font-bold"
+                                    title="Clear location filter"
+                                    aria-label="Clear location filter"
+                                >
+                                    <X size={16} />
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     {/* DESKTOP NAVIGATION */}
@@ -102,21 +138,26 @@ export default function CustomerHeader({ location, onLocationClick }: HeaderProp
                             className={`hidden md:flex p-3 rounded-2xl transition-all relative ${pathname === '/customer/wishlist' ? "bg-orange-50 text-[#ff3d00]" : "text-slate-400 hover:bg-slate-50 hover:text-slate-900"}`}
                         >
                             <ShoppingBag size={24} fill={pathname === '/customer/wishlist' ? "currentColor" : "none"} />
-                            {/* Visual indicator for "Saved" - You could later add a real count here */}
                             <span className="absolute top-2 right-2 w-2 h-2 bg-[#ff3d00] rounded-full border-2 border-white"></span>
                         </Link>
 
-                         {/* Mobile Location Trigger (Icon only) */}
-                         <button onClick={onLocationClick} className="xl:hidden p-2 text-slate-500 hover:text-[#ff3d00]">
-                            <MapPin size={22} />
+                        {/* Mobile Location Pill / Trigger */}
+                        <button 
+                            onClick={onLocationClick} 
+                            className="xl:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-orange-50 text-slate-700 hover:text-[#ff3d00] text-xs font-bold transition-all border border-slate-200"
+                        >
+                            <MapPin size={15} className="text-[#ff3d00] flex-shrink-0" />
+                            <span className="max-w-[100px] truncate text-[11px] font-black">
+                                {location ? `${location.city}` : "Set PIN"}
+                            </span>
                         </button>
 
                         {user ? (
                             <div className="relative">
-                                <button onClick={() => setShowDropdown(!showDropdown)} className="flex items-center p-1 rounded-full border border-slate-200 bg-white shadow-sm hover:border-[#ff3d00] transition-colors">
+                                <button onClick={() => setShowDropdown(!showDropdown)} className="flex items-center p-1 rounded-full border border-slate-200 bg-white shadow-sm hover:border-[#ff3d00] transition-colors cursor-pointer">
                                     <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#ff3d00] flex items-center justify-center text-white overflow-hidden">
                                         {user.user_metadata?.avatar_url ? (
-                                            <img src={user.user_metadata.avatar_url} className="w-full h-full object-cover" />
+                                            <img src={user.user_metadata.avatar_url} className="w-full h-full object-cover" alt="User avatar" />
                                         ) : <User size={18} />}
                                     </div>
                                 </button>
@@ -124,14 +165,14 @@ export default function CustomerHeader({ location, onLocationClick }: HeaderProp
                                     <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-xl border p-2 z-50">
                                         <div className="px-4 py-3 border-b text-xs font-bold text-slate-800 truncate">{user.email}</div>
                                        
-                                        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-bold text-sm transition-colors">
+                                        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-bold text-sm transition-colors cursor-pointer">
                                             <LogOut size={18} /> Logout
                                         </button>
                                     </div>
                                 )}
                             </div>
                         ) : (
-                            <button onClick={() => setIsAuthModalOpen(true)} className="bg-slate-900 text-white px-5 py-2 md:px-7 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-[#ff3d00] transition-colors shadow-lg shadow-slate-200">
+                            <button onClick={() => setIsAuthModalOpen(true)} className="bg-slate-900 text-white px-5 py-2 md:px-7 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-[#ff3d00] transition-colors shadow-lg shadow-slate-200 cursor-pointer">
                                 Sign In
                             </button>
                         )}

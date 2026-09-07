@@ -9,7 +9,7 @@ import Link from "next/link";
 import {
     MapPin, ArrowRight, ShoppingBag,
     Loader2, Zap, ShieldCheck,
-    Star, Truck
+    Star, Truck, RotateCcw
 } from "lucide-react";
 
 // Embla Carousel
@@ -52,9 +52,14 @@ export default function CustomerDashboard() {
     useEffect(() => {
         const savedLocation = localStorage.getItem("user_location");
         if (savedLocation) {
-            const loc = JSON.parse(savedLocation);
-            setLocation(loc);
-            fetchDashboardData(loc.pincode, loc.city);
+            try {
+                const loc = JSON.parse(savedLocation);
+                setLocation(loc);
+                fetchDashboardData(loc.pincode, loc.city);
+            } catch (e) {
+                console.error(e);
+                fetchDashboardData();
+            }
         } else {
             fetchDashboardData();
         }
@@ -107,6 +112,7 @@ export default function CustomerDashboard() {
                     .from("products")
                     .select(`*, business_profiles!inner (id, shop_name, pincode, city, address)`)
                     .eq("status", "active")
+                    .order("created_at", { ascending: false })
                     .limit(20);
                 finalProducts = allData || [];
             }
@@ -120,6 +126,10 @@ export default function CustomerDashboard() {
         }
     };
 
+    const handleOpenLocationModal = () => {
+        window.dispatchEvent(new Event("open-location-modal"));
+    };
+
     if (loading) {
         return (
             <div className="h-screen flex flex-col items-center justify-center gap-4 bg-white">
@@ -131,8 +141,6 @@ export default function CustomerDashboard() {
 
     return (
         <div className="min-h-screen bg-[#fcfcfc] pb-20">
-            {/* NOTE: LocationModal removed from here because it's handled globally by CustomerLayout */}
-
             <main className="max-w-[1600px] mx-auto px-6 pt-8 space-y-20">
 
                 {/* --- HERO SLIDER --- */}
@@ -161,10 +169,10 @@ export default function CustomerDashboard() {
 
                     {/* Navigation Arrows */}
                     <div className="absolute top-1/2 -translate-y-1/2 left-6 right-6 z-20 flex justify-between pointer-events-none">
-                        <button onClick={scrollPrev} className="p-4 rounded-full bg-white/10 backdrop-blur-md text-white hover:bg-[#ff3d00] transition-all pointer-events-auto hidden md:block">
+                        <button onClick={scrollPrev} className="p-4 rounded-full bg-white/10 backdrop-blur-md text-white hover:bg-[#ff3d00] transition-all pointer-events-auto hidden md:block cursor-pointer">
                             <ArrowRight size={24} className="rotate-180" />
                         </button>
-                        <button onClick={scrollNext} className="p-4 rounded-full bg-white/10 backdrop-blur-md text-white hover:bg-[#ff3d00] transition-all pointer-events-auto hidden md:block">
+                        <button onClick={scrollNext} className="p-4 rounded-full bg-white/10 backdrop-blur-md text-white hover:bg-[#ff3d00] transition-all pointer-events-auto hidden md:block cursor-pointer">
                             <ArrowRight size={24} />
                         </button>
                     </div>
@@ -175,7 +183,7 @@ export default function CustomerDashboard() {
                             <button
                                 key={i}
                                 onClick={() => emblaApi?.scrollTo(i)}
-                                className={`h-1.5 rounded-full transition-all duration-500 ${selectedIndex === i ? "w-12 bg-[#ff3d00]" : "w-3 bg-white/30"}`}
+                                className={`h-1.5 rounded-full transition-all duration-500 cursor-pointer ${selectedIndex === i ? "w-12 bg-[#ff3d00]" : "w-3 bg-white/30"}`}
                             />
                         ))}
                     </div>
@@ -198,7 +206,7 @@ export default function CustomerDashboard() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                         {categories.slice(0, 8).map((cat, idx) => (
                             <Link
-                                href={`/customer/category/${cat.id}`}
+                                href={`/customer/product-gallery?category=${cat.id}`}
                                 key={cat.id}
                                 className={`group relative h-64 md:h-80 rounded-[2.5rem] overflow-hidden bg-slate-100 ${idx === 0 || idx === 3 ? 'md:col-span-2' : ''}`}
                             >
@@ -217,30 +225,44 @@ export default function CustomerDashboard() {
 
                 {/* --- LATEST PRODUCTS (Continuous Scroll) --- */}
                 <section className="space-y-10">
-                    <div className="bg-orange-50 p-10 rounded-[3.5rem] flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div className="bg-orange-50/70 border border-orange-100/80 p-8 md:p-10 rounded-[3rem] flex flex-col md:flex-row justify-between items-center gap-6 shadow-sm">
                         <div className="text-center md:text-left">
-                            <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
-                                {products.length > 0 ? (
-                                    <>Latest in <span className="text-[#ff3d00] underline decoration-4 underline-offset-8">{location?.city || "Local Area"}</span></>
+                            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
+                                {location ? (
+                                    <>Latest in <span className="text-[#ff3d00] underline decoration-4 underline-offset-8">{location.city}</span></>
                                 ) : (
-                                    <>Coming soon to <span className="text-slate-400">{location?.city || "your area"}</span></>
+                                    <>Latest <span className="text-[#ff3d00] underline decoration-4 underline-offset-8">Products</span></>
                                 )}
                             </h2>
-                            <p className="text-orange-900/50 font-bold mt-2">
-                                {products.length > 0
-                                    ? "Recently added products from your neighborhood"
-                                    : "We're currently onboarding shops in your specific area. Check back soon!"}
+                            <p className="text-orange-950/60 font-medium mt-2 text-sm md:text-base">
+                                {location
+                                    ? `Recently added products from your neighborhood in ${location.city} (${location.pincode})`
+                                    : "Discover trending products from local stores across all locations"}
                             </p>
                         </div>
-                        <div className="flex items-center gap-4 bg-white px-6 py-4 rounded-3xl shadow-sm">
-                            <MapPin className="text-[#ff3d00]" />
-                            <span className="font-black text-slate-900">{location?.pincode}</span>
-                        </div>
+                        
+                        {/* Interactive Location Badge */}
+                        <button 
+                            onClick={handleOpenLocationModal}
+                            className="flex items-center gap-4 bg-white hover:bg-orange-50/80 hover:border-orange-300 transition-all px-6 py-4 rounded-3xl shadow-sm border border-orange-100 group cursor-pointer"
+                        >
+                            <div className="p-2.5 bg-orange-50 text-[#ff3d00] group-hover:bg-[#ff3d00] group-hover:text-white rounded-2xl transition-colors">
+                                <MapPin size={20} />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    {location ? "Active Location" : "Location"}
+                                </p>
+                                <span className="font-black text-slate-900 text-sm">
+                                    {location ? `${location.city} (${location.pincode})` : "All Locations (Set PIN)"}
+                                </span>
+                            </div>
+                        </button>
                     </div>
 
                     <div className="overflow-hidden cursor-grab active:cursor-grabbing py-12 -my-12" ref={latestProductsRef}>
                         <div className="flex gap-6">
-                            {[...products, ...products].map((prod, idx) => (
+                            {(products.length > 0 ? [...products, ...products] : []).map((prod, idx) => (
                                 <div
                                     key={`${prod.id}-${idx}`}
                                     className="flex-[0_0_300px] md:flex-[0_0_350px] relative z-10 hover:z-20 transition-all"

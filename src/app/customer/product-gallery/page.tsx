@@ -7,7 +7,7 @@ import ProductFilters from "@/components/ProductFilters";
 import ProductCard from "@/components/ProductCard";
 import EmptyState from "@/components/EmptyState";
 import { toast, Toaster } from "react-hot-toast";
-import { Loader2, Search, X, Store, ShoppingBag } from "lucide-react";
+import { Loader2, Search, X, Store, ShoppingBag, MapPin, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ProductGalleryWrapper() {
@@ -33,7 +33,6 @@ function ProductGalleryPage() {
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState<any>(null);
 
-
   // Filters
   const [sort, setSort] = useState("relevance");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
@@ -42,17 +41,41 @@ function ProductGalleryPage() {
   const [category, setCategory] = useState("");
   const [subCategory, setSubCategory] = useState("");
 
-  useEffect(() => {
+  const syncLocation = () => {
     const savedLocation = localStorage.getItem("user_location");
-    if (savedLocation) setLocation(JSON.parse(savedLocation));
+    if (savedLocation) {
+      try {
+        setLocation(JSON.parse(savedLocation));
+      } catch (e) {
+        console.error(e);
+        setLocation(null);
+      }
+    } else {
+      setLocation(null);
+    }
+  };
+
+  useEffect(() => {
+    syncLocation();
 
     const urlCategory = searchParams.get("category");
     const urlSubCategory = searchParams.get("subCategory");
     const urlBiz = searchParams.get("businessType");
+    const urlSearch = searchParams.get("search");
 
     if (urlCategory) setCategory(urlCategory);
     if (urlSubCategory) setSubCategory(urlSubCategory);
     if (urlBiz) setBusinessType(urlBiz);
+    if (urlSearch) setSearchQuery(urlSearch);
+
+    const handleLocUpdated = () => syncLocation();
+    window.addEventListener("location-updated", handleLocUpdated);
+    window.addEventListener("storage", handleLocUpdated);
+
+    return () => {
+      window.removeEventListener("location-updated", handleLocUpdated);
+      window.removeEventListener("storage", handleLocUpdated);
+    };
   }, [searchParams]);
 
   useEffect(() => {
@@ -134,24 +157,18 @@ function ProductGalleryPage() {
 
       let filteredData = data || [];
 
-      // Search by shop name manually
+      // Search by product or shop name
       if (searchQuery) {
-  const search = searchQuery.toLowerCase();
-
-  filteredData = filteredData.filter((product: any) => {
-    const productName =
-      product.name?.toLowerCase() || "";
-
-    const shopName =
-      product.business_profiles?.shop_name?.toLowerCase() || "";
-
-    return (
-      productName.includes(search) ||
-      shopName.includes(search)
-    );
-  });
-}
-      if (error) throw error;
+        const search = searchQuery.toLowerCase();
+        filteredData = filteredData.filter((product: any) => {
+          const productName = product.name?.toLowerCase() || "";
+          const shopName = product.business_profiles?.shop_name?.toLowerCase() || "";
+          return (
+            productName.includes(search) ||
+            shopName.includes(search)
+          );
+        });
+      }
 
       setItems(filteredData);
     } catch (err) {
@@ -160,6 +177,17 @@ function ProductGalleryPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleClearLocation = () => {
+    localStorage.removeItem("user_location");
+    setLocation(null);
+    window.dispatchEvent(new Event("clear-user-location"));
+    toast.success("Location filter cleared. Showing all products.");
+  };
+
+  const handleOpenLocationModal = () => {
+    window.dispatchEvent(new Event("open-location-modal"));
   };
 
   const handleReset = () => {
@@ -178,15 +206,37 @@ function ProductGalleryPage() {
       <main className="max-w-[1600px] mx-auto px-4 md:px-10 py-6">
         <header className="mb-10 space-y-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="space-y-2">
+            <div className="space-y-3">
               <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter">
                 Explore<span className="text-[#ff3d00]">.</span>
               </h1>
-              <div className="flex items-center gap-4 mt-4">
+              <div className="flex flex-wrap items-center gap-3 mt-2">
                 <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] uppercase tracking-widest">
                   <span>{items.length} products found</span>
                 </div>
 
+                {/* Location Filter Tag & Clear Button */}
+                {location ? (
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-200 text-xs font-bold text-slate-800">
+                    <MapPin size={13} className="text-[#ff3d00]" />
+                    <span>In <strong className="text-slate-900">{location.city} ({location.pincode})</strong></span>
+                    <button
+                      onClick={handleClearLocation}
+                      className="ml-1 p-0.5 hover:bg-orange-200 text-slate-500 hover:text-red-600 rounded-full transition-colors cursor-pointer"
+                      title="Clear pincode filter"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleOpenLocationModal}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-orange-50 border border-slate-200 hover:border-orange-200 text-xs font-bold text-slate-600 hover:text-[#ff3d00] transition-colors cursor-pointer"
+                  >
+                    <MapPin size={13} />
+                    <span>All Locations (Filter by PIN)</span>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -202,7 +252,7 @@ function ProductGalleryPage() {
                 className="w-full bg-white border-2 border-slate-100 rounded-[2rem] py-5 pl-14 pr-12 text-sm font-bold text-slate-900 focus:outline-none focus:border-[#ff3d00] transition-all shadow-xl shadow-slate-200/40"
               />
               {searchQuery && (
-                <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-5 flex items-center text-slate-400">
+                <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer">
                   <X size={18} />
                 </button>
               )}
@@ -212,19 +262,19 @@ function ProductGalleryPage() {
 
         <div className="flex flex-col lg:flex-row gap-8 md:gap-12">
           <aside className="w-full lg:w-80 shrink-0">
-           <ProductFilters
-  selectedSort={sort}
-  onSortChange={setSort}
-  priceRange={priceRange}
-  onPriceChange={setPriceRange}
-  selectedBusinessType={businessType}
-  onBusinessTypeChange={setBusinessType}
-  selectedCategory={category}
-  onCategoryChange={setCategory}
-  selectedSubCategory={subCategory}
-  onSubCategoryChange={setSubCategory}
-  onReset={handleReset}
-/>
+            <ProductFilters
+              selectedSort={sort}
+              onSortChange={setSort}
+              priceRange={priceRange}
+              onPriceChange={setPriceRange}
+              selectedBusinessType={businessType}
+              onBusinessTypeChange={setBusinessType}
+              selectedCategory={category}
+              onCategoryChange={setCategory}
+              selectedSubCategory={subCategory}
+              onSubCategoryChange={setSubCategory}
+              onReset={handleReset}
+            />
           </aside>
 
           <section className="flex-grow">
@@ -249,7 +299,6 @@ function ProductGalleryPage() {
                         product={item}
                         onShopClick={(shopName: string) => {
                           setSearchQuery(shopName);
-
                           window.scrollTo({
                             top: 0,
                             behavior: "smooth",
